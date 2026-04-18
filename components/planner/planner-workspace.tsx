@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { MediaCredit } from "@/components/media-credit";
 import { PlannerForm } from "@/components/planner/planner-form";
@@ -31,6 +30,10 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     generation.routes.find((route) => route.id === activeRouteId) ?? generation.routes[0];
   const promotedStop = activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId);
   const promotedMedia = getDestinationMedia(promotedStop?.id ?? "bali");
+  const destinationStops = useMemo(
+    () => activeRoute.stops.filter((stop) => stop.kind === "destination"),
+    [activeRoute]
+  );
 
   function handlePlan(values: {
     prompt: string;
@@ -66,111 +69,123 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   }
 
   return (
-    <main className="shell planner-shell">
-      <section className="planner-panel">
-        <div className="section-heading">
-          <p className="eyebrow">Planner workspace</p>
-          <h1>Turn a travel prompt into ranked one-way route hunts.</h1>
+    <main className="shell planner-dashboard">
+      <aside className="planner-sidebar">
+        <div className="planner-sidebar__header">
+          <p className="eyebrow">Prompt cockpit</p>
+          <h1>Build the route from the left rail. Read the world from the center.</h1>
+          <p className="lede">
+            The globe is now the main interaction surface. Every route option lands on
+            the earth as a selectable marker-card instead of living in a detached list.
+          </p>
         </div>
-        <p className="lede">
-          The build now uses real media-backed destination surfaces instead of treating
-          route cards like plain text inventory.
-        </p>
-        <PlannerForm initialIntent={generation.tripIntent} onSubmit={handlePlan} pending={isPending} />
-        {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
-      </section>
 
-      <section className="visual-panel">
-        <div className="panel-heading">
+        <PlannerForm initialIntent={generation.tripIntent} onSubmit={handlePlan} pending={isPending} />
+
+        {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
+
+        <div className="planner-sidebar__meta">
+          <div className="planner-meta-card">
+            <p className="eyebrow">Current generation</p>
+            <strong>{generation.routes.length} routes projected</strong>
+            <span>{generation.tripIntent.origin.label} origin, {generation.tripIntent.tripLengthDays}-day window.</span>
+          </div>
+          <div className="planner-meta-card">
+            <p className="eyebrow">Free plan</p>
+            <strong>1 promoted stop</strong>
+            <span>That promoted stop is the marker-card that leads the globe experience.</span>
+          </div>
+        </div>
+      </aside>
+
+      <section className="planner-main">
+        <div className="planner-main__topbar">
           <div>
-            <p className="eyebrow">Live route visualizer</p>
+            <p className="eyebrow">Active route</p>
             <h2>{activeRoute.title}</h2>
           </div>
-          <span className="status-pill">Confidence {Math.round(activeRoute.confidence * 100)}%</span>
-        </div>
-
-        <div className="globe-desktop">
-          <RouteGlobe route={activeRoute} />
-        </div>
-        <div className="map-mobile">
-          <RouteMapFallback route={activeRoute} />
-        </div>
-
-        <article className="focus-card">
-          <div className="focus-media">
-            <img alt={promotedMedia.alt} className="focus-media-image" src={promotedMedia.src} />
-            <div className="focus-media-overlay" />
+          <div className="planner-main__badges">
+            <span className="status-pill">Confidence {Math.round(activeRoute.confidence * 100)}%</span>
+            <span className="status-pill status-pill-accent">${activeRoute.estimatedCostUsd}</span>
           </div>
-          <p className="eyebrow">Promoted stop</p>
-          <strong>{promotedStop?.name}</strong>
-          <span>{promotedMedia.punchline}</span>
-          <span>{activeRoute.reasons[2]}</span>
-          <MediaCredit asset={promotedMedia} compact />
-        </article>
-      </section>
-
-      <section className="results-panel">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Ranked route options</p>
-            <h2>{generation.routes.length} routes ready</h2>
-          </div>
-          <Link href={`/api/trips/${generation.id}`} className="button button-ghost">
-            Inspect JSON
-          </Link>
         </div>
 
-        <div className="results-grid">
-          {generation.routes.map((route) => {
-            const routeMedia = getDestinationMedia(route.promotedStopId);
-
-            return (
-              <article
-                className={route.id === activeRoute.id ? "route-card route-card-active" : "route-card"}
-                key={route.id}
-              >
-                <div className="route-visual">
-                  <img alt={routeMedia.alt} className="route-visual-image" src={routeMedia.src} />
-                  <div className="route-visual-overlay" />
-                  <div className="route-visual-copy">
-                    <p className="eyebrow">Visual hook</p>
-                    <strong>{routeMedia.location}</strong>
-                  </div>
-                </div>
-
-                <div className="route-card-top">
-                  <div>
-                    <p className="eyebrow">Route option</p>
-                    <h3>{route.title}</h3>
-                  </div>
-                  <span className="route-price">${route.estimatedCostUsd}</span>
-                </div>
-
-                <p className="route-tagline">{route.tagline}</p>
+        <div className="planner-main__layout">
+          <section className="globe-stage-panel">
+            <div className="globe-desktop globe-desktop-dashboard">
+              <RouteGlobe
+                routes={generation.routes}
+                activeRouteId={activeRoute.id}
+                onSelectRoute={setActiveRouteId}
+              />
+            </div>
+            <div className="map-mobile">
+              <RouteMapFallback route={activeRoute} />
+            </div>
+            <div className="mobile-route-strip">
+              {generation.routes.map((route) => (
                 <button
-                  className="button button-ghost route-select"
-                  onClick={() => setActiveRouteId(route.id)}
+                  key={route.id}
                   type="button"
+                  className={route.id === activeRoute.id ? "mobile-route-card mobile-route-card-active" : "mobile-route-card"}
+                  onClick={() => setActiveRouteId(route.id)}
                 >
-                  {route.id === activeRoute.id ? "Active Route" : "Preview Route"}
+                  <strong>{route.title}</strong>
+                  <span>${route.estimatedCostUsd}</span>
                 </button>
-                <div className="route-chip-row">
-                  {route.wishTags.map((tag) => (
-                    <span key={tag} className="tag-pill">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <ul className="reason-list">
-                  {route.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
-                  ))}
-                </ul>
-                <MediaCredit asset={routeMedia} compact />
-                <RouteActions routeId={route.id} />
-              </article>
-            );
-          })}
+              ))}
+            </div>
+          </section>
+
+          <aside className="route-inspector">
+            <div className="route-inspector__media">
+              <img alt={promotedMedia.alt} className="route-inspector__image" src={promotedMedia.src} />
+              <div className="route-inspector__overlay" />
+              <div className="route-inspector__copy">
+                <p className="eyebrow">Promoted stop</p>
+                <strong>{promotedStop?.name}</strong>
+                <span>{promotedMedia.punchline}</span>
+              </div>
+            </div>
+
+            <div className="route-inspector__section">
+              <p className="eyebrow">Route line</p>
+              <p className="route-tagline">{activeRoute.tagline}</p>
+              <div className="route-chip-row">
+                {activeRoute.wishTags.map((tag) => (
+                  <span key={tag} className="tag-pill">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="route-inspector__section">
+              <p className="eyebrow">Why this route</p>
+              <ul className="reason-list">
+                {activeRoute.reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="route-inspector__section">
+              <p className="eyebrow">Stop order</p>
+              <div className="stop-stack">
+                {destinationStops.map((stop) => (
+                  <article className="stop-card" key={stop.id}>
+                    <strong>
+                      {stop.name} ({stop.code})
+                    </strong>
+                    <span>{stop.scene}</span>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <MediaCredit asset={promotedMedia} compact />
+            <RouteActions routeId={activeRoute.id} />
+          </aside>
         </div>
       </section>
     </main>
