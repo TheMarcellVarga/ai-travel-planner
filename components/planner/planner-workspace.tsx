@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
+import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { RouteMapFallback } from "@/components/planner/route-map-fallback";
 import type { RouteOption, TripGeneration } from "@/lib/types";
@@ -113,11 +114,9 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
 
         <div className="results-grid">
           {generation.routes.map((route) => (
-            <button
+            <article
               className={route.id === activeRoute.id ? "route-card route-card-active" : "route-card"}
               key={route.id}
-              onClick={() => setActiveRouteId(route.id)}
-              type="button"
             >
               <div className="route-card-top">
                 <div>
@@ -128,6 +127,9 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               </div>
 
               <p className="route-tagline">{route.tagline}</p>
+              <button className="button button-ghost route-select" onClick={() => setActiveRouteId(route.id)} type="button">
+                {route.id === activeRoute.id ? "Active Route" : "Preview Route"}
+              </button>
               <div className="route-chip-row">
                 {route.wishTags.map((tag) => (
                   <span key={tag} className="tag-pill">
@@ -140,14 +142,8 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   <li key={reason}>{reason}</li>
                 ))}
               </ul>
-              <div className="link-row">
-                {route.bookingLinks.slice(0, 3).map((link) => (
-                  <a className="button button-ghost" href={link.url} key={link.id} rel="noreferrer" target="_blank">
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </button>
+              <RouteActions routeId={route.id} />
+            </article>
           ))}
         </div>
       </section>

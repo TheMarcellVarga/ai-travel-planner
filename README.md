@@ -5,12 +5,13 @@
 ## Current state
 
 The project now runs as a Next.js application instead of a static HTML prototype. The
-first feature commit establishes:
+feature commits establish:
 
 - the application shell
 - the global design system and jungle-themed visual direction
 - the landing page
-- placeholder routes for planner and saved views
+- planner APIs and route generation
+- auth, saved routes, share pages, and booking handoff scaffolding
 
 ## Run
 
@@ -18,3 +19,8 @@ first feature commit establishes:
 npm install
 npm run dev
 ```
+
+## Environment
+
+Copy `.env.example` to `.env.local` if you want to wire in Supabase. Without Supabase
+credentials, the app still works in demo mode using secure cookies and in-memory data.

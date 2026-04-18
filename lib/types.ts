@@ -85,3 +85,42 @@ export type TripGeneration = {
   routes: RouteOption[];
 };
 
+export type Entitlement = {
+  plan: "free" | "pro";
+  promotedStopLimit: number;
+  routeSaveLimit: number;
+  generationLimit: number;
+};
+
+export type AppUser = {
+  id: string;
+  email: string;
+  name: string;
+  authMode: "demo" | "supabase";
+  entitlement: Entitlement;
+};
+
+export type SavedRoute = {
+  id: string;
+  userId: string;
+  route: RouteOption;
+  generationId: string;
+  savedAt: string;
+};
+
+export type SharedRoute = {
+  id: string;
+  userId: string;
+  slug: string;
+  route: RouteOption;
+  generationId: string;
+  publishedAt: string;
+};
+
+export type BookingHandoff = {
+  id: string;
+  routeId: string;
+  userId: string | null;
+  createdAt: string;
+  links: BookingLink[];
+};

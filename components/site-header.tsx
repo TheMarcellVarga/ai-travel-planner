@@ -1,6 +1,8 @@
 import type { Route } from "next";
 import Link from "next/link";
 
+import { AuthLink } from "@/components/auth-link";
+import { getCurrentUser } from "@/lib/auth";
 import { site } from "@/lib/site";
 
 const navItems = [
@@ -9,7 +11,9 @@ const navItems = [
   { href: "/saved", label: "Saved" }
 ] satisfies Array<{ href: Route; label: string }>;
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getCurrentUser();
+
   return (
     <header className="shell site-header">
       <Link href="/" className="brand" aria-label={`${site.name} home`}>
@@ -29,9 +33,7 @@ export function SiteHeader() {
       </nav>
 
       <div className="site-actions">
-        <Link href="/planner" className="button button-ghost">
-          Explore Demo
-        </Link>
+        <AuthLink user={user} />
         <Link href="/planner" className="button">
           Start Planning
         </Link>

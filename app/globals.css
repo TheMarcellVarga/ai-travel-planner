@@ -413,7 +413,9 @@ h3 {
 .planner-submit,
 .panel-heading,
 .route-card-top,
-.link-row {
+.link-row,
+.auth-grid,
+.auth-state {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -552,6 +554,69 @@ h3 {
   flex-wrap: wrap;
 }
 
+.route-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.route-select {
+  justify-self: flex-start;
+}
+
+.status-copy {
+  margin: 0;
+  color: var(--warm);
+}
+
+.auth-shell,
+.saved-shell,
+.share-shell {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.auth-grid {
+  margin-top: 24px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.auth-card {
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.auth-card h2 {
+  margin-top: 8px;
+  font-size: 2rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.auth-form input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.auth-state {
+  margin-top: 18px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
 .section-heading {
   display: grid;
   gap: 10px;
@@ -628,7 +693,9 @@ h3 {
 
   .planner-submit,
   .panel-heading,
-  .route-card-top {
+  .route-card-top,
+  .auth-grid,
+  .auth-state {
     align-items: flex-start;
     flex-direction: column;
   }
