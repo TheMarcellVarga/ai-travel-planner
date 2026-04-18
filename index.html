@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wild Route | AI Travel Planner</title>
+    <meta
+      name="description"
+      content="A jungle-toned AI travel planner concept with a 3D globe, route playback, and lifestyle-aware trip filters."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="scene-noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="brand-mark">WR</span>
+        <div>
+          <p class="eyebrow">AI Travel Planner</p>
+          <h1>Wild Route</h1>
+        </div>
+      </div>
+      <nav class="top-actions" aria-label="Primary">
+        <button class="ghost-button">Share Route</button>
+        <button class="primary-button">Unlock Pro Stops</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="hero-copy">
+        <p class="eyebrow">One-way deals, map-first inspiration</p>
+        <h2>
+          Hunt point-to-point escapes with a globe that feels like a mission
+          select screen.
+        </h2>
+        <p class="hero-text">
+          Ask for flexible one-way routes, define stop rules, filter by lifestyle
+          signals like crypto-friendly or hiking-heavy, and play each itinerary
+          back across the world map before sharing it.
+        </p>
+
+        <form class="planner-panel" id="planner-form">
+          <label class="field">
+            <span>Prompt</span>
+            <textarea id="trip-prompt" rows="4">
+Find the best one-way adventure from Singapore for 12 days with max 1 stop, jungle energy, crypto-friendly towns, hiking, and one promoted stop on the free plan.</textarea
+            >
+          </label>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Trip Length</span>
+              <select id="trip-length">
+                <option>7 days</option>
+                <option selected>12 days</option>
+                <option>18 days</option>
+                <option>30 days</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Stops</span>
+              <select id="trip-stops">
+                <option>Direct only</option>
+                <option selected>Up to 1 stop</option>
+                <option>Up to 2 stops</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="wishlist-block">
+            <div class="wishlist-header">
+              <span>Trip wishes</span>
+              <p>Choose filters that shape what stays on the map.</p>
+            </div>
+            <div class="chip-row" id="wishlist-chips" role="list"></div>
+          </div>
+
+          <div class="planner-footer">
+            <div class="plan-note">
+              <span class="plan-badge">Free plan</span>
+              <p>Only one stop can be promoted with boosted placement.</p>
+            </div>
+            <button type="button" class="primary-button" id="generate-button">
+              Generate Route Hunt
+            </button>
+          </div>
+        </form>
+
+        <div class="stats-row" aria-label="Highlights">
+          <article>
+            <strong>3</strong>
+            <span>shareable route drafts</span>
+          </article>
+          <article>
+            <strong>1</strong>
+            <span>free promoted stop</span>
+          </article>
+          <article>
+            <strong>4</strong>
+            <span>lifestyle filters active</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="world-stage" aria-labelledby="stage-title">
+        <div class="stage-head">
+          <div>
+            <p class="eyebrow">Live route visualizer</p>
+            <h3 id="stage-title">Adventure Globe</h3>
+          </div>
+          <div class="stage-status">
+            <span class="status-dot"></span>
+            <span id="playback-status">Tracking promoted route</span>
+          </div>
+        </div>
+
+        <div class="globe-shell">
+          <div class="glow-ring ring-a" aria-hidden="true"></div>
+          <div class="glow-ring ring-b" aria-hidden="true"></div>
+          <svg
+            class="route-layer"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          ></svg>
+          <div class="globe" id="globe" aria-label="Rotating destination globe"></div>
+          <div class="focus-card" id="focus-card">
+            <p class="eyebrow">Active hop</p>
+            <h4>Loading route</h4>
+            <p>Choose a route to preview each stop.</p>
+          </div>
+        </div>
+
+        <div class="route-list" id="route-list" aria-label="Suggested routes"></div>
+      </section>
+    </main>
+
+    <section class="inspiration-strip" aria-labelledby="inspiration-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Visual inspiration layer</p>
+          <h3 id="inspiration-title">Mood Pins</h3>
+        </div>
+        <p>
+          Free-use imagery can sit behind each pin cluster to make discovery feel
+          editorial and instantly shareable.
+        </p>
+      </div>
+
+      <div class="mood-grid" id="mood-grid"></div>
+    </section>
+
+    <section class="feature-band" aria-labelledby="features-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Product angle</p>
+          <h3 id="features-title">Why this concept stands out</h3>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article>
+          <h4>Prompt-first search</h4>
+          <p>
+            Users describe vibe, stop rules, and lifestyle preferences instead of
+            filling cold airline forms.
+          </p>
+        </article>
+        <article>
+          <h4>Route playback</h4>
+          <p>
+            Each itinerary animates hop-by-hop so the path feels cinematic, not
+            spreadsheet-like.
+          </p>
+        </article>
+        <article>
+          <h4>Social by design</h4>
+          <p>
+            Big visuals, bold type, and route cards turn trip planning into
+            something worth posting.
+          </p>
+        </article>
+        <article>
+          <h4>Freemium pressure</h4>
+          <p>
+            A single boosted stop on the free plan creates a natural upsell
+            without blocking route discovery.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
