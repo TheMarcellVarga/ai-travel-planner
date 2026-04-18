@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
+import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
+import { getDestinationMedia } from "@/lib/media";
 import { getSharedRoute } from "@/lib/store/demo-store";
 
 type SharePageProps = {
@@ -15,9 +17,16 @@ export default async function SharePage({ params }: SharePageProps) {
     notFound();
   }
 
+  const shareMedia = getDestinationMedia(sharedRoute.route.promotedStopId);
+
   return (
     <main className="shell share-shell">
-      <section className="hero-panel">
+      <section className="hero-panel hero-panel-cinematic">
+        <div className="hero-media-wrap">
+          <img alt={shareMedia.alt} className="hero-media hero-media-image" src={shareMedia.src} />
+          <div className="hero-media-overlay" />
+        </div>
+
         <div className="hero-copy">
           <p className="eyebrow">Shared route</p>
           <h1>{sharedRoute.route.title}</h1>
@@ -29,7 +38,9 @@ export default async function SharePage({ params }: SharePageProps) {
               </span>
             ))}
           </div>
+          <MediaCredit asset={shareMedia} />
         </div>
+
         <div className="page-panel">
           <p className="eyebrow">Route summary</p>
           <h2>${sharedRoute.route.estimatedCostUsd}</h2>
@@ -51,12 +62,25 @@ export default async function SharePage({ params }: SharePageProps) {
         <div className="results-grid">
           {sharedRoute.route.stops.map((stop) => (
             <article className="route-card" key={stop.id}>
+              {stop.kind === "destination" ? (
+                <div className="route-visual">
+                  <img
+                    alt={getDestinationMedia(stop.id).alt}
+                    className="route-visual-image"
+                    src={getDestinationMedia(stop.id).src}
+                  />
+                  <div className="route-visual-overlay" />
+                </div>
+              ) : null}
               <p className="eyebrow">{stop.kind}</p>
               <h3>
                 {stop.name} ({stop.code})
               </h3>
               <p className="muted-copy">{stop.country}</p>
               {stop.scene ? <p className="route-tagline">{stop.scene}</p> : null}
+              {stop.kind === "destination" ? (
+                <MediaCredit asset={getDestinationMedia(stop.id)} compact />
+              ) : null}
             </article>
           ))}
         </div>
@@ -64,4 +88,3 @@ export default async function SharePage({ params }: SharePageProps) {
     </main>
   );
 }
-

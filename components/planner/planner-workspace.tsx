@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 
+import { MediaCredit } from "@/components/media-credit";
 import { PlannerForm } from "@/components/planner/planner-form";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { RouteMapFallback } from "@/components/planner/route-map-fallback";
+import { getDestinationMedia } from "@/lib/media";
 import type { RouteOption, TripGeneration } from "@/lib/types";
 
 type PlannerWorkspaceProps = {
@@ -27,6 +29,8 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
 
   const activeRoute =
     generation.routes.find((route) => route.id === activeRouteId) ?? generation.routes[0];
+  const promotedStop = activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId);
+  const promotedMedia = getDestinationMedia(promotedStop?.id ?? "bali");
 
   function handlePlan(values: {
     prompt: string;
@@ -69,8 +73,8 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <h1>Turn a travel prompt into ranked one-way route hunts.</h1>
         </div>
         <p className="lede">
-          The current build uses real place data and live-style booking handoff links,
-          with app-side route scoring tuned for adventure nomads.
+          The build now uses real media-backed destination surfaces instead of treating
+          route cards like plain text inventory.
         </p>
         <PlannerForm initialIntent={generation.tripIntent} onSubmit={handlePlan} pending={isPending} />
         {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
@@ -93,11 +97,15 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         </div>
 
         <article className="focus-card">
+          <div className="focus-media">
+            <img alt={promotedMedia.alt} className="focus-media-image" src={promotedMedia.src} />
+            <div className="focus-media-overlay" />
+          </div>
           <p className="eyebrow">Promoted stop</p>
-          <strong>
-            {activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId)?.name}
-          </strong>
+          <strong>{promotedStop?.name}</strong>
+          <span>{promotedMedia.punchline}</span>
           <span>{activeRoute.reasons[2]}</span>
+          <MediaCredit asset={promotedMedia} compact />
         </article>
       </section>
 
@@ -113,38 +121,56 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         </div>
 
         <div className="results-grid">
-          {generation.routes.map((route) => (
-            <article
-              className={route.id === activeRoute.id ? "route-card route-card-active" : "route-card"}
-              key={route.id}
-            >
-              <div className="route-card-top">
-                <div>
-                  <p className="eyebrow">Route option</p>
-                  <h3>{route.title}</h3>
-                </div>
-                <span className="route-price">${route.estimatedCostUsd}</span>
-              </div>
+          {generation.routes.map((route) => {
+            const routeMedia = getDestinationMedia(route.promotedStopId);
 
-              <p className="route-tagline">{route.tagline}</p>
-              <button className="button button-ghost route-select" onClick={() => setActiveRouteId(route.id)} type="button">
-                {route.id === activeRoute.id ? "Active Route" : "Preview Route"}
-              </button>
-              <div className="route-chip-row">
-                {route.wishTags.map((tag) => (
-                  <span key={tag} className="tag-pill">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <ul className="reason-list">
-                {route.reasons.map((reason) => (
-                  <li key={reason}>{reason}</li>
-                ))}
-              </ul>
-              <RouteActions routeId={route.id} />
-            </article>
-          ))}
+            return (
+              <article
+                className={route.id === activeRoute.id ? "route-card route-card-active" : "route-card"}
+                key={route.id}
+              >
+                <div className="route-visual">
+                  <img alt={routeMedia.alt} className="route-visual-image" src={routeMedia.src} />
+                  <div className="route-visual-overlay" />
+                  <div className="route-visual-copy">
+                    <p className="eyebrow">Visual hook</p>
+                    <strong>{routeMedia.location}</strong>
+                  </div>
+                </div>
+
+                <div className="route-card-top">
+                  <div>
+                    <p className="eyebrow">Route option</p>
+                    <h3>{route.title}</h3>
+                  </div>
+                  <span className="route-price">${route.estimatedCostUsd}</span>
+                </div>
+
+                <p className="route-tagline">{route.tagline}</p>
+                <button
+                  className="button button-ghost route-select"
+                  onClick={() => setActiveRouteId(route.id)}
+                  type="button"
+                >
+                  {route.id === activeRoute.id ? "Active Route" : "Preview Route"}
+                </button>
+                <div className="route-chip-row">
+                  {route.wishTags.map((tag) => (
+                    <span key={tag} className="tag-pill">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <ul className="reason-list">
+                  {route.reasons.map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+                <MediaCredit asset={routeMedia} compact />
+                <RouteActions routeId={route.id} />
+              </article>
+            );
+          })}
         </div>
       </section>
     </main>

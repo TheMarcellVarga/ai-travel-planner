@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Compass, Globe2, Sparkles, Ticket } from "lucide-react";
 
+import { MediaCredit } from "@/components/media-credit";
+import { destinationMedia, expeditionIndex, heroMedia, kineticMedia } from "@/lib/media";
 import { wishTags } from "@/lib/site";
 
 const highlights = [
@@ -29,31 +31,42 @@ const highlights = [
 const moodCards = [
   {
     title: "Canopy heat",
-    text: "A jungle-glow interface with cinematic contrast instead of travel-site beige."
+    text: "The opening frame should already feel humid, expensive, and slightly dangerous."
   },
   {
-    title: "Tomb-raider energy",
-    text: "Oversized display type, mission-screen framing, and route cards meant to be shared."
+    title: "Tomb-raider tension",
+    text: "Oversized type and sharp overlays should feel closer to a relic map than a booking form."
   },
   {
-    title: "Map as the product",
-    text: "Planning centers around geography, motion, and route arcs rather than tables."
+    title: "Route lust",
+    text: "The user should want the place before they compare the route."
   }
 ];
 
 export default function HomePage() {
   return (
     <main className="shell">
-      <section className="hero-panel">
+      <section className="hero-panel hero-panel-cinematic">
+        <div className="hero-media-wrap">
+          <video
+            autoPlay
+            className="hero-media"
+            loop
+            muted
+            playsInline
+            poster={heroMedia.poster}
+          >
+            <source src={heroMedia.src} type="video/webm" />
+          </video>
+          <div className="hero-media-overlay" />
+        </div>
+
         <div className="hero-copy">
-          <p className="eyebrow">One-way deals for adventure nomads</p>
-          <h1>
-            Hunt your next route on a globe that feels like a mission select screen.
-          </h1>
+          <p className="eyebrow">Cinematic one-way deals for adventure nomads</p>
+          <h1>Stop opening a planner that looks like accounting software.</h1>
           <p className="lede">
-            Wild Route turns a travel prompt into ranked multi-stop escapes with mood
-            tags, a promoted free stop, and external booking handoff when you are
-            ready to act.
+            Wild Route should open like a trailer: jungle water, trail speed, cliff
+            drops, and destination temptation before the route logic starts talking.
           </p>
           <div className="button-row">
             <Link href="/planner" className="button">
@@ -70,17 +83,50 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+          <MediaCredit asset={heroMedia} />
         </div>
 
         <div className="hero-stage">
-          <div className="globe-frame">
-            <div className="globe-orb" />
-            <div className="globe-ring ring-a" />
-            <div className="globe-ring ring-b" />
-            <div className="signal-card">
-              <p className="eyebrow">Free tier rule</p>
-              <strong>1 promoted stop per route</strong>
-              <span>Upgrade hooks stay visible without blocking route discovery.</span>
+          <div className="hero-stage-stack">
+            <article className="signal-card signal-card-kinetic">
+              <div className="kinetic-card-media">
+                <video
+                  autoPlay
+                  className="kinetic-video"
+                  loop
+                  muted
+                  playsInline
+                  poster={kineticMedia.poster}
+                >
+                  <source src={kineticMedia.src} type="video/webm" />
+                </video>
+                <div className="kinetic-video-overlay" />
+              </div>
+              <div className="signal-card-body">
+                <p className="eyebrow">Kinetic layer</p>
+                <strong>Route picks need motion, not only metadata.</strong>
+                <span>
+                  MTB, surf, jungle, and cliff energy should be visible before the
+                  user clicks.
+                </span>
+                <MediaCredit asset={kineticMedia} compact />
+              </div>
+            </article>
+
+            <div className="hero-mini-grid">
+              {["bali", "cape-town", "tulum"].map((key) => {
+                const card = destinationMedia[key];
+                return (
+                  <article className="hero-mini-card" key={key}>
+                    <img alt={card.alt} className="hero-mini-image" src={card.src} />
+                    <div className="hero-mini-overlay" />
+                    <div className="hero-mini-copy">
+                      <p className="eyebrow">Index mood</p>
+                      <h3>{card.location}</h3>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -101,8 +147,31 @@ export default function HomePage() {
 
       <section className="mood-section">
         <div className="section-heading">
-          <p className="eyebrow">Visual direction</p>
-          <h2>Jungle green, glossy highlights, and 2000s adventure tension.</h2>
+          <p className="eyebrow">Expedition index</p>
+          <h2>Every place needs a visual hook before the route logic starts talking.</h2>
+        </div>
+        <div className="expedition-grid">
+          {expeditionIndex.map((destinationId) => {
+            const card = destinationMedia[destinationId];
+            return (
+              <article className="expedition-card" key={destinationId}>
+                <img alt={card.alt} className="expedition-image" src={card.src} />
+                <div className="expedition-overlay" />
+                <div className="expedition-copy">
+                  <p className="eyebrow">{card.location}</p>
+                  <h3>{card.punchline}</h3>
+                  <MediaCredit asset={card} compact />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mood-section">
+        <div className="section-heading">
+          <p className="eyebrow">What the brand should feel like</p>
+          <h2>Less dashboard. More field journal, trailer frame, and destination temptation.</h2>
         </div>
         <div className="mood-grid">
           {moodCards.map((card) => (

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { MediaCredit } from "@/components/media-credit";
+import { getDestinationMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
 import { getSavedRoutesForUser, getSharedRoutesForUser } from "@/lib/store/demo-store";
 
@@ -40,7 +42,8 @@ export default async function SavedPage() {
           <h1>{savedRoutes.length} routes saved for {user.name}.</h1>
         </div>
         <p className="lede">
-          Free plan: {user.entitlement.routeSaveLimit} saved routes, {user.entitlement.promotedStopLimit} promoted stop per route.
+          Free plan: {user.entitlement.routeSaveLimit} saved routes,{" "}
+          {user.entitlement.promotedStopLimit} promoted stop per route.
         </p>
       </section>
 
@@ -58,6 +61,14 @@ export default async function SavedPage() {
           {savedRoutes.length ? (
             savedRoutes.map((item) => (
               <article className="route-card" key={item.id}>
+                <div className="route-visual">
+                  <img
+                    alt={getDestinationMedia(item.route.promotedStopId).alt}
+                    className="route-visual-image"
+                    src={getDestinationMedia(item.route.promotedStopId).src}
+                  />
+                  <div className="route-visual-overlay" />
+                </div>
                 <div className="route-card-top">
                   <div>
                     <p className="eyebrow">Saved route</p>
@@ -67,6 +78,7 @@ export default async function SavedPage() {
                 </div>
                 <p className="route-tagline">{item.route.tagline}</p>
                 <p className="muted-copy">Saved {new Date(item.savedAt).toLocaleString()}</p>
+                <MediaCredit asset={getDestinationMedia(item.route.promotedStopId)} compact />
               </article>
             ))
           ) : (
@@ -89,11 +101,20 @@ export default async function SavedPage() {
           {sharedRoutes.length ? (
             sharedRoutes.map((item) => (
               <article className="route-card" key={item.id}>
+                <div className="route-visual">
+                  <img
+                    alt={getDestinationMedia(item.route.promotedStopId).alt}
+                    className="route-visual-image"
+                    src={getDestinationMedia(item.route.promotedStopId).src}
+                  />
+                  <div className="route-visual-overlay" />
+                </div>
                 <h3>{item.route.title}</h3>
                 <p className="route-tagline">{item.route.tagline}</p>
                 <Link className="button button-ghost" href={`/share/${item.slug}`}>
                   Open /share/{item.slug}
                 </Link>
+                <MediaCredit asset={getDestinationMedia(item.route.promotedStopId)} compact />
               </article>
             ))
           ) : (
