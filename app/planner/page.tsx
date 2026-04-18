@@ -1,19 +1,19 @@
-import Link from "next/link";
+import { PlannerWorkspace } from "@/components/planner/planner-workspace";
+import { createTripGeneration } from "@/lib/planner/generate-routes";
+import { interpretTripIntent } from "@/lib/planner/intent";
 
 export default function PlannerPage() {
-  return (
-    <main className="shell page-panel">
-      <div className="section-heading">
-        <p className="eyebrow">Planner workspace</p>
-        <h1>Planner implementation lands in the next feature commit.</h1>
-      </div>
-      <p className="lede">
-        This route is reserved for the full prompt-to-itinerary workflow, globe view,
-        and route generation API integration.
-      </p>
-      <Link href="/" className="button">
-        Back to home
-      </Link>
-    </main>
+  const generation = createTripGeneration(
+    interpretTripIntent({
+      prompt:
+        "Find the best one-way adventure from Singapore for 12 days with max 1 stop, jungle energy, crypto-friendly towns, hiking, and one promoted stop on the free plan.",
+      origin: "Singapore",
+      tripLengthDays: 12,
+      maxStops: 1,
+      wishTags: ["crypto-friendly", "hiking", "mtb", "animal-friendly"],
+      budgetMode: "balanced"
+    })
   );
+
+  return <PlannerWorkspace initialGeneration={generation} />;
 }

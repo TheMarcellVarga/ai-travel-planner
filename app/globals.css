@@ -342,6 +342,216 @@ h3 {
   margin: 28px 0 36px;
 }
 
+.planner-shell {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.planner-panel,
+.visual-panel,
+.results-panel {
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  background:
+    linear-gradient(180deg, rgba(15, 33, 24, 0.86), rgba(8, 18, 13, 0.82)),
+    var(--panel-soft);
+}
+
+.planner-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.planner-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 10px;
+}
+
+.field span {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+}
+
+.field textarea,
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 14px 16px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chip {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.chip-active {
+  background: linear-gradient(135deg, var(--accent), #dfff7b);
+  color: #08130d;
+  border-color: transparent;
+}
+
+.planner-submit,
+.panel-heading,
+.route-card-top,
+.link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.muted-copy,
+.route-tagline,
+.reason-list,
+.focus-card span,
+.error-copy {
+  color: var(--muted);
+}
+
+.visual-panel {
+  overflow: hidden;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--warm);
+}
+
+.globe-desktop,
+.map-mobile {
+  margin-top: 18px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at center, rgba(158, 255, 103, 0.08), transparent 25%),
+    linear-gradient(180deg, rgba(8, 18, 13, 0.72), rgba(2, 7, 4, 0.92));
+}
+
+.globe-visual {
+  display: flex;
+  justify-content: center;
+  min-height: 520px;
+}
+
+.map-mobile {
+  display: none;
+  padding: 14px;
+}
+
+.map-fallback svg {
+  width: 100%;
+  height: auto;
+}
+
+.map-ocean {
+  fill: rgba(14, 39, 28, 0.92);
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 0.4;
+}
+
+.map-line {
+  stroke: rgba(247, 223, 142, 0.9);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 1.2;
+}
+
+.map-point {
+  fill: var(--accent);
+}
+
+.map-label {
+  fill: var(--text);
+  font-size: 2.4px;
+  letter-spacing: 0.3px;
+}
+
+.focus-card {
+  margin-top: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(5, 13, 9, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.focus-card strong {
+  font-size: 1.3rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.route-card {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.route-card-active {
+  border-color: rgba(247, 223, 142, 0.32);
+  background: linear-gradient(180deg, rgba(247, 223, 142, 0.09), rgba(255, 255, 255, 0.04));
+}
+
+.route-card h3 {
+  font-size: 2rem;
+}
+
+.route-price {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.route-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reason-list {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+
+.link-row {
+  flex-wrap: wrap;
+}
+
 .section-heading {
   display: grid;
   gap: 10px;
@@ -403,9 +613,32 @@ h3 {
   }
 
   .hero-panel,
+  .planner-panel,
+  .visual-panel,
+  .results-panel,
   .page-panel,
   .app-footer {
     padding: 20px;
+  }
+
+  .planner-grid,
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-submit,
+  .panel-heading,
+  .route-card-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .globe-desktop {
+    display: none;
+  }
+
+  .map-mobile {
+    display: block;
   }
 
   .signal-card {
