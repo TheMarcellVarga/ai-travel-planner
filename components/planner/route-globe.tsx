@@ -456,7 +456,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           </button>
         </div>
       ) : null}
-      <div className="orbital-globe-hint">
+      {/* <div className="orbital-globe-hint">
         {isIdle ? (
           <>
             <span className="status-pill">Auto-spinning recommendations</span>
@@ -468,7 +468,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
             <span className="status-pill status-pill-accent">Click glowing stops to swap routes</span>
           </>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
