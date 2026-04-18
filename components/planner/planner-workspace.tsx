@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { MediaCredit } from "@/components/media-credit";
 import { PlannerForm } from "@/components/planner/planner-form";
@@ -24,6 +25,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [generation, setGeneration] = useState(initialGeneration);
   const [activeRouteId, setActiveRouteId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
 
   const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
   const [secondaryValues, setSecondaryValues] = useState({
@@ -45,6 +47,10 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     generation.routes.length === 1
       ? "1 route ready"
       : `${generation.routes.length} routes ready`;
+  const isMissionPanelExpanded = Boolean(activeRouteId) || isMissionPanelOpen;
+  const missionPanelShellClass = isMissionPanelExpanded
+    ? "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-open"
+    : "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-docked";
 
   function handlePlan() {
     startTransition(async () => {
@@ -106,41 +112,58 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           />
         </div>
 
-        <aside className="floating-sidebar floating-sidebar-left floating-sidebar-left-planner">
-          <div className="floating-sidebar__inner floating-sidebar__inner-planner">
-            <div className="floating-sidebar__header">
-              <p className="eyebrow">Mission Parameters</p>
-              <h2>Constraints</h2>
-              <p className="muted-copy">
-                Tune the technical rules for the route generation.
-              </p>
+        <aside className={missionPanelShellClass}>
+          <div className="floating-sidebar__inner floating-sidebar__inner-planner planner-mission-panel">
+            <button
+              className="planner-mission-panel__toggle"
+              aria-expanded={isMissionPanelExpanded}
+              aria-label="Toggle mission parameters"
+              onClick={() => setIsMissionPanelOpen((current) => !current)}
+              type="button"
+            >
+              <SlidersHorizontal className="planner-mission-panel__toggle-icon" aria-hidden="true" />
+              <span>Mission Parameter</span>
+              <ChevronDown
+                className="planner-mission-panel__toggle-chevron"
+                aria-hidden="true"
+              />
+            </button>
+
+            <div className="planner-mission-panel__body">
+              <div className="floating-sidebar__header">
+                <p className="eyebrow">Mission Parameters</p>
+                <h2>Constraints</h2>
+                <p className="muted-copy">
+                  Tune the technical rules for the route generation.
+                </p>
+              </div>
+
+              <PlannerForm initialIntent={generation.tripIntent} onChange={setSecondaryValues} />
+
+              <section className="planner-intent-panel">
+                <div className="planner-intent-panel__header">
+                  <p className="eyebrow">Strategic Intent</p>
+                  <p className="muted-copy">Describe the trip you want generated.</p>
+                </div>
+                <div className="planner-intent-panel__input-wrap">
+                  <textarea
+                    className="planner-intent-panel__textarea"
+                    placeholder="Describe your perfect one-way adventure..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <button
+                  className="button planner-intent-panel__button"
+                  onClick={handlePlan}
+                  disabled={isPending}
+                >
+                  {isPending ? "Calculating..." : "Generate Route Hunt"}
+                </button>
+                {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
+              </section>
             </div>
-
-            <PlannerForm initialIntent={generation.tripIntent} onChange={setSecondaryValues} />
-
-            <section className="planner-intent-panel">
-              <div className="planner-intent-panel__header">
-                <p className="eyebrow">Strategic Intent</p>
-                <p className="muted-copy">Describe the trip you want generated.</p>
-              </div>
-              <div className="planner-intent-panel__input-wrap">
-                <textarea
-                  className="planner-intent-panel__textarea"
-                  placeholder="Describe your perfect one-way adventure..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              <button
-                className="button planner-intent-panel__button"
-                onClick={handlePlan}
-                disabled={isPending}
-              >
-                {isPending ? "Calculating..." : "Generate Route Hunt"}
-              </button>
-              {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
-            </section>
           </div>
         </aside>
 
