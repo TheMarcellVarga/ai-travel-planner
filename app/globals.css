@@ -779,96 +779,49 @@ h3 {
   color: var(--muted);
 }
 
-.planner-dashboard {
+.planner-command-deck {
   display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-  gap: 24px;
+  gap: 18px;
   margin-bottom: 36px;
 }
 
-.planner-sidebar,
-.planner-main,
-.globe-stage-panel,
-.route-inspector,
-.planner-meta-card {
-  border-radius: var(--radius-xl);
+.planner-command-stage {
+  position: relative;
+  min-height: 900px;
+  overflow: hidden;
+  border-radius: 40px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
-}
-
-.planner-sidebar,
-.planner-main {
   background:
-    linear-gradient(180deg, rgba(15, 33, 24, 0.88), rgba(8, 18, 13, 0.84)),
+    radial-gradient(circle at center, rgba(158, 255, 103, 0.06), transparent 22%),
+    linear-gradient(180deg, rgba(15, 33, 24, 0.88), rgba(8, 18, 13, 0.9)),
     var(--panel-soft);
 }
 
-.planner-sidebar {
-  display: grid;
-  gap: 18px;
-  padding: 24px;
-  align-self: start;
-  position: sticky;
-  top: 16px;
-}
-
-.planner-sidebar__header {
+.planner-stage-header {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  z-index: 3;
   display: grid;
   gap: 10px;
+  width: min(520px, calc(100% - 760px));
+  min-width: 320px;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
-.planner-sidebar__header h1 {
-  font-size: clamp(2.6rem, 4vw, 3.8rem);
+.planner-stage-header h1 {
+  font-size: clamp(2.8rem, 4vw, 4.8rem);
   line-height: 0.92;
 }
 
-.planner-sidebar .planner-form {
-  margin-top: 0;
-}
-
-.planner-sidebar .planner-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.planner-sidebar .planner-submit {
-  align-items: flex-start;
-  flex-direction: column;
-}
-
-.planner-sidebar__meta {
-  display: grid;
-  gap: 12px;
-}
-
-.planner-meta-card {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.planner-meta-card strong {
-  font-size: 1.2rem;
-}
-
-.planner-main {
-  display: grid;
-  gap: 18px;
-  padding: 24px;
-  overflow: hidden;
-}
-
-.planner-main__topbar,
-.planner-main__badges {
+.planner-stage-badges {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.planner-main__topbar h2 {
-  font-size: clamp(2.4rem, 3vw, 3.4rem);
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .status-pill-accent {
@@ -876,52 +829,226 @@ h3 {
   background: linear-gradient(135deg, var(--accent), #dfff7b);
 }
 
-.planner-main__layout {
+.planner-stage-globe {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 18px;
+  place-items: center;
+  z-index: 1;
 }
 
-.globe-stage-panel,
-.route-inspector {
+.orbital-globe-stage {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.orbital-globe-shell {
+  position: relative;
+  max-width: 100%;
+}
+
+.orbital-globe-shadow,
+.orbital-globe-atmosphere,
+.orbital-globe,
+.orbital-globe-arcs,
+.orbital-globe-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.orbital-globe-shadow {
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(158, 255, 103, 0.12), transparent 56%);
+  filter: blur(48px);
+  transform: scale(0.92);
+}
+
+.orbital-globe-atmosphere {
+  border-radius: 50%;
   background:
-    linear-gradient(180deg, rgba(10, 24, 17, 0.92), rgba(2, 7, 4, 0.9)),
-    var(--panel);
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.22), transparent 24%),
+    radial-gradient(circle at center, rgba(108, 255, 152, 0.2), transparent 65%);
+  box-shadow:
+    0 0 0 1px rgba(196, 255, 212, 0.08),
+    0 0 80px rgba(108, 255, 152, 0.12);
 }
 
-.globe-stage-panel {
-  padding: 18px;
-  overflow: hidden;
+.orbital-globe {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.18), transparent 14%),
+    radial-gradient(circle at 50% 42%, rgba(158, 255, 103, 0.18), transparent 35%),
+    linear-gradient(180deg, rgba(4, 26, 32, 0.78), rgba(5, 21, 18, 0.96)),
+    url("https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg");
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    inset -80px -110px 160px rgba(0, 0, 0, 0.4),
+    inset 22px 14px 80px rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-.globe-desktop-dashboard {
-  margin-top: 0;
-  min-height: 780px;
+.orbital-globe::before,
+.orbital-globe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.orbital-globe::before {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 44px,
+      rgba(255, 255, 255, 0.04) 44px 46px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 44px,
+      rgba(255, 255, 255, 0.03) 44px 46px
+    );
+  opacity: 0.3;
+  mix-blend-mode: screen;
+}
+
+.orbital-globe::after {
+  background: radial-gradient(circle at 62% 18%, rgba(255, 255, 255, 0.22), transparent 16%);
+}
+
+.orbital-globe-arcs {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.orbital-globe-arc {
+  fill: none;
+  stroke: rgba(247, 223, 142, 0.95);
+  stroke-width: 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 14px rgba(247, 223, 142, 0.26));
+}
+
+.orbital-globe-node {
+  fill: #f7df8e;
+  stroke: rgba(6, 15, 10, 0.9);
+  stroke-width: 2;
+}
+
+.orbital-globe-overlay {
+  pointer-events: none;
+}
+
+.orbital-marker {
+  position: absolute;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  background: transparent;
   border: 0;
-  background:
-    radial-gradient(circle at center, rgba(158, 255, 103, 0.12), transparent 22%),
-    radial-gradient(circle at 50% 50%, rgba(247, 223, 142, 0.08), transparent 28%),
-    transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
-.globe-dashboard {
-  min-height: 780px;
+.orbital-marker:hover,
+.orbital-marker-active {
+  z-index: 4;
 }
 
-.mobile-route-strip {
-  display: none;
+.orbital-marker__pin {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--warm);
+  box-shadow: 0 0 0 5px rgba(247, 223, 142, 0.12), 0 0 28px rgba(247, 223, 142, 0.45);
 }
 
-.route-inspector {
+.orbital-marker__card {
+  display: grid;
+  gap: 4px;
+  min-width: 156px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(6, 15, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(14px);
+  text-align: left;
+}
+
+.orbital-marker__card strong {
+  font-size: 1rem;
+  line-height: 0.95;
+}
+
+.orbital-marker__card span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.orbital-marker__price {
+  color: var(--accent) !important;
+  font-size: 0.86rem !important;
+  font-weight: 800;
+}
+
+.orbital-marker-active .orbital-marker__card {
+  background: rgba(33, 25, 9, 0.88);
+  border-color: rgba(247, 223, 142, 0.42);
+}
+
+.floating-sidebar {
+  position: absolute;
+  top: 130px;
+  z-index: 3;
+  width: min(340px, calc(50% - 80px));
+}
+
+.floating-sidebar-left {
+  left: 24px;
+}
+
+.floating-sidebar-right {
+  right: 24px;
+}
+
+.floating-sidebar__inner {
   display: grid;
   gap: 14px;
-  padding: 18px;
-  align-self: start;
+  padding: 20px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(7, 18, 12, 0.72);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
+}
+
+.floating-sidebar__inner-tight {
+  gap: 12px;
+}
+
+.floating-sidebar__header {
+  display: grid;
+  gap: 8px;
+}
+
+.floating-sidebar__header h2 {
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+}
+
+.planner-mobile-routebar {
+  display: none;
 }
 
 .route-inspector__media {
   position: relative;
-  min-height: 240px;
+  min-height: 210px;
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1059,22 +1186,12 @@ h3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .planner-dashboard,
-  .planner-main__layout {
-    grid-template-columns: 1fr;
+  .planner-command-stage {
+    min-height: 820px;
   }
 
-  .planner-sidebar {
-    position: static;
-  }
-
-  .route-inspector {
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-  }
-
-  .route-inspector__media {
-    grid-column: 1 / -1;
+  .floating-sidebar {
+    width: min(300px, calc(50% - 48px));
   }
 }
 
@@ -1114,25 +1231,56 @@ h3 {
   .panel-heading,
   .route-card-top,
   .auth-grid,
-  .auth-state,
-  .planner-main__topbar,
-  .planner-main__badges {
+  .auth-state {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .globe-desktop {
-    display: none;
+  .planner-command-stage {
+    min-height: auto;
+    padding: 18px;
   }
 
-  .map-mobile {
-    display: block;
+  .planner-stage-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    min-width: 0;
+    transform: none;
+    text-align: left;
   }
 
-  .mobile-route-strip {
+  .planner-stage-badges {
+    justify-content: flex-start;
+  }
+
+  .planner-stage-globe {
+    position: relative;
+    inset: auto;
+    margin-top: 12px;
+  }
+
+  .orbital-globe-stage {
+    min-height: 420px;
+  }
+
+  .floating-sidebar {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .floating-sidebar__inner {
+    padding: 16px;
+  }
+
+  .planner-mobile-routebar {
     display: grid;
     gap: 10px;
-    margin-top: 14px;
   }
 
   .mobile-route-card {
@@ -1149,23 +1297,5 @@ h3 {
   .mobile-route-card-active {
     border-color: rgba(247, 223, 142, 0.32);
     background: linear-gradient(180deg, rgba(247, 223, 142, 0.09), rgba(255, 255, 255, 0.04));
-  }
-
-  .signal-card {
-    left: 14px;
-    right: 14px;
-    bottom: 14px;
-  }
-
-  .hero-panel-cinematic {
-    min-height: auto;
-  }
-
-  .expedition-card {
-    min-height: 320px;
-  }
-
-  .route-inspector {
-    grid-template-columns: 1fr;
   }
 }

@@ -1,11 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { RouteOption } from "@/lib/types";
-
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
 type RouteGlobeProps = {
   routes: RouteOption[];
@@ -13,91 +10,56 @@ type RouteGlobeProps = {
   onSelectRoute: (routeId: string) => void;
 };
 
-type MarkerData = {
-  routeId: string;
-  lat: number;
-  lng: number;
-  title: string;
-  price: number;
-  confidence: number;
-  tagline: string;
-  active: boolean;
+type ProjectedPoint = {
+  x: number;
+  y: number;
+  scale: number;
+  visible: boolean;
 };
 
-export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const globeRef = useRef<any>(null);
-  const [size, setSize] = useState(760);
+function projectToSphere(lat: number, lng: number, rotation: number, radius: number): ProjectedPoint {
+  const latRad = (lat * Math.PI) / 180;
+  const lngRad = ((lng + rotation) * Math.PI) / 180;
 
-  const activeRoute = routes.find((route) => route.id === activeRouteId) ?? routes[0];
+  const x3d = Math.cos(latRad) * Math.sin(lngRad);
+  const y3d = Math.sin(latRad);
+  const z3d = Math.cos(latRad) * Math.cos(lngRad);
 
-  const markerData = useMemo<MarkerData[]>(
-    () =>
-      routes.map((route) => {
-        const promotedStop =
-          route.stops.find((stop) => stop.id === route.promotedStopId) ?? route.stops[1] ?? route.stops[0];
+  return {
+    x: radius + x3d * radius * 0.9,
+    y: radius - y3d * radius * 0.9,
+    scale: 0.62 + Math.max(z3d, 0) * 0.52,
+    visible: z3d > -0.16
+  };
+}
 
-        return {
-          routeId: route.id,
-          lat: promotedStop.coordinates.lat,
-          lng: promotedStop.coordinates.lng,
-          title: promotedStop.name,
-          price: route.estimatedCostUsd,
-          confidence: route.confidence,
-          tagline: route.title,
-          active: route.id === activeRouteId
-        };
-      }),
-    [routes, activeRouteId]
-  );
+function createArcPath(points: Array<ProjectedPoint & { id: string }>) {
+  if (points.length < 2) {
+    return "";
+  }
 
-  const arcsData = useMemo(
-    () =>
-      activeRoute.stops.slice(1).map((stop, index) => ({
-        startLat: activeRoute.stops[index].coordinates.lat,
-        startLng: activeRoute.stops[index].coordinates.lng,
-        endLat: stop.coordinates.lat,
-        endLng: stop.coordinates.lng,
-        color: ["#9eff67", "#f7df8e"]
-      })),
-    [activeRoute]
-  );
-
-  const pointsData = useMemo(
-    () =>
-      activeRoute.stops.map((stop) => ({
-        lat: stop.coordinates.lat,
-        lng: stop.coordinates.lng,
-        size: stop.kind === "origin" ? 0.18 : stop.id === activeRoute.promotedStopId ? 0.28 : 0.22,
-        color: stop.id === activeRoute.promotedStopId ? "#f7df8e" : "#9eff67"
-      })),
-    [activeRoute]
-  );
-
-  const ringsData = useMemo(
-    () =>
-      markerData.filter((marker) => marker.active).map((marker) => ({
-        lat: marker.lat,
-        lng: marker.lng,
-        maxR: 8,
-        propagationSpeed: 1.6,
-        repeatPeriod: 1200
-      })),
-    [markerData]
-  );
-
-  useEffect(() => {
-    const controls = globeRef.current?.controls?.();
-    if (!controls) {
-      return;
+  return points.reduce((path, point, index) => {
+    if (index === 0) {
+      return `M ${point.x} ${point.y}`;
     }
 
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.45;
-    controls.enablePan = false;
-    controls.minDistance = 220;
-    controls.maxDistance = 420;
-  }, [activeRouteId]);
+    const previous = points[index - 1];
+    const controlX = (previous.x + point.x) / 2;
+    const controlY = Math.min(previous.y, point.y) - 42;
+
+    return `${path} Q ${controlX} ${controlY} ${point.x} ${point.y}`;
+  }, "");
+}
+
+export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeProps) {
+  const [size, setSize] = useState(920);
+  const [rotation, setRotation] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const activeRoute = routes.find((route) => route.id === activeRouteId) ?? routes[0];
+  const promotedStop =
+    activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId) ?? activeRoute.stops[1] ?? activeRoute.stops[0];
+  const radius = size / 2;
 
   useEffect(() => {
     const current = containerRef.current;
@@ -106,65 +68,113 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
     }
 
     const observer = new ResizeObserver(([entry]) => {
-      const nextSize = Math.max(420, Math.min(entry.contentRect.width, 920));
-      setSize(nextSize);
+      setSize(Math.max(520, Math.min(entry.contentRect.width, 980)));
     });
 
     observer.observe(current);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    let frameId = 0;
+
+    const tick = () => {
+      const time = Date.now();
+      const targetRotation = -promotedStop.coordinates.lng + Math.sin(time / 3200) * 8;
+
+      setRotation((current) => current + (targetRotation - current) * 0.035);
+      frameId = window.requestAnimationFrame(tick);
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [promotedStop.coordinates.lng]);
+
+  const activeStopPoints = useMemo(
+    () =>
+      activeRoute.stops.map((stop) => ({
+        id: stop.id,
+        ...projectToSphere(stop.coordinates.lat, stop.coordinates.lng, rotation, radius)
+      })),
+    [activeRoute, radius, rotation]
+  );
+
+  const activeArcPath = useMemo(
+    () => createArcPath(activeStopPoints.filter((point) => point.visible)),
+    [activeStopPoints]
+  );
+
+  const routeMarkers = useMemo(
+    () =>
+      routes.map((route) => {
+        const stop =
+          route.stops.find((candidate) => candidate.id === route.promotedStopId) ??
+          route.stops[1] ??
+          route.stops[0];
+        return {
+          route,
+          stop,
+          point: projectToSphere(stop.coordinates.lat, stop.coordinates.lng, rotation, radius)
+        };
+      }),
+    [routes, rotation, radius]
+  );
+
   return (
-    <div className="globe-visual globe-dashboard" ref={containerRef}>
-      <Globe
-        ref={globeRef}
-        width={size}
-        height={size}
-        backgroundColor="rgba(0,0,0,0)"
-        backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
-        globeImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png"
-        arcsData={arcsData}
-        arcColor={"color"}
-        arcStroke={0.7}
-        arcDashLength={0.55}
-        arcDashGap={0.18}
-        arcDashAnimateTime={1800}
-        atmosphereColor="#9eff67"
-        atmosphereAltitude={0.16}
-        htmlElementsData={markerData}
-        htmlElement={(markerObject) => {
-          const marker = markerObject as MarkerData;
-          const element = document.createElement("button");
-          element.type = "button";
-          element.className = marker.active
-            ? "globe-route-marker globe-route-marker-active"
-            : "globe-route-marker";
-          element.innerHTML = `
-            <span class="globe-route-marker__pin"></span>
-            <span class="globe-route-marker__card">
-              <span class="globe-route-marker__title">${marker.title}</span>
-              <span class="globe-route-marker__meta">${marker.tagline}</span>
-              <span class="globe-route-marker__price">$${marker.price}</span>
-            </span>
-          `;
-          element.onclick = () => onSelectRoute(marker.routeId);
-          return element;
-        }}
-        htmlElementVisibilityModifier={(element, isVisible) => {
-          element.style.opacity = isVisible ? "1" : "0";
-          element.style.pointerEvents = isVisible ? "auto" : "none";
-        }}
-        pointsData={pointsData}
-        pointAltitude={"size"}
-        pointColor={"color"}
-        pointRadius={0.38}
-        ringsData={ringsData}
-        ringColor={() => "#f7df8e"}
-        ringMaxRadius="maxR"
-        ringPropagationSpeed="propagationSpeed"
-        ringRepeatPeriod="repeatPeriod"
-      />
+    <div className="orbital-globe-stage" ref={containerRef}>
+      <div className="orbital-globe-shell" style={{ width: size, height: size }}>
+        <div className="orbital-globe-shadow" />
+        <div className="orbital-globe-atmosphere" />
+        <div className="orbital-globe" />
+
+        <svg
+          className="orbital-globe-arcs"
+          viewBox={`0 0 ${size} ${size}`}
+          aria-hidden="true"
+        >
+          {activeArcPath ? <path className="orbital-globe-arc" d={activeArcPath} /> : null}
+          {activeStopPoints
+            .filter((point) => point.visible)
+            .map((point) => (
+              <circle
+                key={point.id}
+                className="orbital-globe-node"
+                cx={point.x}
+                cy={point.y}
+                r={point.id === activeRoute.promotedStopId ? 7 : 5}
+              />
+            ))}
+        </svg>
+
+        <div className="orbital-globe-overlay">
+          {routeMarkers.map(({ route, stop, point }) =>
+            point.visible ? (
+              <button
+                key={route.id}
+                type="button"
+                className={
+                  route.id === activeRouteId
+                    ? "orbital-marker orbital-marker-active"
+                    : "orbital-marker"
+                }
+                style={{
+                  left: point.x,
+                  top: point.y,
+                  transform: `translate(-50%, -50%) scale(${point.scale})`
+                }}
+                onClick={() => onSelectRoute(route.id)}
+              >
+                <span className="orbital-marker__pin" />
+                <span className="orbital-marker__card">
+                  <strong>{stop.name}</strong>
+                  <span>{route.title}</span>
+                  <span className="orbital-marker__price">${route.estimatedCostUsd}</span>
+                </span>
+              </button>
+            ) : null
+          )}
+        </div>
+      </div>
     </div>
   );
 }
