@@ -1,0 +1,46 @@
+import { describe, expect, it } from "vitest";
+
+import { createTripGeneration } from "@/lib/planner/generate-routes";
+import { interpretTripIntent } from "@/lib/planner/intent";
+
+describe("createTripGeneration", () => {
+  it("returns ranked routes that begin at the requested origin", () => {
+    const generation = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Find a 12 day hiking and crypto-friendly route from Singapore with one stop.",
+        origin: "Singapore",
+        tripLengthDays: 12,
+        maxStops: 1,
+        wishTags: ["crypto-friendly", "hiking"],
+        budgetMode: "balanced"
+      })
+    );
+
+    expect(generation.routes.length).toBeGreaterThanOrEqual(3);
+    expect(generation.routes.length).toBeLessThanOrEqual(4);
+
+    generation.routes.forEach((route) => {
+      expect(route.stops[0]?.code).toBe("SIN");
+      expect(route.promotedStopId).toBe(route.stops[1]?.id);
+      expect(route.bookingLinks.length).toBeGreaterThan(0);
+    });
+  });
+
+  it("keeps direct-only requests to a single destination stop", () => {
+    const generation = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Direct only surf escape from Sydney.",
+        origin: "Sydney",
+        tripLengthDays: 7,
+        maxStops: 0,
+        wishTags: ["surf"],
+        budgetMode: "value"
+      })
+    );
+
+    generation.routes.forEach((route) => {
+      expect(route.stops).toHaveLength(2);
+    });
+  });
+});
+

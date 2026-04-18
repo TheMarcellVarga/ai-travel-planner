@@ -18,6 +18,7 @@ feature commits establish:
 ```bash
 npm install
 npm run dev
+npm test
 ```
 
 ## Environment

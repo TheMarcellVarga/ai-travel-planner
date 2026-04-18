@@ -134,3 +134,12 @@ export function recordHandoff(routeId: string, userId: string | null, links: Boo
   createStore().handoffs.push(handoff);
   return handoff;
 }
+
+export function resetStore() {
+  globalThis.__wildRouteStore__ = {
+    generations: new Map<string, TripGeneration>(),
+    savedRoutes: new Map<string, SavedRoute>(),
+    sharedRoutes: new Map<string, SharedRoute>(),
+    handoffs: []
+  };
+}
