@@ -20,71 +20,78 @@ export default async function SharePage({ params }: SharePageProps) {
   const shareMedia = getDestinationMedia(sharedRoute.route.promotedStopId);
 
   return (
-    <main className="shell share-shell">
-      <section className="hero-panel hero-panel-cinematic">
-        <div className="hero-media-wrap">
-          <img alt={shareMedia.alt} className="hero-media hero-media-image" src={shareMedia.src} />
-          <div className="hero-media-overlay" />
-        </div>
+    <main className="planner-command-shell">
+      <div className="planner-stage-globe">
+        <img alt={shareMedia.alt} className="hero-media-image" src={shareMedia.src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, rgba(3, 10, 6, 0.86) 18%, rgba(3, 10, 6, 0.44) 52%, rgba(3, 10, 6, 0.94) 100%)" }} />
+      </div>
 
-        <div className="hero-copy">
+      <div className="planner-stage-header">
+        <div className="planner-stage-title">
           <p className="eyebrow">Shared route</p>
           <h1>{sharedRoute.route.title}</h1>
-          <p className="lede">{sharedRoute.route.tagline}</p>
-          <div className="tag-row">
+        </div>
+        <div className="planner-stage-badges">
+          <span className="status-pill status-pill-accent">${sharedRoute.route.estimatedCostUsd}</span>
+          <span className="status-pill">Confidence {Math.round(sharedRoute.route.confidence * 100)}%</span>
+        </div>
+      </div>
+
+      <aside className="floating-sidebar floating-sidebar-left">
+        <div className="floating-sidebar__inner">
+          <div className="floating-sidebar__header">
+            <p className="eyebrow">Discover</p>
+            <h2>{sharedRoute.route.tagline}</h2>
+          </div>
+          <div className="tag-row" style={{ marginTop: "8px" }}>
             {sharedRoute.route.wishTags.map((tag) => (
-              <span className="tag-pill" key={tag}>
-                {tag}
-              </span>
+              <span className="tag-pill" key={tag}>{tag}</span>
             ))}
           </div>
-          <MediaCredit asset={shareMedia} />
-        </div>
+          
+          <div className="route-inspector__section" style={{ marginTop: "24px" }}>
+             <p className="eyebrow" style={{ marginBottom: "8px" }}>Take Action</p>
+             <p className="muted-copy" style={{ marginBottom: "12px", fontSize: "0.85rem" }}>
+               Published {new Date(sharedRoute.publishedAt).toLocaleString()}.
+             </p>
+             <RouteActions routeId={sharedRoute.route.id} />
+          </div>
 
-        <div className="page-panel">
-          <p className="eyebrow">Route summary</p>
-          <h2>${sharedRoute.route.estimatedCostUsd}</h2>
-          <p className="muted-copy">
-            Confidence {Math.round(sharedRoute.route.confidence * 100)}%. Published{" "}
-            {new Date(sharedRoute.publishedAt).toLocaleString()}.
-          </p>
-          <RouteActions routeId={sharedRoute.route.id} />
+          <div style={{ marginTop: "auto" }}>
+             <MediaCredit asset={shareMedia} compact />
+          </div>
         </div>
-      </section>
+      </aside>
 
-      <section className="results-panel">
-        <div className="panel-heading">
-          <div>
+      <aside className="floating-sidebar floating-sidebar-right">
+        <div className="floating-sidebar__inner">
+          <div className="floating-sidebar__header">
             <p className="eyebrow">Stops</p>
             <h2>Journey breakdown</h2>
           </div>
-        </div>
-        <div className="results-grid">
-          {sharedRoute.route.stops.map((stop) => (
-            <article className="route-card" key={stop.id}>
-              {stop.kind === "destination" ? (
-                <div className="route-visual">
-                  <img
-                    alt={getDestinationMedia(stop.id).alt}
-                    className="route-visual-image"
-                    src={getDestinationMedia(stop.id).src}
-                  />
-                  <div className="route-visual-overlay" />
+          <div className="stop-stack">
+            {sharedRoute.route.stops.map((stop) => (
+              <article className="stop-card" key={stop.id} style={{ display: "grid", gap: "8px", padding: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ display: "grid", gap: "2px" }}>
+                    <p className="eyebrow" style={{ fontSize: "0.6rem" }}>{stop.kind}</p>
+                    <strong style={{ fontSize: "1.05rem" }}>{stop.name} ({stop.code})</strong>
+                  </div>
+                  {stop.kind === "destination" && (
+                    <img 
+                      alt="" 
+                      src={getDestinationMedia(stop.id).src} 
+                      style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} 
+                    />
+                  )}
                 </div>
-              ) : null}
-              <p className="eyebrow">{stop.kind}</p>
-              <h3>
-                {stop.name} ({stop.code})
-              </h3>
-              <p className="muted-copy">{stop.country}</p>
-              {stop.scene ? <p className="route-tagline">{stop.scene}</p> : null}
-              {stop.kind === "destination" ? (
-                <MediaCredit asset={getDestinationMedia(stop.id)} compact />
-              ) : null}
-            </article>
-          ))}
+                <p className="muted-copy" style={{ margin: 0, fontSize: "0.85rem" }}>{stop.country}</p>
+                {stop.scene ? <p className="route-tagline" style={{ fontSize: "0.85rem" }}>{stop.scene}</p> : null}
+              </article>
+            ))}
+          </div>
         </div>
-      </section>
+      </aside>
     </main>
   );
 }

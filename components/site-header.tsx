@@ -17,7 +17,7 @@ export async function SiteHeader() {
   return (
     <header className="shell site-header">
       <Link href="/" className="brand" aria-label={`${site.name} home`}>
-        <span className="brand-mark">WR</span>
+        <img className="brand-mark" src="/wild-route-mark.svg" alt="" aria-hidden="true" />
         <span className="brand-copy">
           <span className="eyebrow">AI Travel Planner</span>
           <strong>{site.name}</strong>

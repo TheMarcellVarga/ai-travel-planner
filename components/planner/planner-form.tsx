@@ -16,12 +16,10 @@ type PlannerFormValues = {
 
 type PlannerFormProps = {
   initialIntent: TripIntent;
-  onSubmit: (values: PlannerFormValues) => void;
-  pending: boolean;
+  onChange: (values: Omit<PlannerFormValues, "prompt">) => void;
 };
 
-export function PlannerForm({ initialIntent, onSubmit, pending }: PlannerFormProps) {
-  const [prompt, setPrompt] = useState(initialIntent.prompt);
+export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   const [origin, setOrigin] = useState(initialIntent.origin.label);
   const [tripLengthDays, setTripLengthDays] = useState(initialIntent.tripLengthDays);
   const [maxStops, setMaxStops] = useState(initialIntent.maxStops);
@@ -29,7 +27,6 @@ export function PlannerForm({ initialIntent, onSubmit, pending }: PlannerFormPro
   const [selectedTags, setSelectedTags] = useState<WishTag[]>(initialIntent.wishTags);
 
   useEffect(() => {
-    setPrompt(initialIntent.prompt);
     setOrigin(initialIntent.origin.label);
     setTripLengthDays(initialIntent.tripLengthDays);
     setMaxStops(initialIntent.maxStops);
@@ -37,36 +34,24 @@ export function PlannerForm({ initialIntent, onSubmit, pending }: PlannerFormPro
     setSelectedTags(initialIntent.wishTags);
   }, [initialIntent]);
 
-  function toggleTag(tag: WishTag) {
-    setSelectedTags((current) =>
-      current.includes(tag) ? current.filter((value) => value !== tag) : [...current, tag]
-    );
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    onSubmit({
-      prompt,
+  useEffect(() => {
+    onChange({
       origin,
       tripLengthDays,
       maxStops,
       wishTags: selectedTags,
       budgetMode
     });
+  }, [origin, tripLengthDays, maxStops, selectedTags, budgetMode, onChange]);
+
+  function toggleTag(tag: WishTag) {
+    setSelectedTags((current) =>
+      current.includes(tag) ? current.filter((value) => value !== tag) : [...current, tag]
+    );
   }
 
   return (
-    <form className="planner-form" onSubmit={handleSubmit}>
-      <label className="field">
-        <span>Prompt</span>
-        <textarea
-          rows={5}
-          value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
-          placeholder="Find a one-way jungle-heavy route from Singapore with hiking and a crypto-friendly stop."
-        />
-      </label>
-
+    <div className="planner-form">
       <div className="planner-grid">
         <label className="field">
           <span>Origin</span>
@@ -121,17 +106,6 @@ export function PlannerForm({ initialIntent, onSubmit, pending }: PlannerFormPro
           ))}
         </div>
       </div>
-
-      <div className="planner-submit">
-        <div>
-          <p className="eyebrow">Free plan</p>
-          <p className="muted-copy">One promoted stop per route. Publish and save come in later feature commits.</p>
-        </div>
-        <button className="button" disabled={pending} type="submit">
-          {pending ? "Generating..." : "Generate Route Hunt"}
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }
-

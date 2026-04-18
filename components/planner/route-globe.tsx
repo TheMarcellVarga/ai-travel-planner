@@ -1,65 +1,120 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
+import { getDestinationMedia } from "@/lib/media";
 import type { RouteOption } from "@/lib/types";
 
 type RouteGlobeProps = {
   routes: RouteOption[];
-  activeRouteId: string;
+  activeRouteId: string | null;
   onSelectRoute: (routeId: string) => void;
 };
 
-type ProjectedPoint = {
-  x: number;
-  y: number;
-  scale: number;
-  visible: boolean;
+type GlobeViewport = {
+  width: number;
+  height: number;
 };
 
-function projectToSphere(lat: number, lng: number, rotation: number, radius: number): ProjectedPoint {
-  const latRad = (lat * Math.PI) / 180;
-  const lngRad = ((lng + rotation) * Math.PI) / 180;
+type GlobePoint = {
+  id: string;
+  routeId: string;
+  lat: number;
+  lng: number;
+  altitude: number;
+  color: string;
+  radius: number;
+  kind: "route-marker" | "route-stop";
+  title: string;
+  subtitle: string;
+  price?: number;
+};
 
-  const x3d = Math.cos(latRad) * Math.sin(lngRad);
-  const y3d = Math.sin(latRad);
-  const z3d = Math.cos(latRad) * Math.cos(lngRad);
+type GlobeArc = {
+  id: string;
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
+  color: [string, string];
+};
 
-  return {
-    x: radius + x3d * radius * 0.9,
-    y: radius - y3d * radius * 0.9,
-    scale: 0.62 + Math.max(z3d, 0) * 0.52,
-    visible: z3d > -0.16
-  };
-}
+type GlobeRing = {
+  id: string;
+  lat: number;
+  lng: number;
+  color: [string, string];
+  maxRadius: number;
+  propagationSpeed: number;
+  repeatPeriod: number;
+};
 
-function createArcPath(points: Array<ProjectedPoint & { id: string }>) {
-  if (points.length < 2) {
-    return "";
-  }
+type IdleRecommendationCard = {
+  id: string;
+  routeId: string;
+  lat: number;
+  lng: number;
+  altitude: number;
+  title: string;
+  subtitle: string;
+  price: number;
+  imageSrc: string;
+  imageAlt: string;
+  highlighted: boolean;
+};
 
-  return points.reduce((path, point, index) => {
-    if (index === 0) {
-      return `M ${point.x} ${point.y}`;
-    }
+type ScreenPoint = {
+  x: number;
+  y: number;
+};
 
-    const previous = points[index - 1];
-    const controlX = (previous.x + point.x) / 2;
-    const controlY = Math.min(previous.y, point.y) - 42;
+const Globe = dynamic(() => import("react-globe.gl"), {
+  ssr: false
+}) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods | undefined> }>;
 
-    return `${path} Q ${controlX} ${controlY} ${point.x} ${point.y}`;
-  }, "");
+const GLOBE_TEXTURE_URL =
+  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg";
+const GLOBE_BUMP_URL =
+  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png";
+
+function buildTooltip(point: GlobePoint) {
+  const accent = point.kind === "route-marker" ? "#f7df8e" : "#9eff67";
+  const price =
+    point.price !== undefined
+      ? `<div style="color:${accent};font-weight:800;font-size:13px;margin-top:4px">$${point.price}</div>`
+      : "";
+
+  return `
+    <div style="min-width:180px;padding:10px 12px;border-radius:14px;background:rgba(6,15,10,0.94);border:1px solid rgba(255,255,255,0.1);box-shadow:0 18px 30px rgba(0,0,0,0.3);color:#edf8ef">
+      <div style="font-weight:800;font-size:14px;line-height:1.2">${point.title}</div>
+      <div style="margin-top:4px;color:#aac7b4;font-size:12px;line-height:1.35">${point.subtitle}</div>
+      ${price}
+    </div>
+  `;
 }
 
 export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeProps) {
-  const [size, setSize] = useState(920);
-  const [rotation, setRotation] = useState(0);
+  const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
+  const [globeReady, setGlobeReady] = useState(false);
+  const [idleHighlightIndex, setIdleHighlightIndex] = useState(0);
+  const [idleCardScreen, setIdleCardScreen] = useState<ScreenPoint | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const globeRef = useRef<GlobeMethods | undefined>(undefined);
+  const compactViewport = viewport.width < 1440 || viewport.height < 820;
+  const globeWidth = viewport.width;
+  const globeHeight = viewport.height;
 
-  const activeRoute = routes.find((route) => route.id === activeRouteId) ?? routes[0];
+  const activeRoute = routes.find((route) => route.id === activeRouteId) ?? null;
+  const idleRecommendation = routes[idleHighlightIndex % Math.max(routes.length, 1)] ?? null;
+  const isIdle = activeRoute === null;
   const promotedStop =
-    activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId) ?? activeRoute.stops[1] ?? activeRoute.stops[0];
-  const radius = size / 2;
+    activeRoute
+      ? activeRoute.stops.find((stop) => stop.id === activeRoute.promotedStopId) ??
+        activeRoute.stops[1] ??
+        activeRoute.stops[0]
+      : null;
 
   useEffect(() => {
     const current = containerRef.current;
@@ -68,7 +123,10 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
     }
 
     const observer = new ResizeObserver(([entry]) => {
-      setSize(Math.max(520, Math.min(entry.contentRect.width, 980)));
+      setViewport({
+        width: Math.max(320, Math.floor(entry.contentRect.width)),
+        height: Math.max(320, Math.floor(entry.contentRect.height))
+      });
     });
 
     observer.observe(current);
@@ -76,104 +134,340 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   }, []);
 
   useEffect(() => {
-    let frameId = 0;
+    if (!globeReady || !globeRef.current) {
+      return;
+    }
 
-    const tick = () => {
-      const time = Date.now();
-      const targetRotation = -promotedStop.coordinates.lng + Math.sin(time / 3200) * 8;
+    const controls = globeRef.current.controls();
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = compactViewport ? 200 : 180;
+    controls.maxDistance = compactViewport ? 520 : 420;
+    controls.rotateSpeed = isIdle ? 0.35 : 0.9;
+    controls.zoomSpeed = 0.8;
+    controls.autoRotate = isIdle;
+    controls.autoRotateSpeed = 0.65;
+  }, [compactViewport, globeReady, isIdle, viewport.height, viewport.width]);
 
-      setRotation((current) => current + (targetRotation - current) * 0.035);
-      frameId = window.requestAnimationFrame(tick);
-    };
+  useEffect(() => {
+    if (!globeReady || !globeRef.current) {
+      return;
+    }
 
-    frameId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frameId);
-  }, [promotedStop.coordinates.lng]);
+    if (isIdle) {
+      globeRef.current.pointOfView(
+        {
+          lat: 12,
+          lng: 18,
+          altitude: compactViewport ? 2.55 : 2.35
+        },
+        1000
+      );
+      return;
+    }
 
-  const activeStopPoints = useMemo(
-    () =>
-      activeRoute.stops.map((stop) => ({
-        id: stop.id,
-        ...projectToSphere(stop.coordinates.lat, stop.coordinates.lng, rotation, radius)
-      })),
-    [activeRoute, radius, rotation]
-  );
+    if (!promotedStop) {
+      return;
+    }
 
-  const activeArcPath = useMemo(
-    () => createArcPath(activeStopPoints.filter((point) => point.visible)),
-    [activeStopPoints]
-  );
+    globeRef.current.pointOfView(
+      {
+        lat: promotedStop.coordinates.lat,
+        lng: promotedStop.coordinates.lng,
+        altitude: compactViewport ? 2.2 : 1.85
+      },
+      1000
+    );
+  }, [compactViewport, globeReady, isIdle, promotedStop]);
 
-  const routeMarkers = useMemo(
-    () =>
-      routes.map((route) => {
+  useEffect(() => {
+    if (!isIdle) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setIdleHighlightIndex((current) => {
+        if (routes.length <= 1) {
+          return 0;
+        }
+
+        let next = current;
+        while (next === current) {
+          next = Math.floor(Math.random() * routes.length);
+        }
+
+        return next;
+      });
+    }, 2600);
+
+    return () => window.clearInterval(interval);
+  }, [isIdle, routes.length]);
+
+  useEffect(() => {
+    setIdleHighlightIndex(0);
+  }, [routes]);
+
+  const routeMarkers = useMemo<GlobePoint[]>(
+    () => {
+      const highlightedRouteId = isIdle ? idleRecommendation?.id : activeRouteId;
+
+      return routes.map((route) => {
         const stop =
           route.stops.find((candidate) => candidate.id === route.promotedStopId) ??
           route.stops[1] ??
           route.stops[0];
+        const isHighlighted = route.id === highlightedRouteId;
+
         return {
-          route,
-          stop,
-          point: projectToSphere(stop.coordinates.lat, stop.coordinates.lng, rotation, radius)
+          id: `route-${route.id}`,
+          routeId: route.id,
+          lat: stop.coordinates.lat,
+          lng: stop.coordinates.lng,
+          altitude: isHighlighted ? 0.19 : isIdle ? 0.11 : 0.14,
+          color: isHighlighted ? "#f7df8e" : "#9eff67",
+          radius: isHighlighted ? 0.5 : isIdle ? 0.28 : 0.34,
+          kind: "route-marker",
+          title: stop.name,
+          subtitle: isIdle ? `Recommendation: ${route.title}` : route.title,
+          price: route.estimatedCostUsd
         };
-      }),
-    [routes, rotation, radius]
+      });
+    },
+    [activeRouteId, idleRecommendation?.id, isIdle, routes]
   );
+
+  const activeStops = useMemo<GlobePoint[]>(
+    () => {
+      if (!activeRoute) {
+        return [];
+      }
+
+      return activeRoute.stops.map((stop) => ({
+        id: `stop-${activeRoute.id}-${stop.id}`,
+        routeId: activeRoute.id,
+        lat: stop.coordinates.lat,
+        lng: stop.coordinates.lng,
+        altitude: stop.kind === "origin" ? 0.02 : 0.035,
+        color: stop.kind === "origin" ? "#6cff98" : "#f7df8e",
+        radius: stop.kind === "origin" ? 0.22 : 0.18,
+        kind: "route-stop",
+        title: `${stop.name} (${stop.code})`,
+        subtitle: stop.kind === "origin" ? "Origin" : stop.scene ?? stop.country
+      }));
+    },
+    [activeRoute]
+  );
+
+  const arcsData = useMemo<GlobeArc[]>(
+    () => {
+      if (!activeRoute) {
+        return [];
+      }
+
+      return activeRoute.stops.slice(0, -1).map((stop, index) => ({
+        id: `${activeRoute.id}-${stop.id}-${activeRoute.stops[index + 1]?.id}`,
+        startLat: stop.coordinates.lat,
+        startLng: stop.coordinates.lng,
+        endLat: activeRoute.stops[index + 1].coordinates.lat,
+        endLng: activeRoute.stops[index + 1].coordinates.lng,
+        color: ["#f7df8e", "#9eff67"]
+      }));
+    },
+    [activeRoute]
+  );
+
+  const ringsData = useMemo<GlobeRing[]>(
+    () => {
+      if (isIdle) {
+        if (!idleRecommendation) {
+          return [];
+        }
+
+        const idleStop =
+          idleRecommendation.stops.find((stop) => stop.id === idleRecommendation.promotedStopId) ??
+          idleRecommendation.stops[1] ??
+          idleRecommendation.stops[0];
+
+        return [
+          {
+            id: `ring-idle-${idleRecommendation.id}`,
+            lat: idleStop.coordinates.lat,
+            lng: idleStop.coordinates.lng,
+            color: ["rgba(158, 255, 103, 0.92)", "rgba(158, 255, 103, 0)"],
+            maxRadius: 5.4,
+            propagationSpeed: 1.25,
+            repeatPeriod: 1100
+          }
+        ];
+      }
+
+      if (!activeRoute || !promotedStop) {
+        return [];
+      }
+
+      return [
+        {
+          id: `ring-${activeRoute.id}`,
+          lat: promotedStop.coordinates.lat,
+          lng: promotedStop.coordinates.lng,
+          color: ["rgba(247, 223, 142, 0.9)", "rgba(247, 223, 142, 0)"],
+          maxRadius: 6.4,
+          propagationSpeed: 1.5,
+          repeatPeriod: 900
+        }
+      ];
+    },
+    [activeRoute, idleRecommendation, isIdle, promotedStop]
+  );
+
+  const pointsData = useMemo(() => [...routeMarkers, ...activeStops], [activeStops, routeMarkers]);
+
+  const idleRecommendationCard = useMemo<IdleRecommendationCard | null>(() => {
+    if (!isIdle) {
+      return null;
+    }
+
+    const recommendation = idleRecommendation;
+    if (!recommendation) {
+      return null;
+    }
+
+    const promotedStop =
+      recommendation.stops.find((stop) => stop.id === recommendation.promotedStopId) ??
+      recommendation.stops[1] ??
+      recommendation.stops[0];
+    const media = getDestinationMedia(promotedStop.id);
+
+    return {
+      id: `idle-card-${recommendation.id}`,
+      routeId: recommendation.id,
+      lat: promotedStop.coordinates.lat,
+      lng: promotedStop.coordinates.lng,
+      altitude: 0.2,
+      title: recommendation.title,
+      subtitle: recommendation.tagline,
+      price: recommendation.estimatedCostUsd,
+      imageSrc: media.src,
+      imageAlt: media.alt,
+      highlighted: true
+    };
+  }, [idleRecommendation, isIdle]);
+
+  useEffect(() => {
+    if (!isIdle || !globeReady || !globeRef.current || !idleRecommendationCard) {
+      setIdleCardScreen(null);
+      return;
+    }
+
+    const updatePosition = () => {
+      const coords = globeRef.current?.getScreenCoords(
+        idleRecommendationCard.lat,
+        idleRecommendationCard.lng,
+        idleRecommendationCard.altitude
+      ) as ScreenPoint | undefined;
+
+      if (!coords || !Number.isFinite(coords.x) || !Number.isFinite(coords.y)) {
+        return;
+      }
+
+      setIdleCardScreen({ x: coords.x, y: coords.y });
+    };
+
+    updatePosition();
+    const interval = window.setInterval(updatePosition, 60);
+    return () => window.clearInterval(interval);
+  }, [globeReady, idleRecommendationCard, isIdle]);
 
   return (
     <div className="orbital-globe-stage" ref={containerRef}>
-      <div className="orbital-globe-shell" style={{ width: size, height: size }}>
-        <div className="orbital-globe-shadow" />
-        <div className="orbital-globe-atmosphere" />
-        <div className="orbital-globe" />
-
-        <svg
-          className="orbital-globe-arcs"
-          viewBox={`0 0 ${size} ${size}`}
-          aria-hidden="true"
-        >
-          {activeArcPath ? <path className="orbital-globe-arc" d={activeArcPath} /> : null}
-          {activeStopPoints
-            .filter((point) => point.visible)
-            .map((point) => (
-              <circle
-                key={point.id}
-                className="orbital-globe-node"
-                cx={point.x}
-                cy={point.y}
-                r={point.id === activeRoute.promotedStopId ? 7 : 5}
-              />
-            ))}
-        </svg>
-
+      <div className="orbital-globe-frame">
+        <Globe
+          ref={globeRef}
+          width={globeWidth}
+          height={globeHeight}
+          backgroundColor="rgba(0,0,0,0)"
+          globeImageUrl={GLOBE_TEXTURE_URL}
+          bumpImageUrl={GLOBE_BUMP_URL}
+          showAtmosphere
+          atmosphereColor="#6cff98"
+          atmosphereAltitude={0.16}
+          pointsData={pointsData}
+          pointLat="lat"
+          pointLng="lng"
+          pointAltitude="altitude"
+          pointColor="color"
+          pointRadius="radius"
+          pointResolution={18}
+          pointLabel={(point) => buildTooltip(point as GlobePoint)}
+          onPointClick={(point) => {
+            const selectedPoint = point as GlobePoint;
+            if (selectedPoint.kind === "route-marker") {
+              onSelectRoute(selectedPoint.routeId);
+            }
+          }}
+          arcsData={arcsData}
+          arcStartLat="startLat"
+          arcStartLng="startLng"
+          arcEndLat="endLat"
+          arcEndLng="endLng"
+          arcColor="color"
+          arcAltitudeAutoScale={0.22}
+          arcStroke={0.85}
+          arcDashLength={0.38}
+          arcDashGap={0.25}
+          arcDashAnimateTime={1400}
+          ringsData={ringsData}
+          ringLat="lat"
+          ringLng="lng"
+          ringColor="color"
+          ringMaxRadius="maxRadius"
+          ringPropagationSpeed="propagationSpeed"
+          ringRepeatPeriod="repeatPeriod"
+          enablePointerInteraction
+          showPointerCursor={(objType, objData) =>
+            objType === "point" && (objData as GlobePoint | undefined)?.kind === "route-marker"
+          }
+          onGlobeReady={() => setGlobeReady(true)}
+        />
+      </div>
+      {isIdle && idleRecommendationCard && idleCardScreen ? (
         <div className="orbital-globe-overlay">
-          {routeMarkers.map(({ route, stop, point }) =>
-            point.visible ? (
-              <button
-                key={route.id}
-                type="button"
-                className={
-                  route.id === activeRouteId
-                    ? "orbital-marker orbital-marker-active"
-                    : "orbital-marker"
-                }
-                style={{
-                  left: point.x,
-                  top: point.y,
-                  transform: `translate(-50%, -50%) scale(${point.scale})`
-                }}
-                onClick={() => onSelectRoute(route.id)}
-              >
-                <span className="orbital-marker__pin" />
-                <span className="orbital-marker__card">
-                  <strong>{stop.name}</strong>
-                  <span>{route.title}</span>
-                  <span className="orbital-marker__price">${route.estimatedCostUsd}</span>
-                </span>
-              </button>
-            ) : null
-          )}
+          <button
+            className="orbital-marker orbital-marker-active orbital-marker-screen"
+            type="button"
+            style={{ left: idleCardScreen.x, top: idleCardScreen.y }}
+            onClick={() => onSelectRoute(idleRecommendationCard.routeId)}
+          >
+            <span className="orbital-marker__pin" />
+            <span className="orbital-marker__card">
+              <span className="orbital-marker__eyebrow">Recommendation</span>
+              <strong>{idleRecommendationCard.title}</strong>
+              <span className="orbital-marker__meta">{idleRecommendationCard.subtitle}</span>
+              <span className="orbital-marker__media">
+                <img
+                  className="orbital-marker__image"
+                  alt={idleRecommendationCard.imageAlt}
+                  src={idleRecommendationCard.imageSrc}
+                />
+              </span>
+              <span className="orbital-marker__price">${idleRecommendationCard.price}</span>
+            </span>
+          </button>
         </div>
+      ) : null}
+      <div className="orbital-globe-hint">
+        {isIdle ? (
+          <>
+            <span className="status-pill">Auto-spinning recommendations</span>
+            <span className="status-pill status-pill-accent">Click a pulse to inspect the route</span>
+          </>
+        ) : (
+          <>
+            <span className="status-pill">Drag to orbit</span>
+            <span className="status-pill status-pill-accent">Click glowing stops to swap routes</span>
+          </>
+        )}
       </div>
     </div>
   );

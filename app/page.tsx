@@ -28,101 +28,111 @@ const highlights = [
   }
 ];
 
-const moodCards = [
-  {
-    title: "Canopy heat",
-    text: "The opening frame should already feel humid, expensive, and slightly dangerous."
-  },
-  {
-    title: "Tomb-raider tension",
-    text: "Oversized type and sharp overlays should feel closer to a relic map than a booking form."
-  },
-  {
-    title: "Route lust",
-    text: "The user should want the place before they compare the route."
-  }
-];
-
 export default function HomePage() {
   return (
-    <main className="shell">
-      <section className="hero-panel hero-panel-cinematic">
-        <div className="hero-media-wrap">
-          <video
-            autoPlay
-            className="hero-media"
-            loop
-            muted
-            playsInline
-            poster={heroMedia.poster}
-          >
-            <source src={heroMedia.src} type="video/webm" />
-          </video>
-          <div className="hero-media-overlay" />
-        </div>
+    <main className="planner-command-shell">
+      <div className="planner-stage-globe">
+        <video
+          autoPlay
+          className="hero-media"
+          loop
+          muted
+          playsInline
+          poster={heroMedia.poster}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        >
+          <source src={heroMedia.src} type="video/webm" />
+        </video>
+        <div
+          className="hero-media-overlay"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(115deg, rgba(3, 10, 6, 0.9) 18%, rgba(3, 10, 6, 0.6) 52%, rgba(3, 10, 6, 0.95) 100%)"
+          }}
+        />
+      </div>
 
-        <div className="hero-copy">
-          <p className="eyebrow">Cinematic one-way deals for adventure nomads</p>
+      <div className="planner-stage-header">
+        <div className="planner-stage-title">
+          <p className="eyebrow">Cinematic deals for adventure nomads</p>
           <h1>Stop opening a planner that looks like accounting software.</h1>
-          <p className="lede">
-            Wild Route should open like a trailer: jungle water, trail speed, cliff
-            drops, and destination temptation before the route logic starts talking.
-          </p>
-          <div className="button-row">
-            <Link href="/planner" className="button">
+        </div>
+      </div>
+
+      <aside className="floating-sidebar floating-sidebar-left">
+        <div className="floating-sidebar__inner">
+          <div className="floating-sidebar__header">
+            <p className="eyebrow">Welcome to Wild Route</p>
+            <h2>Trailer-ready planning</h2>
+            <p className="muted-copy">
+              Wild Route should open like a trailer: jungle water, trail speed, cliff drops, and
+              destination temptation before the route logic starts talking.
+            </p>
+          </div>
+
+          <div className="button-row" style={{ marginTop: "12px", flexDirection: "column" }}>
+            <Link href="/planner" className="button" style={{ width: "100%" }}>
               Open Planner
             </Link>
-            <Link href="/saved" className="button button-ghost">
+            <Link href="/saved" className="button button-ghost" style={{ width: "100%" }}>
               View Saved Routes
             </Link>
           </div>
-          <div className="tag-row" aria-label="Trip wishes">
-            {wishTags.map((tag) => (
-              <span className="tag-pill" key={tag}>
-                {tag}
-              </span>
-            ))}
+
+          <div className="route-inspector__section" style={{ marginTop: "16px" }}>
+             <p className="eyebrow">Available Filters</p>
+             <div className="tag-row" aria-label="Trip wishes">
+               {wishTags.map((tag) => (
+                 <span className="tag-pill" key={tag}>
+                   {tag}
+                 </span>
+               ))}
+             </div>
           </div>
-          <MediaCredit asset={heroMedia} />
+
+          <div style={{ marginTop: "auto" }}>
+            <MediaCredit asset={heroMedia} compact />
+          </div>
         </div>
+      </aside>
 
-        <div className="hero-stage">
-          <div className="hero-stage-stack">
-            <article className="signal-card signal-card-kinetic">
-              <div className="kinetic-card-media">
-                <video
-                  autoPlay
-                  className="kinetic-video"
-                  loop
-                  muted
-                  playsInline
-                  poster={kineticMedia.poster}
-                >
-                  <source src={kineticMedia.src} type="video/webm" />
-                </video>
-                <div className="kinetic-video-overlay" />
-              </div>
-              <div className="signal-card-body">
-                <p className="eyebrow">Kinetic layer</p>
-                <strong>Route picks need motion, not only metadata.</strong>
-                <span>
-                  MTB, surf, jungle, and cliff energy should be visible before the
-                  user clicks.
-                </span>
-                <MediaCredit asset={kineticMedia} compact />
-              </div>
-            </article>
+      <aside className="floating-sidebar floating-sidebar-right">
+        <div className="floating-sidebar__inner floating-sidebar__inner-tight">
+          <div className="route-inspector__media">
+            <video
+              autoPlay
+              className="route-inspector__image"
+              loop
+              muted
+              playsInline
+              poster={kineticMedia.poster}
+              style={{ objectFit: "cover" }}
+            >
+              <source src={kineticMedia.src} type="video/webm" />
+            </video>
+            <div className="route-inspector__overlay" style={{
+                background: "linear-gradient(180deg, transparent 24%, rgba(3, 10, 6, 0.95) 100%)"
+            }} />
+            <div className="route-inspector__copy">
+              <p className="eyebrow">Kinetic layer</p>
+              <strong>Route picks need motion.</strong>
+              <span>MTB, surf, jungle, and cliff energy.</span>
+            </div>
+          </div>
 
-            <div className="hero-mini-grid">
-              {["bali", "cape-town", "tulum"].map((key) => {
-                const card = destinationMedia[key];
+          <div className="route-inspector__section">
+            <p className="eyebrow">Core Features</p>
+            <div className="stop-stack">
+              {highlights.map((item) => {
+                const Icon = item.icon;
                 return (
-                  <article className="hero-mini-card" key={key}>
-                    <img alt={card.alt} className="hero-mini-image" src={card.src} />
-                    <div className="hero-mini-overlay" />
-                    <div className="hero-mini-copy">
-                      <p className="eyebrow">Index mood</p>
-                      <h3>{card.location}</h3>
+                  <article className="stop-card" key={item.title} style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "14px" }}>
+                    <Icon className="feature-icon" style={{ margin: 0, marginTop: "2px", flexShrink: 0, width: "20px", height: "20px" }} />
+                    <div style={{ display: "grid", gap: "2px" }}>
+                      <strong>{item.title}</strong>
+                      <span style={{ fontSize: "0.8rem" }}>{item.text}</span>
                     </div>
                   </article>
                 );
@@ -130,59 +140,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      <section className="content-grid">
-        {highlights.map((item) => {
-          const Icon = item.icon;
-          return (
-            <article className="feature-card" key={item.title}>
-              <Icon className="feature-icon" />
-              <h2>{item.title}</h2>
-              <p>{item.text}</p>
-            </article>
-          );
-        })}
-      </section>
-
-      <section className="mood-section">
-        <div className="section-heading">
-          <p className="eyebrow">Expedition index</p>
-          <h2>Every place needs a visual hook before the route logic starts talking.</h2>
-        </div>
-        <div className="expedition-grid">
-          {expeditionIndex.map((destinationId) => {
-            const card = destinationMedia[destinationId];
-            return (
-              <article className="expedition-card" key={destinationId}>
-                <img alt={card.alt} className="expedition-image" src={card.src} />
-                <div className="expedition-overlay" />
-                <div className="expedition-copy">
-                  <p className="eyebrow">{card.location}</p>
-                  <h3>{card.punchline}</h3>
-                  <MediaCredit asset={card} compact />
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="mood-section">
-        <div className="section-heading">
-          <p className="eyebrow">What the brand should feel like</p>
-          <h2>Less dashboard. More field journal, trailer frame, and destination temptation.</h2>
-        </div>
-        <div className="mood-grid">
-          {moodCards.map((card) => (
-            <article className="mood-card" key={card.title}>
-              <p className="eyebrow">Mood pin</p>
-              <h3>{card.title}</h3>
-              <p>{card.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      </aside>
     </main>
   );
 }

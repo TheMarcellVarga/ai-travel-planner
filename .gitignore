@@ -6,3 +6,6 @@ coverage
 dist
 *.log
 
+*.md
+
+.history
