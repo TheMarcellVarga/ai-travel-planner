@@ -5,7 +5,9 @@ import { interpretTripIntent } from "@/lib/planner/intent";
 import {
   getSavedRoutesForUser,
   getSharedRoute,
+  getNewsletterSubscriber,
   publishRouteForUser,
+  subscribeNewsletter,
   recordHandoff,
   resetStore,
   saveGeneration,
@@ -69,5 +71,26 @@ describe("demo store", () => {
 
     expect(handoff.routeId).toBe(route.id);
     expect(handoff.links).toHaveLength(route.bookingLinks.length);
+  });
+
+  it("stores newsletter subscribers and merges topics by email", () => {
+    const first = subscribeNewsletter({
+      email: "reader@example.com",
+      name: "Reader",
+      topics: ["newsletter"]
+    });
+
+    const second = subscribeNewsletter({
+      email: "reader@example.com",
+      topics: ["route_notifications"]
+    });
+
+    expect(first.created).toBe(true);
+    expect(second.created).toBe(false);
+    expect(second.subscriber.topics).toEqual(["newsletter", "route_notifications"]);
+    expect(getNewsletterSubscriber("reader@example.com")?.topics).toEqual([
+      "newsletter",
+      "route_notifications"
+    ]);
   });
 });

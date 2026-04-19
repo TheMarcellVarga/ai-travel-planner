@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { maybeSendRouteNotification } from "@/lib/notifications";
 import { getSavedRoutesForUser, saveRouteForUser } from "@/lib/store/demo-store";
 
 type RouteContext = {
@@ -26,6 +27,11 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });
   }
 
+  void maybeSendRouteNotification({
+    user,
+    route: savedRoute.route,
+    action: "saved"
+  }).catch(() => undefined);
+
   return NextResponse.json(savedRoute);
 }
-

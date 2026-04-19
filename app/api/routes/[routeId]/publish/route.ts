@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
+import { maybeSendRouteNotification } from "@/lib/notifications";
 import { publishRouteForUser } from "@/lib/store/demo-store";
 
 type RouteContext = {
@@ -20,9 +21,15 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });
   }
 
+  void maybeSendRouteNotification({
+    user,
+    route: sharedRoute.route,
+    action: "published",
+    shareUrl: `/share/${sharedRoute.slug}`
+  }).catch(() => undefined);
+
   return NextResponse.json({
     slug: sharedRoute.slug,
     shareUrl: `/share/${sharedRoute.slug}`
   });
 }
-

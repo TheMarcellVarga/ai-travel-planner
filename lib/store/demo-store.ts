@@ -1,6 +1,8 @@
 import type {
   BookingHandoff,
   BookingLink,
+  NewsletterSubscriber,
+  NewsletterTopic,
   RouteOption,
   SavedRoute,
   SharedRoute,
@@ -24,6 +26,7 @@ declare global {
     savedRoutes: Map<string, SavedRoute>;
     sharedRoutes: Map<string, SharedRoute>;
     handoffs: BookingHandoff[];
+    newsletterSubscribers: Map<string, NewsletterSubscriber>;
   } | undefined;
 }
 
@@ -33,7 +36,8 @@ function createStore() {
       generations: new Map<string, TripGeneration>(),
       savedRoutes: new Map<string, SavedRoute>(),
       sharedRoutes: new Map<string, SharedRoute>(),
-      handoffs: []
+      handoffs: [],
+      newsletterSubscribers: new Map<string, NewsletterSubscriber>()
     };
   }
 
@@ -135,11 +139,53 @@ export function recordHandoff(routeId: string, userId: string | null, links: Boo
   return handoff;
 }
 
+export function subscribeNewsletter({
+  email,
+  name,
+  topics
+}: {
+  email: string;
+  name?: string;
+  topics: NewsletterTopic[];
+}) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const store = createStore();
+  const existing = store.newsletterSubscribers.get(normalizedEmail);
+  const now = new Date().toISOString();
+  const currentTopics = new Set(existing?.topics ?? []);
+
+  for (const topic of topics) {
+    currentTopics.add(topic);
+  }
+
+  const subscriber: NewsletterSubscriber = {
+    id: existing?.id ?? createId("newsletter"),
+    email: normalizedEmail,
+    name: name?.trim() || existing?.name || normalizedEmail.split("@")[0] || "Traveler",
+    topics: Array.from(currentTopics),
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now
+  };
+
+  store.newsletterSubscribers.set(normalizedEmail, subscriber);
+
+  return {
+    subscriber,
+    created: !existing,
+    gainedTopics: Array.from(currentTopics).filter((topic) => !existing?.topics.includes(topic))
+  };
+}
+
+export function getNewsletterSubscriber(email: string) {
+  return createStore().newsletterSubscribers.get(email.trim().toLowerCase()) ?? null;
+}
+
 export function resetStore() {
   globalThis.__wildRouteStore__ = {
     generations: new Map<string, TripGeneration>(),
     savedRoutes: new Map<string, SavedRoute>(),
     sharedRoutes: new Map<string, SharedRoute>(),
-    handoffs: []
+    handoffs: [],
+    newsletterSubscribers: new Map<string, NewsletterSubscriber>()
   };
 }

@@ -124,3 +124,14 @@ export type BookingHandoff = {
   createdAt: string;
   links: BookingLink[];
 };
+
+export type NewsletterTopic = "newsletter" | "route_notifications";
+
+export type NewsletterSubscriber = {
+  id: string;
+  email: string;
+  name: string;
+  topics: NewsletterTopic[];
+  createdAt: string;
+  updatedAt: string;
+};
