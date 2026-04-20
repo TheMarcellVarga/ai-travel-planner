@@ -20,7 +20,11 @@ const bodyFont = Manrope({
 
 export const metadata: Metadata = {
   title: site.name,
-  description: site.description
+  description: site.description,
+  icons: {
+    icon: "/wild-route-mark.svg",
+    apple: "/wild-route-mark.svg",
+  },
 };
 
 export default function RootLayout({
