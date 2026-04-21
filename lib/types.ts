@@ -97,12 +97,25 @@ export type Entitlement = {
   currentPeriodEnd?: string | null;
 };
 
+export type UserProfile = {
+  userId: string;
+  fullName: string;
+  homeAirportCode: string | null;
+  preferredCurrency: "USD" | "EUR" | "GBP" | "SGD";
+  travelStyle: "balanced" | "budget" | "luxury" | "remote-work";
+  newsletterOptIn: boolean;
+  routeAlertsOptIn: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
 export type AppUser = {
   id: string;
   email: string;
   name: string;
   authMode: "demo" | "supabase";
   entitlement: Entitlement;
+  profile: UserProfile | null;
 };
 
 export type SavedRoute = {

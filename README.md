@@ -1,43 +1,49 @@
 # Wild Route
 
-`Wild Route` is a prompt-first travel planner for adventure-oriented digital nomads.
+Wild Route is a Next.js travel planner with a production-style backend built on managed services instead of a custom auth or billing stack.
 
-## Current state
+## Stack
 
-The project now runs as a Next.js application instead of a static HTML prototype. The
-feature commits establish:
+- Next.js App Router for the product UI and server routes
+- Supabase Auth + Postgres + Row Level Security for identity and user data
+- Stripe Billing for subscription checkout, portal access, and webhook-based entitlement sync
+- Resend-compatible email delivery for confirmations and route notifications
 
-- the application shell
-- the global design system and jungle-themed visual direction
-- the landing page
-- planner APIs and route generation
-- Supabase-backed auth, storage, and share flows with demo fallback
-- Stripe-backed billing primitives for managed checkout and the customer portal
+## What Is Included
 
-## Run
+- Multi-auth through Supabase: magic link email plus OAuth providers such as Google and GitHub
+- Account management: durable user profile, notification preferences, billing portal, export, and deletion flow
+- User data storage: route generations, saved routes, public shares, booking handoffs, entitlements, and profiles
+- Payment: Stripe checkout, Stripe billing portal, and subscription-to-entitlement syncing
 
-```bash
-npm install
-npm run dev
-npm test
-```
+## Data Model
 
-## Environment
+Supabase migrations live in [supabase/migrations](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/supabase/migrations).
 
-Copy `.env.example` to `.env.local` if you want to wire in Supabase. Without Supabase
-credentials, the app still works in demo mode using secure cookies and in-memory data.
+- `entitlements`: free/pro limits and Stripe identifiers
+- `profiles`: account identity, travel defaults, and notification preferences
+- `route_generations`: generated trip payloads
+- `saved_routes`: private route vault
+- `shared_routes`: public share pages
+- `booking_handoffs`: outbound booking handoff history
 
-Managed SaaS services:
+All user-owned tables use RLS policies keyed on `auth.uid()`.
 
-- `SUPABASE_SERVICE_ROLE_KEY` to support webhook-driven entitlement sync
-- `STRIPE_SECRET_KEY` for checkout and billing portal sessions
-- `STRIPE_WEBHOOK_SECRET` for `/api/stripe/webhook`
-- `STRIPE_PRO_PRICE_ID` for the paid plan
+## Local Setup
 
-Optional email support:
+1. Copy [.env.example](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/.env.example) to `.env.local`.
+2. Add Supabase project values and run the SQL migrations in order.
+3. Configure Supabase Auth providers you want enabled, such as Google and GitHub.
+4. Add the Stripe product price ID and point your Stripe webhook to `/api/stripe/webhook`.
+5. Run `npm install` and `npm run dev`.
 
-- `RESEND_API_KEY` to enable newsletter and transactional email delivery
-- `EMAIL_FROM` for the sender address used by the email provider
+## Operational Endpoints
 
-If those values are missing, newsletter subscriptions still store locally in demo mode,
-but outbound mail is skipped.
+- `/api/health`: config-aware health status for auth/database/billing/email wiring
+- `/api/account/export`: JSON export of account-owned data
+- `/api/account/delete`: permanent account deletion, blocked while an active Stripe subscription exists
+- `/api/stripe/webhook`: Stripe subscription sync
+
+## Why Supabase Instead Of Replacing It
+
+This repo already used Supabase session cookies, Postgres tables, and RLS policies. Replacing that with Clerk or Better Auth would mean rewriting identity, session handling, and the user-to-data permission model. Keeping Supabase as the auth and data control plane is the lower-risk move here, while still using Stripe as a managed billing system.

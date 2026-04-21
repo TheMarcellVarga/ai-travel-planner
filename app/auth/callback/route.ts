@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ensureEntitlementForUser } from "@/lib/account/entitlements";
+import { ensureUserProfileForUser } from "@/lib/account/profile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -16,7 +17,12 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser();
 
     if (user?.id) {
-      await ensureEntitlementForUser(supabase, user.id, user.email ?? null);
+      await Promise.all([
+        ensureEntitlementForUser(supabase, user.id, user.email ?? null),
+        ensureUserProfileForUser(supabase, user.id, {
+          fullName: user.user_metadata?.full_name ?? user.email ?? "Traveler"
+        })
+      ]);
     }
   }
 

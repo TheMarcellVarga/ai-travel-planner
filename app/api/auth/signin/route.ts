@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isOAuthProvider } from "@/lib/auth-providers";
 import { env, hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -19,9 +20,9 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL("/auth?error=supabase-unavailable", request.url));
   }
 
-  if (provider === "google") {
+  if (isOAuthProvider(provider)) {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider,
       options: {
         redirectTo: `${env.appUrl}/auth/callback?next=${encodeURIComponent(nextPath)}`
       }

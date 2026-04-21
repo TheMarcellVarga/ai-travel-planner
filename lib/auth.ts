@@ -5,6 +5,7 @@ import {
   FREE_ENTITLEMENT,
   getEntitlementForUser
 } from "@/lib/account/entitlements";
+import { createDefaultUserProfile, ensureUserProfileForUser } from "@/lib/account/profile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AppUser, Entitlement } from "@/lib/types";
 
@@ -28,14 +29,21 @@ export async function getCurrentUser(): Promise<AppUser | null> {
     } = await supabase.auth.getUser();
 
     if (user?.email) {
-      const entitlement = await getEntitlementForUser(supabase, user.id);
+      const fallbackName = user.user_metadata?.full_name ?? formatNameFromEmail(user.email);
+      const [entitlement, profile] = await Promise.all([
+        getEntitlementForUser(supabase, user.id),
+        ensureUserProfileForUser(supabase, user.id, {
+          fullName: fallbackName
+        })
+      ]);
 
       return {
         id: user.id,
         email: user.email,
-        name: user.user_metadata?.full_name ?? formatNameFromEmail(user.email),
+        name: profile.fullName || fallbackName,
         authMode: "supabase",
-        entitlement
+        entitlement,
+        profile
       };
     }
   }
@@ -52,7 +60,10 @@ export async function getCurrentUser(): Promise<AppUser | null> {
     email: demoEmail,
     name: formatNameFromEmail(demoEmail),
     authMode: "demo",
-    entitlement: FREE_ENTITLEMENT
+    entitlement: FREE_ENTITLEMENT,
+    profile: createDefaultUserProfile(`demo:${demoEmail}`, {
+      fullName: formatNameFromEmail(demoEmail)
+    })
   };
 }
 

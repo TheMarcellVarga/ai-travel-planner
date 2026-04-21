@@ -1,10 +1,16 @@
 import Link from "next/link";
 
+import { getOAuthProviderLabel, oauthProviders } from "@/lib/auth-providers";
 import { getCurrentUser } from "@/lib/auth";
 import { hasSupabaseEnv } from "@/lib/env";
 
 type AuthPageProps = {
-  searchParams: Promise<{ sent?: string; email?: string; error?: string }>;
+  searchParams: Promise<{
+    sent?: string;
+    email?: string;
+    error?: string;
+    status?: string;
+  }>;
 };
 
 export default async function AuthPage({ searchParams }: AuthPageProps) {
@@ -22,6 +28,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             : params.error === "otp-start-failed"
               ? "Magic link sign-in could not be started. Check your Supabase email auth settings."
               : null;
+  const successMessage =
+    params.status === "account-deleted"
+      ? "Your account data was deleted and the session has been closed."
+      : null;
 
   return (
     <main className="shell auth-shell">
@@ -51,6 +61,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           <p className="status-copy auth-status auth-status-error">{errorMessage}</p>
         ) : null}
 
+        {successMessage ? (
+          <p className="status-copy auth-status">{successMessage}</p>
+        ) : null}
+
         {params.sent === "1" ? (
           <p className="status-copy auth-status">
             Magic link sent to <strong>{params.email}</strong>. Finish sign-in from your inbox.
@@ -74,10 +88,17 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               </form>
               <form action="/api/auth/signin" className="auth-form" method="post">
                 <input name="next" type="hidden" value="/saved" />
-                <input name="provider" type="hidden" value="google" />
-                <button className="button button-ghost" type="submit">
-                  Continue With Google
-                </button>
+                {oauthProviders.map((provider) => (
+                  <button
+                    className="button button-ghost"
+                    key={provider}
+                    name="provider"
+                    type="submit"
+                    value={provider}
+                  >
+                    Continue With {getOAuthProviderLabel(provider)}
+                  </button>
+                ))}
               </form>
             </article>
           ) : (
@@ -85,7 +106,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               <p className="eyebrow">Managed auth</p>
               <h2>Supabase is not wired on this machine yet.</h2>
               <p className="muted-copy">
-                Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to enable magic link and Google sign-in here.
+                Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to enable magic link and OAuth sign-in here.
               </p>
               <p className="muted-copy">
                 Until then, use demo mode on the right. The route save, publish, and handoff flows still work locally.

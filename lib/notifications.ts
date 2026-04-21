@@ -1,9 +1,11 @@
+import { getUserProfileForUser } from "@/lib/account/profile";
 import { site } from "@/lib/site";
 import { env } from "@/lib/env";
 import type { AppUser, NewsletterSubscriber, RouteOption } from "@/lib/types";
 
 import { getNewsletterSubscriber } from "@/lib/store/demo-store";
 import { sendEmail } from "@/lib/email";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type RouteNotificationAction = "saved" | "published" | "handoff";
 
@@ -58,10 +60,19 @@ export async function maybeSendRouteNotification({
   action: RouteNotificationAction;
   shareUrl?: string;
 }) {
-  const subscriber = getNewsletterSubscriber(user.email);
+  if (user.authMode === "supabase") {
+    const supabase = await createSupabaseServerClient();
+    const profile = supabase ? await getUserProfileForUser(supabase, user.id) : null;
 
-  if (!subscriber?.topics.includes("route_notifications")) {
-    return { sent: false, skipped: true as const };
+    if (!profile?.routeAlertsOptIn) {
+      return { sent: false, skipped: true as const };
+    }
+  } else {
+    const subscriber = getNewsletterSubscriber(user.email);
+
+    if (!subscriber?.topics.includes("route_notifications")) {
+      return { sent: false, skipped: true as const };
+    }
   }
 
   const summary = buildRouteSummary(route);
