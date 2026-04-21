@@ -4,6 +4,10 @@ import { MediaCredit } from "@/components/media-credit";
 import { getDestinationMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
 import { getSavedRoutesForUser, getSharedRoutesForUser } from "@/lib/store/demo-store";
+import {
+  getSavedRoutesForUserFromDatabase,
+  getSharedRoutesForUserFromDatabase
+} from "@/lib/store/persistent-store";
 
 export default async function SavedPage() {
   const user = await getCurrentUser();
@@ -41,8 +45,14 @@ export default async function SavedPage() {
     );
   }
 
-  const savedRoutes = getSavedRoutesForUser(user.id);
-  const sharedRoutes = getSharedRoutesForUser(user.id);
+  const savedRoutes =
+    user.authMode === "supabase"
+      ? await getSavedRoutesForUserFromDatabase(user.id)
+      : getSavedRoutesForUser(user.id);
+  const sharedRoutes =
+    user.authMode === "supabase"
+      ? await getSharedRoutesForUserFromDatabase(user.id)
+      : getSharedRoutesForUser(user.id);
 
   return (
     <main className="planner-command-shell">

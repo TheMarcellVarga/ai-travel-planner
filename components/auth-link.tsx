@@ -16,9 +16,8 @@ export function AuthLink({ user }: AuthLinkProps) {
   }
 
   return (
-    <Link href="/auth" className="button button-ghost">
+    <Link href="/account" className="button button-ghost">
       {user.name}
     </Link>
   );
 }
-

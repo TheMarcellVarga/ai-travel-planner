@@ -90,6 +90,11 @@ export type Entitlement = {
   promotedStopLimit: number;
   routeSaveLimit: number;
   generationLimit: number;
+  billingEmail?: string | null;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: string | null;
 };
 
 export type AppUser = {

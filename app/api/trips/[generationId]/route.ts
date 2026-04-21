@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getGeneration } from "@/lib/store/demo-store";
+import { getGenerationFromDatabase } from "@/lib/store/persistent-store";
 
 type RouteContext = {
   params: Promise<{ generationId: string }>;
@@ -8,7 +9,8 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { generationId } = await context.params;
-  const generation = getGeneration(generationId);
+  const generation =
+    (await getGenerationFromDatabase(generationId)) ?? getGeneration(generationId);
 
   if (!generation) {
     return NextResponse.json({ error: "Generation not found" }, { status: 404 });

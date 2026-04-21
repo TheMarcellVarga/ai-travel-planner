@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { ensureEntitlementForUser } from "@/lib/account/entitlements";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -10,8 +11,14 @@ export async function GET(request: Request) {
 
   if (code && supabase) {
     await supabase.auth.exchangeCodeForSession(code);
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (user?.id) {
+      await ensureEntitlementForUser(supabase, user.id, user.email ?? null);
+    }
   }
 
   return NextResponse.redirect(new URL(nextPath, request.url));
 }
-

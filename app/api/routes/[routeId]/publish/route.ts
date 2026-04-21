@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { maybeSendRouteNotification } from "@/lib/notifications";
 import { publishRouteForUser } from "@/lib/store/demo-store";
+import { publishRouteForUserInDatabase } from "@/lib/store/persistent-store";
 
 type RouteContext = {
   params: Promise<{ routeId: string }>;
@@ -15,7 +16,9 @@ export async function POST(_request: Request, context: RouteContext) {
   }
 
   const { routeId } = await context.params;
-  const sharedRoute = publishRouteForUser(user.id, routeId);
+  const sharedRoute =
+    (await publishRouteForUserInDatabase(user.id, routeId)) ??
+    publishRouteForUser(user.id, routeId);
 
   if (!sharedRoute) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });

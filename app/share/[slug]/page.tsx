@@ -4,6 +4,7 @@ import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { getDestinationMedia } from "@/lib/media";
 import { getSharedRoute } from "@/lib/store/demo-store";
+import { getSharedRouteFromDatabase } from "@/lib/store/persistent-store";
 
 type SharePageProps = {
   params: Promise<{ slug: string }>;
@@ -11,7 +12,8 @@ type SharePageProps = {
 
 export default async function SharePage({ params }: SharePageProps) {
   const { slug } = await params;
-  const sharedRoute = getSharedRoute(slug);
+  const sharedRoute =
+    (await getSharedRouteFromDatabase(slug)) ?? getSharedRoute(slug);
 
   if (!sharedRoute) {
     notFound();

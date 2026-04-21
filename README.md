@@ -11,7 +11,8 @@ feature commits establish:
 - the global design system and jungle-themed visual direction
 - the landing page
 - planner APIs and route generation
-- auth, saved routes, share pages, and booking handoff scaffolding
+- Supabase-backed auth, storage, and share flows with demo fallback
+- Stripe-backed billing primitives for managed checkout and the customer portal
 
 ## Run
 
@@ -25,6 +26,13 @@ npm test
 
 Copy `.env.example` to `.env.local` if you want to wire in Supabase. Without Supabase
 credentials, the app still works in demo mode using secure cookies and in-memory data.
+
+Managed SaaS services:
+
+- `SUPABASE_SERVICE_ROLE_KEY` to support webhook-driven entitlement sync
+- `STRIPE_SECRET_KEY` for checkout and billing portal sessions
+- `STRIPE_WEBHOOK_SECRET` for `/api/stripe/webhook`
+- `STRIPE_PRO_PRICE_ID` for the paid plan
 
 Optional email support:
 
