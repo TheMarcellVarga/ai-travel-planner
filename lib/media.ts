@@ -17,148 +17,141 @@ type DestinationMedia = MediaAsset & {
   punchline: string;
 };
 
-const commonsFilePath = (fileName: string) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}`;
+const unsplashImage = (photoId: string, width = 1800) =>
+  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${width}&q=82`;
 
-const ccBySa40 = {
-  licenseLabel: "CC BY-SA 4.0",
-  licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/"
-};
-
-const ccBySa30 = {
-  licenseLabel: "CC BY-SA 3.0",
-  licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
-};
-
-const ccBySa20 = {
-  licenseLabel: "CC BY-SA 2.0",
-  licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/"
-};
-
-const ccBy30 = {
-  licenseLabel: "CC BY 3.0",
-  licenseUrl: "https://creativecommons.org/licenses/by/3.0/"
+const unsplashLicense = {
+  licenseLabel: "Unsplash License",
+  licenseUrl: "https://unsplash.com/license"
 };
 
 export const heroMedia: MediaAsset = {
-  kind: "video",
-  src: commonsFilePath("File:Small waterfall.webm"),
-  poster: commonsFilePath("File:Waterfall and jungle.jpg"),
-  alt: "A dense jungle waterfall used as the landing page hero.",
-  title: "Small waterfall",
-  author: "YouTube user Editor via Wikimedia Commons",
-  sourceUrl: "https://commons.wikimedia.org/wiki/File:Small_waterfall.webm",
-  ...ccBy30
+  kind: "image",
+  src: unsplashImage("photo-1759055292398-312034ce4595", 2400),
+  alt: "Lush Bali rice terraces with a waterfall dropping behind them.",
+  title: "Lush green rice terraces with a waterfall",
+  author: "Seraina Larissa",
+  sourceUrl:
+    "https://unsplash.com/photos/lush-green-rice-terraces-with-a-waterfall-in-the-background-YQVX3RyCvWg",
+  ...unsplashLicense
 };
 
 export const kineticMedia: MediaAsset = {
-  kind: "video",
-  src: commonsFilePath("File:Mountain biking Downhill.webm"),
-  poster: commonsFilePath("File:Mountain bike.JPG"),
-  alt: "A downhill mountain biking sequence used as kinetic adventure media.",
-  title: "Mountain biking Downhill",
-  author: "Mountain Biking TV via Wikimedia Commons",
-  sourceUrl: "https://commons.wikimedia.org/wiki/File:Mountain_biking_Downhill.webm",
-  ...ccBy30
+  kind: "image",
+  src: unsplashImage("photo-1761225155424-d6bfed504284", 1600),
+  alt: "A mountain biker jumping through a forest trail.",
+  title: "Mountain biker jumps over a dirt trail in forest",
+  author: "Simone Nicora",
+  sourceUrl:
+    "https://unsplash.com/photos/mountain-biker-jumps-over-a-dirt-trail-in-forest-H-j7HZFpGsU",
+  ...unsplashLicense
 };
 
 export const destinationMedia: Record<string, DestinationMedia> = {
   bali: {
     kind: "image",
-    src: commonsFilePath("File:GitGit Waterfall, Bali.jpg"),
-    alt: "A tall waterfall in Bali surrounded by jungle.",
-    title: "GitGit Waterfall, Bali",
-    author: "Ntup88",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:GitGit_Waterfall,_Bali.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1557093793-d149a38a1be8", 1600),
+    alt: "Layered green rice terraces in Ubud, Bali.",
+    title: "Rice terraces",
+    author: "Radoslav Bali",
+    sourceUrl: "https://unsplash.com/photos/rice-terraces-jN9JnZ-SyVc",
+    ...unsplashLicense,
     location: "Bali, Indonesia",
-    punchline: "Waterfall humidity, black rock, and jungle-green excess."
+    punchline: "Waterfall humidity, terraced green, and jungle-route excess."
   },
   "chiang-mai": {
     kind: "image",
-    src: commonsFilePath("File:Chiangmai temple.JPG"),
-    alt: "A golden temple interior in Chiang Mai.",
-    title: "Chiangmai temple",
-    author: "CenkX",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Chiangmai_temple.JPG",
-    ...ccBySa30,
+    src: unsplashImage("photo-1709662763444-695cb32eaea4", 1600),
+    alt: "A Thai mountain temple rising from steep forested rock.",
+    title: "Temple on top of the mountain",
+    author: "Nopparuj Lamaikul",
+    sourceUrl:
+      "https://unsplash.com/photos/a-view-of-a-mountain-with-a-temple-on-top-of-it-D7owOqY5WVg",
+    ...unsplashLicense,
     location: "Chiang Mai, Thailand",
     punchline: "Temple gold, mountain loops, and remote-worker trail access."
   },
   "da-nang": {
     kind: "image",
-    src: commonsFilePath("File:Image of Da Nang beach.jpg"),
-    alt: "Evening light over Da Nang beach.",
-    title: "Image of Da Nang beach",
-    author: "Ftfumuy926ascv",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Image_of_Da_Nang_beach.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1775452455303-fff72b03512d", 1800),
+    alt: "My Khe Beach in Da Nang with skyline and mountains in the distance.",
+    title: "Beach with city skyline and mountains",
+    author: "Quang Tran",
+    sourceUrl:
+      "https://unsplash.com/photos/beach-with-city-skyline-and-mountains-in-background-nLH08BnLB3Y",
+    ...unsplashLicense,
     location: "Da Nang, Vietnam",
-    punchline: "Coastal glow, moonlit sand, and surf-route temptation."
+    punchline: "Beachfront lift, mountain backdrop, and fast coastal exits."
   },
   "cape-town": {
     kind: "image",
-    src: commonsFilePath("File:Cape Town Mountain.jpg"),
-    alt: "A wide cinematic view of Table Mountain over Cape Town.",
-    title: "Cape Town Mountain",
-    author: "safaritravelplus",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Cape_Town_Mountain.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1746876269545-c23ecff55722", 1800),
+    alt: "Dramatic sunset over the ocean with Table Mountain in silhouette.",
+    title: "Dramatic sunset over the ocean with Table Mountain",
+    author: "Marlin Clark",
+    sourceUrl:
+      "https://unsplash.com/photos/dramatic-sunset-over-the-ocean-with-table-mountain-6gn7jdejEoQ",
+    ...unsplashLicense,
     location: "Cape Town, South Africa",
     punchline: "Table Mountain scale and ocean-edge contrast that sells itself."
   },
   tbilisi: {
     kind: "image",
-    src: commonsFilePath("File:Tbilisi, Old town, Georgia.jpg"),
-    alt: "Old town rooftops in Tbilisi, Georgia.",
-    title: "Tbilisi, Old town, Georgia",
-    author: "Dmitry A. Mottl",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Tbilisi,_Old_town,_Georgia.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1759506346306-5370eb85ae62", 1800),
+    alt: "Tbilisi's river, bridge, cable cars, and old town rising up a green hill.",
+    title: "River with bridge and old town on hill",
+    author: "Rama Krushna Behera",
+    sourceUrl:
+      "https://unsplash.com/photos/river-with-bridge-and-old-town-on-hill-bjbBlbX-XEg",
+    ...unsplashLicense,
     location: "Tbilisi, Georgia",
     punchline: "Rooftop texture, hillside density, and crypto-nomad mystique."
   },
   medellin: {
     kind: "image",
-    src: commonsFilePath("File:Medellín skyline02.jpg"),
-    alt: "Skyline of Medellin with mountains behind it.",
-    title: "Medellín skyline02",
-    author: "I.D. R.J.",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Medell%C3%ADn_skyline02.jpg",
-    ...ccBySa20,
+    src: unsplashImage("photo-1640768239887-77479f49a7dc", 1600),
+    alt: "Medellin suburbs and mountain valley seen from a cable car.",
+    title: "A scenic view of a valley and mountains",
+    author: "Jan Brennenstuhl",
+    sourceUrl:
+      "https://unsplash.com/photos/a-scenic-view-of-a-valley-and-mountains-x_3-flSAKS0",
+    ...unsplashLicense,
     location: "Medellin, Colombia",
     punchline: "City heat wrapped in mountains, built for late-night route lust."
   },
   queenstown: {
     kind: "image",
-    src: commonsFilePath("File:Queenstown, New Zealand.jpg"),
-    alt: "Queenstown seen from above with lake and mountains.",
-    title: "Queenstown, New Zealand",
-    author: "Charlie Mitchell",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Queenstown,_New_Zealand.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1655514484562-6d5aa13a3fd7", 2000),
+    alt: "Queenstown lake water surrounded by steep alpine mountains.",
+    title: "A lake surrounded by mountains",
+    author: "Zac Smith",
+    sourceUrl:
+      "https://unsplash.com/photos/a-lake-surrounded-by-mountains-cuG2T8qKA9o",
+    ...unsplashLicense,
     location: "Queenstown, New Zealand",
     punchline: "Cold lake sheen and full-send alpine MTB energy."
   },
   madeira: {
     kind: "image",
-    src: commonsFilePath("File:Cliff in Madeira.jpg"),
-    alt: "A dramatic cliffside view in Madeira.",
-    title: "Cliff in Madeira",
-    author: "Tiia Monto",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Cliff_in_Madeira.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1757440156710-574dcfae0bcc", 1600),
+    alt: "Madeira coastal cliffs with a waterfall dropping toward the ocean.",
+    title: "Coastal cliffs with a waterfall cascading into the ocean",
+    author: "Mick Waanders",
+    sourceUrl:
+      "https://unsplash.com/photos/coastal-cliffs-with-a-waterfall-cascading-into-the-ocean-Ael_O98yBwI",
+    ...unsplashLicense,
     location: "Madeira, Portugal",
     punchline: "Cliff-road vertigo, ocean drops, and levada-line tension."
   },
   tulum: {
     kind: "image",
-    src: commonsFilePath("File:Beach and Ruins at Tulum.jpg"),
-    alt: "Ancient Tulum ruins overlooking bright Caribbean water.",
-    title: "Beach and Ruins at Tulum",
-    author: "FeldBum",
-    sourceUrl: "https://commons.wikimedia.org/wiki/File:Beach_and_Ruins_at_Tulum.jpg",
-    ...ccBySa40,
+    src: unsplashImage("photo-1645557180229-98bfc29dbdbf", 1600),
+    alt: "Tulum's rocky coastline with Mayan ruins above the ocean.",
+    title: "A rocky cliff overlooking the ocean with a tower in the distance",
+    author: "Austin Kindred",
+    sourceUrl:
+      "https://unsplash.com/photos/a-rocky-cliff-overlooking-the-ocean-with-a-tower-in-the-distance-GS9O2wOz0DA",
+    ...unsplashLicense,
     location: "Tulum, Mexico",
     punchline: "Ruins over electric water, pure social-first temptation."
   }

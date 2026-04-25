@@ -1991,6 +1991,54 @@ h3,
     width: min(100% - 24px, 1240px);
   }
 
+  .site-header {
+    top: 12px;
+  }
+
+  .site-header-glass {
+    width: min(calc(100% - 24px), 1200px);
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .brand-minimal {
+    padding: 0;
+  }
+
+  .brand-name {
+    font-size: 0.9rem;
+  }
+
+  .status-text {
+    font-size: 0.52rem;
+  }
+
+  .site-nav-console {
+    position: static;
+    order: 3;
+    width: 100%;
+    transform: none;
+  }
+
+  .nav-item-console {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
+
+  .site-actions-minimal {
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .button-primary-sm {
+    padding: 9px 12px;
+    font-size: 0.68rem;
+  }
+
   .site-actions,
   .site-nav {
     width: 100%;
@@ -2043,13 +2091,14 @@ h3,
     grid-template-rows: auto auto auto;
     gap: 14px;
     min-height: auto;
-    padding: 18px;
+    padding: 166px 18px 18px;
   }
 
   .planner-stage-header {
     display: grid;
     justify-content: stretch;
     align-items: start;
+    top: 0;
   }
 
   .planner-stage-badges {
@@ -2057,7 +2106,7 @@ h3,
   }
 
   .planner-stage-globe {
-    margin-top: 0;
+    margin-top: 16px;
     min-height: 420px;
   }
 

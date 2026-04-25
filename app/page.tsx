@@ -2,12 +2,7 @@ import Link from "next/link";
 import { Compass, Globe2, Sparkles, Ticket } from "lucide-react";
 
 import { MediaCredit } from "@/components/media-credit";
-import {
-  destinationMedia,
-  expeditionIndex,
-  heroMedia,
-  kineticMedia,
-} from "@/lib/media";
+import { heroMedia, kineticMedia } from "@/lib/media";
 import { wishTags } from "@/lib/site";
 
 const highlights = [
@@ -37,17 +32,26 @@ export default function HomePage() {
   return (
     <main className="planner-command-shell">
       <div className="planner-stage-globe">
-        <video
-          autoPlay
-          className="hero-media"
-          loop
-          muted
-          playsInline
-          poster={heroMedia.poster}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        >
-          <source src={heroMedia.src} type="video/webm" />
-        </video>
+        {heroMedia.kind === "video" ? (
+          <video
+            autoPlay
+            className="hero-media"
+            loop
+            muted
+            playsInline
+            poster={heroMedia.poster}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          >
+            <source src={heroMedia.src} type="video/webm" />
+          </video>
+        ) : (
+          <img
+            alt={heroMedia.alt}
+            className="hero-media"
+            src={heroMedia.src}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        )}
         <div
           className="hero-media-overlay"
           style={{
@@ -117,17 +121,26 @@ export default function HomePage() {
       <aside className="floating-sidebar floating-sidebar-right">
         <div className="floating-sidebar__inner floating-sidebar__inner-tight">
           <div className="route-inspector__media">
-            <video
-              autoPlay
-              className="route-inspector__image"
-              loop
-              muted
-              playsInline
-              poster={kineticMedia.poster}
-              style={{ objectFit: "cover" }}
-            >
-              <source src={kineticMedia.src} type="video/webm" />
-            </video>
+            {kineticMedia.kind === "video" ? (
+              <video
+                autoPlay
+                className="route-inspector__image"
+                loop
+                muted
+                playsInline
+                poster={kineticMedia.poster}
+                style={{ objectFit: "cover" }}
+              >
+                <source src={kineticMedia.src} type="video/webm" />
+              </video>
+            ) : (
+              <img
+                alt={kineticMedia.alt}
+                className="route-inspector__image"
+                src={kineticMedia.src}
+                style={{ objectFit: "cover" }}
+              />
+            )}
             <div
               className="route-inspector__overlay"
               style={{

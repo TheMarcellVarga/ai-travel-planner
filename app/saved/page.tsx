@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { MediaCredit } from "@/components/media-credit";
-import { getDestinationMedia } from "@/lib/media";
+import { getDestinationMedia, heroMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
 import { getSavedRoutesForUser, getSharedRoutesForUser } from "@/lib/store/demo-store";
 import {
@@ -16,7 +15,7 @@ export default async function SavedPage() {
     return (
       <main className="planner-command-shell">
         <div className="planner-stage-globe">
-           <div style={{ position: "absolute", inset: 0, background: "url('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg') center/cover", opacity: 0.2, filter: "blur(12px)" }} />
+           <div style={{ position: "absolute", inset: 0, background: `url('${heroMedia.src}') center/cover`, opacity: 0.24, filter: "blur(12px)" }} />
            <div style={{ position: "absolute", inset: 0, background: "rgba(3, 10, 6, 0.75)" }} />
         </div>
         <div className="planner-stage-header">
@@ -57,7 +56,7 @@ export default async function SavedPage() {
   return (
     <main className="planner-command-shell">
       <div className="planner-stage-globe">
-        <div style={{ position: "absolute", inset: 0, background: "url('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg') center/cover", opacity: 0.15, filter: "blur(12px)" }} />
+        <div style={{ position: "absolute", inset: 0, background: `url('${heroMedia.src}') center/cover`, opacity: 0.2, filter: "blur(12px)" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(3, 10, 6, 0.75), rgba(3, 10, 6, 0.94))" }} />
       </div>
 
