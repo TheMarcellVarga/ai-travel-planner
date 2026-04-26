@@ -1,6 +1,8 @@
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  supabasePublishableKey:
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
@@ -10,7 +12,9 @@ export const env = {
   emailFrom: process.env.EMAIL_FROM
 };
 
-export const hasSupabaseEnv = Boolean(env.supabaseUrl && env.supabaseAnonKey);
+export const hasSupabaseEnv = Boolean(
+  env.supabaseUrl && env.supabasePublishableKey
+);
 export const hasSupabaseAdminEnv = Boolean(
   env.supabaseUrl && env.supabaseServiceRoleKey
 );

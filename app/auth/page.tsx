@@ -20,7 +20,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     params.error === "supabase-not-configured"
       ? "Supabase auth is not configured in this local environment yet. Use demo mode or add the Supabase env vars."
       : params.error === "supabase-unavailable"
-        ? "Supabase auth client could not be created. Check the project URL and anon key."
+        ? "Supabase auth client could not be created. Check the project URL and public key."
         : params.error === "missing-email"
           ? "Enter an email address before continuing."
           : params.error === "oauth-start-failed"
@@ -106,7 +106,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               <p className="eyebrow">Managed auth</p>
               <h2>Supabase is not wired on this machine yet.</h2>
               <p className="muted-copy">
-                Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to enable magic link and OAuth sign-in here.
+                Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> to enable magic link and OAuth sign-in here.
               </p>
               <p className="muted-copy">
                 Until then, use demo mode on the right. The route save, publish, and handoff flows still work locally.

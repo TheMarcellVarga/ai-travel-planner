@@ -9,14 +9,14 @@ type AuthLinkProps = {
 export function AuthLink({ user }: AuthLinkProps) {
   if (!user) {
     return (
-      <Link href="/auth" className="button button-ghost">
+      <Link href="/auth" className="button-sm button-ghost-sm">
         Sign In
       </Link>
     );
   }
 
   return (
-    <Link href="/account" className="button button-ghost">
+    <Link href="/account" className="button-sm button-ghost-sm">
       {user.name}
     </Link>
   );

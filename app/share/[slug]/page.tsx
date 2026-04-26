@@ -25,7 +25,7 @@ export default async function SharePage({ params }: SharePageProps) {
     <main className="planner-command-shell">
       <div className="planner-stage-globe">
         <img alt={shareMedia.alt} className="hero-media-image" src={shareMedia.src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, rgba(3, 10, 6, 0.86) 18%, rgba(3, 10, 6, 0.44) 52%, rgba(3, 10, 6, 0.94) 100%)" }} />
+        <div className="product-hero__overlay" />
       </div>
 
       <div className="planner-stage-header">
@@ -34,8 +34,12 @@ export default async function SharePage({ params }: SharePageProps) {
           <h1>{sharedRoute.route.title}</h1>
         </div>
         <div className="planner-stage-badges">
-          <span className="status-pill status-pill-accent">${sharedRoute.route.estimatedCostUsd}</span>
-          <span className="status-pill">Confidence {Math.round(sharedRoute.route.confidence * 100)}%</span>
+          <span className="status-pill status-pill-accent">
+            ${sharedRoute.route.estimatedCostUsd}
+          </span>
+          <span className="status-pill">
+            Confidence {Math.round(sharedRoute.route.confidence * 100)}%
+          </span>
         </div>
       </div>
 
@@ -45,21 +49,29 @@ export default async function SharePage({ params }: SharePageProps) {
             <p className="eyebrow">Discover</p>
             <h2>{sharedRoute.route.tagline}</h2>
           </div>
-          <div className="tag-row" style={{ marginTop: "8px" }}>
+          <div className="tag-row" style={{ marginTop: "12px" }}>
             {sharedRoute.route.wishTags.map((tag) => (
               <span className="tag-pill" key={tag}>{tag}</span>
             ))}
           </div>
-          
-          <div className="route-inspector__section" style={{ marginTop: "24px" }}>
-             <p className="eyebrow" style={{ marginBottom: "8px" }}>Take Action</p>
-             <p className="muted-copy" style={{ marginBottom: "12px", fontSize: "0.85rem" }}>
-               Published {new Date(sharedRoute.publishedAt).toLocaleString()}.
-             </p>
-             <RouteActions routeId={sharedRoute.route.id} />
+
+          <div
+            className="route-inspector__section"
+            style={{ marginTop: "24px" }}
+          >
+            <p className="eyebrow" style={{ marginBottom: "8px" }}>
+              Take Action
+            </p>
+            <p
+              className="muted-copy"
+              style={{ marginBottom: "12px", fontSize: "0.85rem" }}
+            >
+              Published {new Date(sharedRoute.publishedAt).toLocaleString()}.
+            </p>
+            <RouteActions routeId={sharedRoute.route.id} />
           </div>
 
-          <div style={{ marginTop: "auto" }}>
+          <div className="margin-top-auto">
              <MediaCredit asset={shareMedia} compact />
           </div>
         </div>
@@ -73,22 +85,22 @@ export default async function SharePage({ params }: SharePageProps) {
           </div>
           <div className="stop-stack">
             {sharedRoute.route.stops.map((stop) => (
-              <article className="stop-card" key={stop.id} style={{ display: "grid", gap: "8px", padding: "16px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div style={{ display: "grid", gap: "2px" }}>
+              <article className="stop-card" key={stop.id} style={{ padding: "18px" }}>
+                <div className="card-header">
+                  <div className="card-stack" style={{ gap: "4px" }}>
                     <p className="eyebrow" style={{ fontSize: "0.6rem" }}>{stop.kind}</p>
-                    <strong style={{ fontSize: "1.05rem" }}>{stop.name} ({stop.code})</strong>
+                    <strong className="card-title text-small">{stop.name} ({stop.code})</strong>
                   </div>
                   {stop.kind === "destination" && (
                     <img 
                       alt="" 
                       src={getDestinationMedia(stop.id).src} 
-                      style={{ width: "48px", height: "48px", borderRadius: "10px", objectFit: "cover" }} 
+                      className="card-image-xs" 
                     />
                   )}
                 </div>
-                <p className="muted-copy" style={{ margin: 0, fontSize: "0.85rem" }}>{stop.country}</p>
-                {stop.scene ? <p className="route-tagline" style={{ fontSize: "0.85rem" }}>{stop.scene}</p> : null}
+                <p className="muted-copy text-small" style={{ margin: "10px 0 0" }}>{stop.country}</p>
+                {stop.scene ? <p className="route-tagline text-small" style={{ marginTop: "8px" }}>{stop.scene}</p> : null}
               </article>
             ))}
           </div>

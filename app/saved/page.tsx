@@ -2,10 +2,13 @@ import Link from "next/link";
 
 import { getDestinationMedia, heroMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
-import { getSavedRoutesForUser, getSharedRoutesForUser } from "@/lib/store/demo-store";
+import {
+  getSavedRoutesForUser,
+  getSharedRoutesForUser,
+} from "@/lib/store/demo-store";
 import {
   getSavedRoutesForUserFromDatabase,
-  getSharedRoutesForUserFromDatabase
+  getSharedRoutesForUserFromDatabase,
 } from "@/lib/store/persistent-store";
 
 export default async function SavedPage() {
@@ -15,26 +18,42 @@ export default async function SavedPage() {
     return (
       <main className="planner-command-shell">
         <div className="planner-stage-globe">
-           <div style={{ position: "absolute", inset: 0, background: `url('${heroMedia.src}') center/cover`, opacity: 0.24, filter: "blur(12px)" }} />
-           <div style={{ position: "absolute", inset: 0, background: "rgba(3, 10, 6, 0.75)" }} />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: `url('${heroMedia.src}') center/cover`,
+              opacity: 0.24,
+              filter: "blur(12px)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(3, 10, 6, 0.75)",
+            }}
+          />
         </div>
         <div className="planner-stage-header">
           <div className="planner-stage-title">
             <p className="eyebrow">Saved routes</p>
-            <h1>Sign in to keep route hunts, published slugs, and booking history.</h1>
+            <h1>
+              Sign in to keep route hunts, published slugs, and booking history.
+            </h1>
           </div>
         </div>
         <aside className="floating-sidebar floating-sidebar-left">
           <div className="floating-sidebar__inner">
             <p className="lede" style={{ fontSize: "0.95rem" }}>
-              Anonymous users can explore the planner, but route storage and publishing are
-              account-backed features.
+              Anonymous users can explore the planner, but route storage and
+              publishing are account-backed features.
             </p>
-            <div className="button-row" style={{ flexDirection: "column", marginTop: "24px" }}>
-              <Link href="/auth" className="button" style={{ width: "100%", justifyContent: "center" }}>
+            <div className="layout-v-stack" style={{ marginTop: "24px" }}>
+              <Link href="/auth" className="button layout-fill">
                 Sign In
               </Link>
-              <Link href="/planner" className="button button-ghost" style={{ width: "100%", justifyContent: "center" }}>
+              <Link href="/planner" className="button button-ghost layout-fill">
                 Open planner
               </Link>
             </div>
@@ -56,17 +75,37 @@ export default async function SavedPage() {
   return (
     <main className="planner-command-shell">
       <div className="planner-stage-globe">
-        <div style={{ position: "absolute", inset: 0, background: `url('${heroMedia.src}') center/cover`, opacity: 0.2, filter: "blur(12px)" }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(3, 10, 6, 0.75), rgba(3, 10, 6, 0.94))" }} />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `url('${heroMedia.src}') center/cover`,
+            opacity: 0.2,
+            filter: "blur(12px)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(3, 10, 6, 0.75), rgba(3, 10, 6, 0.94))",
+          }}
+        />
       </div>
 
       <div className="planner-stage-header">
         <div className="planner-stage-title">
           <p className="eyebrow">Saved route vault</p>
-          <h1>{savedRoutes.length} routes saved for {user.name}.</h1>
+          <h1>
+            {savedRoutes.length} routes saved for {user.name}.
+          </h1>
         </div>
         <div className="planner-stage-badges">
-           <span className="status-pill">Plan: {user.entitlement.routeSaveLimit} routes, {user.entitlement.promotedStopLimit} promoted</span>
+          <span className="status-pill">
+            Plan: {user.entitlement.routeSaveLimit} routes,{" "}
+            {user.entitlement.promotedStopLimit} promoted
+          </span>
         </div>
       </div>
 
@@ -76,30 +115,33 @@ export default async function SavedPage() {
             <p className="eyebrow">Saved routes</p>
             <h2>Vault</h2>
           </div>
-          
+
           <div className="stop-stack">
             {savedRoutes.length ? (
               savedRoutes.map((item) => (
-                <article className="stop-card" key={item.id} style={{ display: "grid", gap: "10px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <article className="stop-card" key={item.id} style={{ padding: "18px" }}>
+                  <div className="card-header">
                     <div>
-                      <strong style={{ fontSize: "1.1rem" }}>{item.route.title}</strong>
-                      <span style={{ display: "block", color: "var(--accent)", fontWeight: 800 }}>${item.route.estimatedCostUsd}</span>
+                      <strong className="card-title">{item.route.title}</strong>
+                      <span className="card-price">${item.route.estimatedCostUsd}</span>
                     </div>
                     <img 
                       alt="" 
                       src={getDestinationMedia(item.route.promotedStopId).src} 
-                      style={{ width: "56px", height: "56px", borderRadius: "12px", objectFit: "cover" }} 
+                      className="card-image-sm" 
                     />
                   </div>
-                  <p className="muted-copy" style={{ fontSize: "0.82rem", margin: 0 }}>{item.route.tagline}</p>
+                  <p className="muted-copy text-small" style={{ margin: "10px 0 0" }}>{item.route.tagline}</p>
                 </article>
               ))
             ) : (
-              <p className="muted-copy">No saved routes yet. Generate in the planner and tap save on any route card.</p>
+              <p className="muted-copy">
+                No saved routes yet. Generate in the planner and tap save on any
+                route card.
+              </p>
             )}
           </div>
-          <Link href="/planner" className="button button-ghost" style={{ marginTop: "12px", justifyContent: "center" }}>
+          <Link href="/planner" className="button button-ghost layout-fill" style={{ marginTop: "12px" }}>
             Generate more
           </Link>
         </div>
@@ -111,28 +153,31 @@ export default async function SavedPage() {
             <p className="eyebrow">Public shares</p>
             <h2>Published pages</h2>
           </div>
-          
+
           <div className="stop-stack">
             {sharedRoutes.length ? (
               sharedRoutes.map((item) => (
-                <article className="stop-card" key={item.id} style={{ display: "grid", gap: "10px", padding: "16px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <article className="stop-card" key={item.id} style={{ padding: "18px" }}>
+                  <div className="card-header">
                     <div>
-                      <strong style={{ fontSize: "1.1rem" }}>{item.route.title}</strong>
+                      <strong className="card-title">{item.route.title}</strong>
                     </div>
                     <img 
                       alt="" 
                       src={getDestinationMedia(item.route.promotedStopId).src} 
-                      style={{ width: "56px", height: "56px", borderRadius: "12px", objectFit: "cover" }} 
+                      className="card-image-sm" 
                     />
                   </div>
-                  <Link className="button button-ghost" href={`/share/${item.slug}`} style={{ fontSize: "0.85rem", padding: "8px", justifyContent: "center" }}>
+                  <Link className="button button-ghost layout-fill text-small" href={`/share/${item.slug}`} style={{ padding: "8px", marginTop: "10px" }}>
                     Open /share/{item.slug}
                   </Link>
                 </article>
               ))
             ) : (
-              <p className="muted-copy">No published pages yet. Publish any route from the planner to create a shareable slug.</p>
+              <p className="muted-copy">
+                No published pages yet. Publish any route from the planner to
+                create a shareable slug.
+              </p>
             )}
           </div>
         </div>

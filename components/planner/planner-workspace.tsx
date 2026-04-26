@@ -33,15 +33,19 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     tripLengthDays: initialGeneration.tripIntent.tripLengthDays,
     maxStops: initialGeneration.tripIntent.maxStops,
     wishTags: initialGeneration.tripIntent.wishTags,
-    budgetMode: initialGeneration.tripIntent.budgetMode
+    budgetMode: initialGeneration.tripIntent.budgetMode,
   });
 
-  const activeRoute = generation.routes.find((route) => route.id === activeRouteId) ?? null;
-  const promotedStop = activeRoute?.stops.find((stop) => stop.id === activeRoute.promotedStopId);
+  const activeRoute =
+    generation.routes.find((route) => route.id === activeRouteId) ?? null;
+  const promotedStop = activeRoute?.stops.find(
+    (stop) => stop.id === activeRoute.promotedStopId,
+  );
   const promotedMedia = getDestinationMedia(promotedStop?.id ?? "bali");
   const destinationStops = useMemo(
-    () => activeRoute?.stops.filter((stop) => stop.kind === "destination") ?? [],
-    [activeRoute]
+    () =>
+      activeRoute?.stops.filter((stop) => stop.kind === "destination") ?? [],
+    [activeRoute],
   );
   const recommendationCountLabel =
     generation.routes.length === 1
@@ -61,12 +65,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt,
-          ...secondaryValues
-        })
+          ...secondaryValues,
+        }),
       });
 
       if (!response.ok) {
-        setErrorMessage("Route generation failed. Try adjusting the prompt or selected wishes.");
+        setErrorMessage(
+          "Route generation failed. Try adjusting the prompt or selected wishes.",
+        );
         return;
       }
 
@@ -75,7 +81,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         id: payload.generationId,
         createdAt: new Date().toISOString(),
         tripIntent: payload.tripIntent,
-        routes: payload.routes
+        routes: payload.routes,
       });
       setActiveRouteId(null);
     });
@@ -84,21 +90,33 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   return (
     <main className="planner-command-shell planner-command-deck">
       <section className="planner-command-stage">
-        <div className={activeRoute ? "planner-stage-header" : "planner-stage-header planner-stage-header-idle"}>
+        <div
+          className={
+            activeRoute
+              ? "planner-stage-header"
+              : "planner-stage-header planner-stage-header-idle"
+          }
+        >
           <div className="planner-stage-title">
-            <p className="eyebrow">{activeRoute ? "Active route" : "Recommendation sweep"}</p>
-            <h1>{activeRoute ? activeRoute.title : "Spin the globe for pinned recommendations."}</h1>
+            <p className="eyebrow">
+              {activeRoute ? "Active route" : "Recommendation sweep"}
+            </p>
+            <h1>{activeRoute ? activeRoute.title : "Identify destination signals on the orbital display."}</h1>
           </div>
           <div className="planner-stage-badges">
             {activeRoute ? (
               <>
-                <span className="status-pill">Confidence {Math.round(activeRoute.confidence * 100)}%</span>
-                <span className="status-pill status-pill-accent">${activeRoute.estimatedCostUsd}</span>
+                <span className="status-pill">
+                  Confidence {Math.round(activeRoute.confidence * 100)}%
+                </span>
+                <span className="status-pill status-pill-accent">
+                  ${activeRoute.estimatedCostUsd}
+                </span>
               </>
             ) : (
               <>
                 <span className="status-pill">{recommendationCountLabel}</span>
-                <span className="status-pill status-pill-accent">Click a glowing pin to inspect</span>
+                <span className="status-pill status-pill-accent">Select coordinate to inspect</span>
               </>
             )}
           </div>
@@ -121,8 +139,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               onClick={() => setIsMissionPanelOpen((current) => !current)}
               type="button"
             >
-              <SlidersHorizontal className="planner-mission-panel__toggle-icon" aria-hidden="true" />
-              <span>Mission Parameter</span>
+              <SlidersHorizontal
+                className="planner-mission-panel__toggle-icon"
+                aria-hidden="true"
+              />
+              <span>Mission Parameters</span>
               <ChevronDown
                 className="planner-mission-panel__toggle-chevron"
                 aria-hidden="true"
@@ -138,12 +159,17 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </p>
               </div>
 
-              <PlannerForm initialIntent={generation.tripIntent} onChange={setSecondaryValues} />
+              <PlannerForm
+                initialIntent={generation.tripIntent}
+                onChange={setSecondaryValues}
+              />
 
               <section className="planner-intent-panel">
                 <div className="planner-intent-panel__header">
                   <p className="eyebrow">Strategic Intent</p>
-                  <p className="muted-copy">Describe the trip you want generated.</p>
+                  <p className="muted-copy">
+                    Describe the trip you want generated.
+                  </p>
                 </div>
                 <div className="planner-intent-panel__input-wrap">
                   <textarea
@@ -161,7 +187,9 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 >
                   {isPending ? "Calculating..." : "Generate Route Hunt"}
                 </button>
-                {errorMessage ? <p className="error-copy">{errorMessage}</p> : null}
+                {errorMessage ? (
+                  <p className="error-copy">{errorMessage}</p>
+                ) : null}
               </section>
             </div>
           </div>
@@ -171,7 +199,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <aside className="floating-sidebar floating-sidebar-right">
             <div className="floating-sidebar__inner floating-sidebar__inner-tight">
               <div className="route-inspector__media">
-                <img alt={promotedMedia.alt} className="route-inspector__image" src={promotedMedia.src} />
+                <img
+                  alt={promotedMedia.alt}
+                  className="route-inspector__image"
+                  src={promotedMedia.src}
+                />
                 <div className="route-inspector__overlay" />
                 <div className="route-inspector__copy">
                   <p className="eyebrow">Target stop</p>
@@ -219,7 +251,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             <button
               key={route.id}
               type="button"
-              className={route.id === activeRoute.id ? "mobile-route-card mobile-route-card-active" : "mobile-route-card"}
+              className={
+                route.id === activeRoute.id
+                  ? "mobile-route-card mobile-route-card-active"
+                  : "mobile-route-card"
+              }
               onClick={() => setActiveRouteId(route.id)}
             >
               <strong>{route.title}</strong>

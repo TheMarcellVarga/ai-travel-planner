@@ -47,3 +47,13 @@ All user-owned tables use RLS policies keyed on `auth.uid()`.
 ## Why Supabase Instead Of Replacing It
 
 This repo already used Supabase session cookies, Postgres tables, and RLS policies. Replacing that with Clerk or Better Auth would mean rewriting identity, session handling, and the user-to-data permission model. Keeping Supabase as the auth and data control plane is the lower-risk move here, while still using Stripe as a managed billing system.
+
+## Supabase Env Names
+
+The app supports Supabase's current publishable-key naming:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+For older projects, `NEXT_PUBLIC_SUPABASE_ANON_KEY` is still accepted as a fallback.
