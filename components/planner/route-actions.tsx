@@ -39,7 +39,7 @@ export function RouteActions({ routeId }: RouteActionsProps) {
 
   return (
     <div className="route-actions">
-      <div className="link-row">
+      <div className="route-actions__row">
         <button
           className="button button-ghost"
           disabled={isPending}
@@ -60,6 +60,8 @@ export function RouteActions({ routeId }: RouteActionsProps) {
         >
           Publish
         </button>
+      </div>
+      <div className="route-actions__row route-actions__row-primary">
         <button
           className="button"
           disabled={isPending}
@@ -75,4 +77,3 @@ export function RouteActions({ routeId }: RouteActionsProps) {
     </div>
   );
 }
-

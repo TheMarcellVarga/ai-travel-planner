@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { getDestinationMedia, heroMedia } from "@/lib/media";
@@ -125,10 +126,12 @@ export default async function SavedPage() {
                       <strong className="card-title">{item.route.title}</strong>
                       <span className="card-price">${item.route.estimatedCostUsd}</span>
                     </div>
-                    <img 
-                      alt="" 
-                      src={getDestinationMedia(item.route.promotedStopId).src} 
-                      className="card-image-sm" 
+                    <Image
+                      alt=""
+                      src={getDestinationMedia(item.route.promotedStopId).src}
+                      className="card-image-sm"
+                      width={80}
+                      height={60}
                     />
                   </div>
                   <p className="muted-copy text-small" style={{ margin: "10px 0 0" }}>{item.route.tagline}</p>
@@ -162,10 +165,12 @@ export default async function SavedPage() {
                     <div>
                       <strong className="card-title">{item.route.title}</strong>
                     </div>
-                    <img 
-                      alt="" 
-                      src={getDestinationMedia(item.route.promotedStopId).src} 
-                      className="card-image-sm" 
+                    <Image
+                      alt=""
+                      src={getDestinationMedia(item.route.promotedStopId).src}
+                      className="card-image-sm"
+                      width={80}
+                      height={60}
                     />
                   </div>
                   <Link className="button button-ghost layout-fill text-small" href={`/share/${item.slug}`} style={{ padding: "8px", marginTop: "10px" }}>

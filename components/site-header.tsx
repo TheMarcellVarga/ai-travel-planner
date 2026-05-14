@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Compass, Heart, LayoutDashboard, Target } from "lucide-react";
 
@@ -23,10 +24,12 @@ export async function SiteHeader() {
           className="brand-minimal"
           aria-label={`${site.name} home`}
         >
-          <img
+          <Image
             className="brand-mark-small"
             src="/wild-route-mark.svg"
             alt=""
+            width={32}
+            height={32}
             aria-hidden="true"
           />
           <div className="brand-status">

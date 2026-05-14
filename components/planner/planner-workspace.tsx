@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
-import { MediaCredit } from "@/components/media-credit";
 import { PlannerForm } from "@/components/planner/planner-form";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
@@ -47,14 +47,28 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
       activeRoute?.stops.filter((stop) => stop.kind === "destination") ?? [],
     [activeRoute],
   );
+  const inspectorWishTags = activeRoute?.wishTags.slice(0, 3) ?? [];
+  const inspectorWishOverflow = Math.max(
+    0,
+    (activeRoute?.wishTags.length ?? 0) - inspectorWishTags.length,
+  );
   const recommendationCountLabel =
     generation.routes.length === 1
       ? "1 route ready"
       : `${generation.routes.length} routes ready`;
-  const isMissionPanelExpanded = Boolean(activeRouteId) || isMissionPanelOpen;
+  const isMissionPanelExpanded = isMissionPanelOpen;
   const missionPanelShellClass = isMissionPanelExpanded
     ? "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-open"
     : "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-docked";
+  const plannerStageClassName = [
+    "planner-command-stage",
+    isMissionPanelExpanded
+      ? "planner-command-stage-mission-open"
+      : "planner-command-stage-mission-docked",
+    activeRoute
+      ? "planner-command-stage-route-active"
+      : "planner-command-stage-route-idle",
+  ].join(" ");
 
   function handlePlan() {
     startTransition(async () => {
@@ -84,24 +98,34 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         routes: payload.routes,
       });
       setActiveRouteId(null);
+      setIsMissionPanelOpen(false);
     });
   }
 
   return (
     <main className="planner-command-shell planner-command-deck">
-      <section className="planner-command-stage">
+      <section className={plannerStageClassName}>
         <div
           className={
             activeRoute
-              ? "planner-stage-header"
+              ? "planner-stage-header planner-stage-header-active"
               : "planner-stage-header planner-stage-header-idle"
           }
         >
           <div className="planner-stage-title">
             <p className="eyebrow">
-              {activeRoute ? "Active route" : "Recommendation sweep"}
+              {activeRoute ? "Active route" : "Orbital planner"}
             </p>
-            <h1>{activeRoute ? activeRoute.title : "Identify destination signals on the orbital display."}</h1>
+            <h1>
+              {activeRoute
+                ? activeRoute.title
+                : "Pick a signal."}
+            </h1>
+            <p className="planner-stage-subcopy">
+              {activeRoute
+                ? activeRoute.tagline
+                : "The globe stays primary. Open the mission console only when you need to tune the sweep."}
+            </p>
           </div>
           <div className="planner-stage-badges">
             {activeRoute ? (
@@ -116,7 +140,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             ) : (
               <>
                 <span className="status-pill">{recommendationCountLabel}</span>
-                <span className="status-pill status-pill-accent">Select coordinate to inspect</span>
+                <span className="status-pill status-pill-accent">Tap a pulse</span>
               </>
             )}
           </div>
@@ -126,7 +150,10 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <RouteGlobe
             routes={generation.routes}
             activeRouteId={activeRouteId}
-            onSelectRoute={(routeId) => setActiveRouteId(routeId)}
+            onSelectRoute={(routeId) => {
+              setActiveRouteId(routeId);
+              setIsMissionPanelOpen(false);
+            }}
           />
         </div>
 
@@ -154,9 +181,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <div className="floating-sidebar__header">
                 <p className="eyebrow">Mission Parameters</p>
                 <h2>Constraints</h2>
-                <p className="muted-copy">
-                  Tune the technical rules for the route generation.
-                </p>
+                <p className="muted-copy">Tune the sweep, then launch.</p>
               </div>
 
               <PlannerForm
@@ -164,33 +189,30 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 onChange={setSecondaryValues}
               />
 
-              <section className="planner-intent-panel">
-                <div className="planner-intent-panel__header">
-                  <p className="eyebrow">Strategic Intent</p>
-                  <p className="muted-copy">
-                    Describe the trip you want generated.
-                  </p>
+              <div className="planner-mission-panel__brief">
+                <div className="planner-mission-panel__brief-copy">
+                  <p className="eyebrow">Route Brief</p>
                 </div>
-                <div className="planner-intent-panel__input-wrap">
-                  <textarea
-                    className="planner-intent-panel__textarea"
-                    placeholder="Describe your perfect one-way adventure..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    rows={4}
-                  />
-                </div>
+                <textarea
+                  className="planner-mission-panel__prompt"
+                  placeholder="Jungle riding, cold water, one dramatic stop, low friction transfers..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  rows={1}
+                />
                 <button
-                  className="button planner-intent-panel__button"
+                  className="button planner-mission-panel__launch"
                   onClick={handlePlan}
                   disabled={isPending}
                 >
                   {isPending ? "Calculating..." : "Generate Route Hunt"}
                 </button>
                 {errorMessage ? (
-                  <p className="error-copy">{errorMessage}</p>
+                  <p className="error-copy planner-mission-panel__error">
+                    {errorMessage}
+                  </p>
                 ) : null}
-              </section>
+              </div>
             </div>
           </div>
         </aside>
@@ -198,11 +220,13 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         {activeRoute ? (
           <aside className="floating-sidebar floating-sidebar-right">
             <div className="floating-sidebar__inner floating-sidebar__inner-tight">
-              <div className="route-inspector__media">
-                <img
+              <div className="route-inspector__media" style={{ position: "relative" }}>
+                <Image
                   alt={promotedMedia.alt}
                   className="route-inspector__image"
                   src={promotedMedia.src}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 400px"
                 />
                 <div className="route-inspector__overlay" />
                 <div className="route-inspector__copy">
@@ -216,11 +240,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 <p className="eyebrow">Route path</p>
                 <p className="route-tagline">{activeRoute.tagline}</p>
                 <div className="route-chip-row">
-                  {activeRoute.wishTags.map((tag) => (
+                  {inspectorWishTags.map((tag) => (
                     <span key={tag} className="tag-pill">
                       {tag}
                     </span>
                   ))}
+                  {inspectorWishOverflow > 0 ? (
+                    <span className="tag-pill">+{inspectorWishOverflow}</span>
+                  ) : null}
                 </div>
               </div>
 
@@ -238,7 +265,6 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </div>
               </div>
 
-              <MediaCredit asset={promotedMedia} compact />
               <RouteActions routeId={activeRoute.id} />
             </div>
           </aside>

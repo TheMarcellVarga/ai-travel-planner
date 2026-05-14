@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -118,10 +119,12 @@ export default function HomePage() {
               <source src={heroMedia.src} type="video/webm" />
             </video>
           ) : (
-            <img
+            <Image
               alt=""
               className="hero-media product-hero__image"
               src={heroMedia.src}
+              fill
+              sizes="100vw"
             />
           )}
         </div>
@@ -236,10 +239,12 @@ export default function HomePage() {
           {featuredDestinations.map(({ destination, media }) => (
             <article className="product-destination-card" key={destination.id}>
               <div className="product-destination-card__media">
-                <img
+                <Image
                   alt={media.alt}
                   className="product-destination-card__image"
                   src={media.src}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="product-destination-card__overlay" />
                 <div className="product-destination-card__headline">
@@ -275,7 +280,7 @@ export default function HomePage() {
               <source src={kineticMedia.src} type="video/webm" />
             </video>
           ) : (
-            <img alt="" className="kinetic-video" src={kineticMedia.src} />
+            <Image alt="" className="kinetic-video" src={kineticMedia.src} fill sizes="100vw" />
           )}
           <div className="kinetic-video-overlay" />
         </div>

@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
-import { getDestinationMedia } from "@/lib/media";
 import type { RouteOption } from "@/lib/types";
 
 type RouteGlobeProps = {
@@ -51,25 +50,6 @@ type GlobeRing = {
   repeatPeriod: number;
 };
 
-type IdleRecommendationCard = {
-  id: string;
-  routeId: string;
-  lat: number;
-  lng: number;
-  altitude: number;
-  title: string;
-  subtitle: string;
-  price: number;
-  imageSrc: string;
-  imageAlt: string;
-  highlighted: boolean;
-};
-
-type ScreenPoint = {
-  x: number;
-  y: number;
-};
-
 const Globe = dynamic(() => import("react-globe.gl"), {
   ssr: false
 }) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods | undefined> }>;
@@ -99,7 +79,6 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
   const [idleHighlightIndex, setIdleHighlightIndex] = useState(0);
-  const [idleCardScreen, setIdleCardScreen] = useState<ScreenPoint | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const compactViewport = viewport.width < 1440 || viewport.height < 820;
@@ -204,7 +183,8 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
     return () => window.clearInterval(interval);
   }, [isIdle, routes.length]);
 
-  useEffect(() => {
+   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIdleHighlightIndex(0);
   }, [routes]);
 
@@ -323,62 +303,6 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
 
   const pointsData = useMemo(() => [...routeMarkers, ...activeStops], [activeStops, routeMarkers]);
 
-  const idleRecommendationCard = useMemo<IdleRecommendationCard | null>(() => {
-    if (!isIdle) {
-      return null;
-    }
-
-    const recommendation = idleRecommendation;
-    if (!recommendation) {
-      return null;
-    }
-
-    const promotedStop =
-      recommendation.stops.find((stop) => stop.id === recommendation.promotedStopId) ??
-      recommendation.stops[1] ??
-      recommendation.stops[0];
-    const media = getDestinationMedia(promotedStop.id);
-
-    return {
-      id: `idle-card-${recommendation.id}`,
-      routeId: recommendation.id,
-      lat: promotedStop.coordinates.lat,
-      lng: promotedStop.coordinates.lng,
-      altitude: 0.2,
-      title: recommendation.title,
-      subtitle: recommendation.tagline,
-      price: recommendation.estimatedCostUsd,
-      imageSrc: media.src,
-      imageAlt: media.alt,
-      highlighted: true
-    };
-  }, [idleRecommendation, isIdle]);
-
-  useEffect(() => {
-    if (!isIdle || !globeReady || !globeRef.current || !idleRecommendationCard) {
-      setIdleCardScreen(null);
-      return;
-    }
-
-    const updatePosition = () => {
-      const coords = globeRef.current?.getScreenCoords(
-        idleRecommendationCard.lat,
-        idleRecommendationCard.lng,
-        idleRecommendationCard.altitude
-      ) as ScreenPoint | undefined;
-
-      if (!coords || !Number.isFinite(coords.x) || !Number.isFinite(coords.y)) {
-        return;
-      }
-
-      setIdleCardScreen({ x: coords.x, y: coords.y });
-    };
-
-    updatePosition();
-    const interval = window.setInterval(updatePosition, 60);
-    return () => window.clearInterval(interval);
-  }, [globeReady, idleRecommendationCard, isIdle]);
-
   return (
     <div className="orbital-globe-stage" ref={containerRef}>
       <div className="orbital-globe-frame">
@@ -431,31 +355,6 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           onGlobeReady={() => setGlobeReady(true)}
         />
       </div>
-      {isIdle && idleRecommendationCard && idleCardScreen ? (
-        <div className="orbital-globe-overlay">
-          <button
-            className="orbital-marker orbital-marker-active orbital-marker-screen"
-            type="button"
-            style={{ left: idleCardScreen.x, top: idleCardScreen.y }}
-            onClick={() => onSelectRoute(idleRecommendationCard.routeId)}
-          >
-            <span className="orbital-marker__pin" />
-            <span className="orbital-marker__card">
-              <span className="orbital-marker__eyebrow">Recommendation</span>
-              <strong>{idleRecommendationCard.title}</strong>
-              <span className="orbital-marker__meta">{idleRecommendationCard.subtitle}</span>
-              <span className="orbital-marker__media">
-                <img
-                  className="orbital-marker__image"
-                  alt={idleRecommendationCard.imageAlt}
-                  src={idleRecommendationCard.imageSrc}
-                />
-              </span>
-              <span className="orbital-marker__price">${idleRecommendationCard.price}</span>
-            </span>
-          </button>
-        </div>
-      ) : null}
       {/* <div className="orbital-globe-hint">
         {isIdle ? (
           <>

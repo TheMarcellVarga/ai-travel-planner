@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import Image from "next/image";
 import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { getDestinationMedia } from "@/lib/media";
@@ -23,8 +24,8 @@ export default async function SharePage({ params }: SharePageProps) {
 
   return (
     <main className="planner-command-shell">
-      <div className="planner-stage-globe">
-        <img alt={shareMedia.alt} className="hero-media-image" src={shareMedia.src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <div className="planner-stage-globe" style={{ position: "relative" }}>
+        <Image alt={shareMedia.alt} className="hero-media-image" src={shareMedia.src} fill sizes="100vw" style={{ objectFit: "cover" }} />
         <div className="product-hero__overlay" />
       </div>
 
@@ -92,10 +93,12 @@ export default async function SharePage({ params }: SharePageProps) {
                     <strong className="card-title text-small">{stop.name} ({stop.code})</strong>
                   </div>
                   {stop.kind === "destination" && (
-                    <img 
-                      alt="" 
-                      src={getDestinationMedia(stop.id).src} 
-                      className="card-image-xs" 
+                    <Image
+                      alt=""
+                      src={getDestinationMedia(stop.id).src}
+                      className="card-image-xs"
+                      width={60}
+                      height={60}
                     />
                   )}
                 </div>
