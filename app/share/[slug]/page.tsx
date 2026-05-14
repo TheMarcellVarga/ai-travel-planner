@@ -23,10 +23,17 @@ export default async function SharePage({ params }: SharePageProps) {
   const shareMedia = getDestinationMedia(sharedRoute.route.promotedStopId);
 
   return (
-    <main className="planner-command-shell">
-      <div className="planner-stage-globe" style={{ position: "relative" }}>
-        <Image alt={shareMedia.alt} className="hero-media-image" src={shareMedia.src} fill sizes="100vw" style={{ objectFit: "cover" }} />
-        <div className="product-hero__overlay" />
+    <main className="planner-command-shell share-route-shell">
+      <div className="planner-stage-globe share-route-media">
+        <Image
+          alt={shareMedia.alt}
+          className="share-route-media__image"
+          fill
+          priority
+          sizes="100vw"
+          src={shareMedia.src}
+        />
+        <div className="share-route-media__wash" />
       </div>
 
       <div className="planner-stage-header">
@@ -44,29 +51,23 @@ export default async function SharePage({ params }: SharePageProps) {
         </div>
       </div>
 
-      <aside className="floating-sidebar floating-sidebar-left">
-        <div className="floating-sidebar__inner">
+      <aside className="floating-sidebar floating-sidebar-left share-route-panel share-route-panel-left">
+        <div className="floating-sidebar__inner share-route-panel__inner">
           <div className="floating-sidebar__header">
             <p className="eyebrow">Discover</p>
             <h2>{sharedRoute.route.tagline}</h2>
           </div>
-          <div className="tag-row" style={{ marginTop: "12px" }}>
+          <div className="tag-row share-route-tags">
             {sharedRoute.route.wishTags.map((tag) => (
               <span className="tag-pill" key={tag}>{tag}</span>
             ))}
           </div>
 
-          <div
-            className="route-inspector__section"
-            style={{ marginTop: "24px" }}
-          >
-            <p className="eyebrow" style={{ marginBottom: "8px" }}>
+          <div className="route-inspector__section share-route-actions">
+            <p className="eyebrow">
               Take Action
             </p>
-            <p
-              className="muted-copy"
-              style={{ marginBottom: "12px", fontSize: "0.85rem" }}
-            >
+            <p className="muted-copy share-route-actions__date">
               Published {new Date(sharedRoute.publishedAt).toLocaleString()}.
             </p>
             <RouteActions routeId={sharedRoute.route.id} />
@@ -78,18 +79,18 @@ export default async function SharePage({ params }: SharePageProps) {
         </div>
       </aside>
 
-      <aside className="floating-sidebar floating-sidebar-right">
-        <div className="floating-sidebar__inner">
+      <aside className="floating-sidebar floating-sidebar-right share-route-panel share-route-panel-right">
+        <div className="floating-sidebar__inner share-route-panel__inner">
           <div className="floating-sidebar__header">
             <p className="eyebrow">Stops</p>
             <h2>Journey breakdown</h2>
           </div>
-          <div className="stop-stack">
+          <div className="stop-stack share-stop-stack">
             {sharedRoute.route.stops.map((stop) => (
-              <article className="stop-card" key={stop.id} style={{ padding: "18px" }}>
+              <article className="stop-card share-stop-card" key={stop.id}>
                 <div className="card-header">
-                  <div className="card-stack" style={{ gap: "4px" }}>
-                    <p className="eyebrow" style={{ fontSize: "0.6rem" }}>{stop.kind}</p>
+                  <div className="card-stack share-stop-card__copy">
+                    <p className="eyebrow">{stop.kind}</p>
                     <strong className="card-title text-small">{stop.name} ({stop.code})</strong>
                   </div>
                   {stop.kind === "destination" && (
@@ -102,8 +103,8 @@ export default async function SharePage({ params }: SharePageProps) {
                     />
                   )}
                 </div>
-                <p className="muted-copy text-small" style={{ margin: "10px 0 0" }}>{stop.country}</p>
-                {stop.scene ? <p className="route-tagline text-small" style={{ marginTop: "8px" }}>{stop.scene}</p> : null}
+                <p className="muted-copy text-small share-stop-card__country">{stop.country}</p>
+                {stop.scene ? <p className="route-tagline text-small share-stop-card__scene">{stop.scene}</p> : null}
               </article>
             ))}
           </div>

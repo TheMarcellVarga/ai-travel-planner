@@ -21,8 +21,8 @@ type PlannerFormProps = {
 
 const maxStopOptions = [
   { value: 0, label: "Direct", hint: "0 hops" },
-  { value: 1, label: "1 Stop", hint: "1 hop" },
-  { value: 2, label: "2 Stops", hint: "2 hops" },
+  { value: 1, label: "1 stop", hint: "1 hop" },
+  { value: 2, label: "2 stops", hint: "2 hops" },
 ] as const;
 
 const budgetModeOptions = [
@@ -36,10 +36,7 @@ const budgetModeOptions = [
 }>;
 
 function formatWishLabel(tag: WishTag) {
-  return tag
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  return tag.replaceAll("-", " ");
 }
 
 export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {

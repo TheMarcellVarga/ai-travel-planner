@@ -1,18 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Binoculars,
-  Compass,
-  Globe2,
-  Map,
-  Mountain,
-  Radio,
-  Route,
-  ShieldCheck,
-  Sparkles,
-  Ticket
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, PlaneTakeoff } from "lucide-react";
 
 import { MediaCredit } from "@/components/media-credit";
 import { destinations } from "@/lib/data/destinations";
@@ -24,93 +12,72 @@ import {
 } from "@/lib/media";
 import { wishTags } from "@/lib/site";
 
-const highlights = [
+const productSignals = [
+  { label: "Route candidates", value: "4", detail: "ranked against mood, budget, and stop rules" },
+  { label: "Promoted stop", value: "1", detail: "free-tier rule is visible instead of hidden" },
+  { label: "Search window", value: "12d", detail: "built for one-way exploration, not package tours" }
+];
+
+const planningStack = [
   {
-    title: "Prompt-first planning",
-    text: "Describe the mood, stop rules, budget, and trip wishes instead of filling stale airline forms.",
-    icon: Sparkles
+    title: "Prompt parsing",
+    text: "The planner turns messy intent into origin, days, stops, budget posture, and travel wishes."
   },
   {
-    title: "Cinematic route playback",
-    text: "Turn a ranked itinerary into a visual route hunt with real stops, handoff links, and shareable cards.",
-    icon: Globe2
+    title: "Route scoring",
+    text: "Destinations are ranked for terrain, logistics, price bands, and how strong the story looks."
   },
   {
-    title: "Adventure scoring",
-    text: "Prioritize hiking, MTB, surf, crypto-friendly cities, animal-friendly stays, and high-photo-payoff terrain.",
-    icon: Compass
+    title: "Save and publish",
+    text: "Signed-in travelers keep routes, publish one clean share page, and hand off when ready."
   },
   {
-    title: "Booking handoff",
-    text: "Use Wild Route to pick the route, then leave cleanly for flight, lodging, and ground transport providers.",
-    icon: Ticket
+    title: "Provider exit",
+    text: "Wild Route stops at decision quality, then sends travelers out to flight and lodging providers."
   }
 ];
 
-const productModules = [
+const plannerPreviewRoutes = [
   {
-    title: "Route Index",
-    text: "A searchable catalog of destination cards, route moods, trip tags, and expected budget bands.",
-    icon: Map
+    code: "SIN",
+    title: "Singapore to Bali",
+    meta: "surf, jungle, scooter radius",
+    price: "$380"
   },
   {
-    title: "Expedition Briefs",
-    text: "Each route ships with why-go context, terrain cues, stay logic, and the travel compromises upfront.",
-    icon: Binoculars
+    code: "CNX",
+    title: "Chiang Mai climb loop",
+    meta: "mtb, cafes, mountain air",
+    price: "$340"
   },
   {
-    title: "Live Deal Watch",
-    text: "Saved routes can become alerts so travelers know when the price window turns worth acting on.",
-    icon: Radio
-  },
-  {
-    title: "Provider Handoff",
-    text: "The product does not pretend to be an airline. It gets users from desire to decisive booking links.",
-    icon: Route
+    code: "FNC",
+    title: "Madeira cliff run",
+    meta: "levadas, Atlantic light",
+    price: "$610"
   }
-];
-
-const customerProfiles = [
-  {
-    title: "Remote workers",
-    text: "Find places with strong logistics, cheaper comfort, and enough terrain to make a month feel earned."
-  },
-  {
-    title: "Adventure couples",
-    text: "Compare dramatic routes without turning the planning session into twenty tabs and a spreadsheet."
-  },
-  {
-    title: "Creator-led trips",
-    text: "Pick destinations that already have a visual point of view, then share the route as a polished card."
-  }
-];
-
-const routeStyles = [
-  "Temple stairs after rain",
-  "Ocean cliffs before sunset",
-  "Mountain bike transfer days",
-  "Volcanic coast road trips",
-  "Ruins, reefs, and cheap flights",
-  "Digital nomad base camps"
 ];
 
 const featuredDestinations = expeditionIndex
-  .slice(0, 6)
+  .slice(0, 7)
   .map((destinationId) => {
     const destination = destinations.find((item) => item.id === destinationId);
     return destination ? { destination, media: destinationMedia[destinationId] } : null;
   })
   .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
+const leadDestination = featuredDestinations[0];
+const atlasDestinations = featuredDestinations.slice(1);
+
 export default function HomePage() {
   return (
-    <main className="product-index cinematic-index">
-      <section className="product-hero product-hero--cinematic">
-        <div className="product-hero__media" aria-hidden="true">
+    <main className="journey-index">
+      <section className="atlas-hero">
+        <div className="atlas-hero__media" aria-hidden="true">
           {heroMedia.kind === "video" ? (
             <video
               autoPlay
-              className="hero-media product-hero__image"
+              className="atlas-hero__image"
               loop
               muted
               playsInline
@@ -121,157 +88,179 @@ export default function HomePage() {
           ) : (
             <Image
               alt=""
-              className="hero-media product-hero__image"
+              className="atlas-hero__image"
               src={heroMedia.src}
               fill
+              priority
               sizes="100vw"
             />
           )}
         </div>
-        <div className="product-hero__overlay" />
+        <div className="atlas-hero__wash" />
 
-        <div className="product-hero__content shell">
-          <div className="product-hero__copy">
-            <p className="eyebrow">Wild Route adventure index</p>
-            <h1>Plan routes that feel found, not filed.</h1>
-            <p className="lede">
-              Wild Route is a product index for cinematic travel decisions:
-              jungle-first destination discovery, route scoring, saved deal
-              watch, and clean booking handoff for people who plan around
-              terrain, motion, and story.
+        <div className="shell atlas-hero__grid">
+          <div className="atlas-hero__copy">
+            <p className="eyebrow">Wild Route adventure planner</p>
+            <h1>Routes for terrain-first travelers.</h1>
+            <p className="atlas-hero__lede">
+              Type the kind of trip you want. Wild Route turns it into ranked
+              one-way adventure routes with stop logic, cost bands, saved cards,
+              public share pages, and clean booking handoff.
             </p>
-            <div className="button-row">
-              <Link href="/planner" className="button">
-                Open Planner
-                <ArrowRight size={18} />
+            <div className="atlas-hero__actions">
+              <Link className="button button-island" href="/planner">
+                <span>Build a route</span>
+                <span className="button-island__icon" aria-hidden="true">
+                  <ArrowRight size={17} />
+                </span>
               </Link>
-              <Link href="/saved" className="button button-ghost">
-                View Saved Routes
+              <Link className="text-link" href="/saved">
+                Open saved vault
+                <ArrowUpRight size={16} />
               </Link>
             </div>
           </div>
 
-          <div className="product-hero__rail">
-            <div className="artifact-panel">
-              <p className="eyebrow">Index status</p>
-              <strong>9 field-tested adventure markets</strong>
-              <span>
-                Ranked for cost, movement, route drama, nomad logistics, and
-                booking readiness.
-              </span>
+          <aside className="route-console" aria-label="Route planning preview">
+            <div className="route-console__header">
+              <span>Prompt console</span>
+              <small>live intent model</small>
             </div>
-            <div className="product-stat-grid product-stat-grid--hero">
-              <div className="product-stat-card">
-                <strong>9</strong>
-                <span>Destinations</span>
-              </div>
-              <div className="product-stat-card">
-                <strong>5</strong>
-                <span>Wish filters</span>
-              </div>
-              <div className="product-stat-card">
-                <strong>3</strong>
-                <span>Route budgets</span>
-              </div>
-              <div className="product-stat-card">
-                <strong>1</strong>
-                <span>Clean handoff</span>
-              </div>
+            <p className="route-console__prompt">
+              12 days from Singapore. One stop max. Jungle, surf, a cheap
+              work base, and one place worth publishing.
+            </p>
+            <div className="route-console__tags" aria-label="Trip wishes">
+              {wishTags.map((tag) => (
+                <span key={tag}>{tag.replaceAll("-", " ")}</span>
+              ))}
             </div>
-          </div>
-
-          <div className="scroll-cue" aria-hidden="true">
-            <span />
-            <small>Scroll the index</small>
-          </div>
-        </div>
-      </section>
-
-      <section className="shell product-section product-section--split product-section--cinematic">
-        <div className="product-stack">
-          <div className="section-heading">
-            <p className="eyebrow">Business surface</p>
-            <h2>What the product actually sells</h2>
-          </div>
-          <div className="product-module-grid">
-            {productModules.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article className="product-module-card" key={item.title}>
-                  <div className="product-module-card__icon">
-                    <Icon strokeWidth={1.6} />
+            <div className="route-console__routes">
+              {plannerPreviewRoutes.map((route) => (
+                <article key={route.title} className="route-console__route">
+                  <span>{route.code}</span>
+                  <div>
+                    <strong>{route.title}</strong>
+                    <small>{route.meta}</small>
                   </div>
-                  <div className="product-module-card__copy">
-                    <strong>{item.title}</strong>
-                    <p>{item.text}</p>
-                  </div>
+                  <b>{route.price}</b>
                 </article>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </aside>
         </div>
-
-        <aside className="product-side-panel relic-panel">
-          <p className="eyebrow">Adventure filters</p>
-          <h3>Built around how people choose a trip.</h3>
-          <p className="muted-copy">
-            The index is not a generic city list. It gives each destination a
-            reason to exist in the catalog, then lets the planner rank it
-            against what the traveler actually cares about.
-          </p>
-          <div className="tag-row" aria-label="Trip wishes">
-            {wishTags.map((tag) => (
-              <span className="tag-pill" key={tag}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        </aside>
       </section>
 
-      <section className="shell product-section destination-index-section">
-        <div className="section-heading section-heading--wide">
-          <p className="eyebrow">Destination index</p>
-          <h2>Markets with scenery, logistics, and a reason to move.</h2>
+      <section className="shell route-proof">
+        <div className="route-proof__intro">
+          <p className="eyebrow">From impulse to handoff</p>
+          <h2>Not a city list. A decision surface.</h2>
+          <p>
+            The MVP is a real product shell: anonymous exploration, account
+            vaults, public route pages, and a booking handoff model designed for
+            deeper provider data later.
+          </p>
         </div>
-
-        <div className="product-destination-grid">
-          {featuredDestinations.map(({ destination, media }) => (
-            <article className="product-destination-card" key={destination.id}>
-              <div className="product-destination-card__media">
-                <Image
-                  alt={media.alt}
-                  className="product-destination-card__image"
-                  src={media.src}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-                <div className="product-destination-card__overlay" />
-                <div className="product-destination-card__headline">
-                  <p className="eyebrow">{destination.code}</p>
-                  <h3>{destination.name}</h3>
-                  <span>{destination.region}</span>
-                </div>
-              </div>
-              <div className="product-destination-card__body">
-                <p>{destination.scene}</p>
-                <div className="product-destination-card__meta">
-                  <span>From ${destination.baseCostUsd}</span>
-                  <span>Comfort ${destination.comfortCostUsd}</span>
-                  <span>{destination.activityScore.toFixed(1)} activity</span>
-                </div>
-              </div>
+        <div className="route-proof__metrics">
+          {productSignals.map((item) => (
+            <article key={item.label}>
+              <strong>{item.value}</strong>
+              <span>{item.label}</span>
+              <p>{item.detail}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="cinematic-band">
-        <div className="cinematic-band__media" aria-hidden="true">
+      <section className="shell planning-stack">
+        <div className="planning-stack__heading">
+          <p className="eyebrow">Planner architecture</p>
+          <h2>Every screen should answer a traveler’s next question.</h2>
+        </div>
+        <div className="planning-bento" aria-label="Product workflow">
+          <article className="planning-bento__cell planning-bento__cell--wide">
+            <span className="planning-bento__index">01</span>
+            <h3>{planningStack[0].title}</h3>
+            <p>{planningStack[0].text}</p>
+            <div className="prompt-strip">
+              <span>origin: SIN</span>
+              <span>days: 12</span>
+              <span>max stops: 1</span>
+              <span>budget: balanced</span>
+            </div>
+          </article>
+
+          {planningStack.slice(1).map((item, index) => (
+            <article className="planning-bento__cell" key={item.title}>
+              <span className="planning-bento__index">
+                0{index + 2}
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="shell atlas-section">
+        <div className="atlas-section__heading">
+          <p className="eyebrow">Destination atlas</p>
+          <h2>Places with a point of view.</h2>
+          <p>
+            Each market needs scenery, logistics, and a reason to move. The
+            route card should already feel like a shareable artifact.
+          </p>
+        </div>
+
+        <div className="atlas-grid">
+          {leadDestination ? (
+            <article className="atlas-feature">
+              <Image
+                alt={leadDestination.media.alt}
+                className="atlas-feature__image"
+                src={leadDestination.media.src}
+                fill
+                sizes="(max-width: 900px) 100vw, 52vw"
+              />
+              <div className="atlas-feature__shade" />
+              <div className="atlas-feature__copy">
+                <span>{leadDestination.destination.code}</span>
+                <h3>{leadDestination.destination.name}</h3>
+                <p>{leadDestination.media.punchline}</p>
+              </div>
+            </article>
+          ) : null}
+
+          <div className="atlas-list">
+            {atlasDestinations.map(({ destination, media }) => (
+              <article className="atlas-row" key={destination.id}>
+                <div className="atlas-row__image-wrap">
+                  <Image
+                    alt={media.alt}
+                    className="atlas-row__image"
+                    src={media.src}
+                    fill
+                    sizes="160px"
+                  />
+                </div>
+                <div>
+                  <span>{destination.region}</span>
+                  <strong>{destination.name}</strong>
+                  <p>{destination.scene}</p>
+                </div>
+                <b>${destination.baseCostUsd}</b>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="kinetic-story">
+        <div className="kinetic-story__media" aria-hidden="true">
           {kineticMedia.kind === "video" ? (
             <video
               autoPlay
-              className="kinetic-video"
+              className="kinetic-story__image"
               loop
               muted
               playsInline
@@ -280,80 +269,47 @@ export default function HomePage() {
               <source src={kineticMedia.src} type="video/webm" />
             </video>
           ) : (
-            <Image alt="" className="kinetic-video" src={kineticMedia.src} fill sizes="100vw" />
+            <Image
+              alt=""
+              className="kinetic-story__image"
+              src={kineticMedia.src}
+              fill
+              sizes="100vw"
+            />
           )}
-          <div className="kinetic-video-overlay" />
         </div>
-        <div className="shell cinematic-band__content">
-          <p className="eyebrow">Cinematic scroll layer</p>
-          <h2>The route should reveal itself like a field journal.</h2>
-          <p>
-            Scroll from the hero into operational product surfaces: markets,
-            filters, customer use cases, and the exact workflow from prompt to
-            booking handoff.
-          </p>
-          <div className="route-style-grid">
-            {routeStyles.map((style) => (
-              <span key={style}>{style}</span>
-            ))}
+        <div className="kinetic-story__shade" />
+        <div className="shell kinetic-story__grid">
+          <div>
+            <p className="eyebrow">Shareable output</p>
+            <h2>A route card should feel like something worth sending.</h2>
+          </div>
+          <div className="share-artifact">
+            <div className="share-artifact__top">
+              <span>published route</span>
+              <b>confidence 82%</b>
+            </div>
+            <h3>Jungle base, surf exit, one promoted stop.</h3>
+            <ol>
+              <li>Singapore origin</li>
+              <li>Bali promoted stop</li>
+              <li>Provider handoff ready</li>
+            </ol>
           </div>
         </div>
       </section>
 
-      <section className="shell product-section product-section--split">
-        <div className="product-stack">
-          <div className="section-heading">
-            <p className="eyebrow">Route workflow</p>
-            <h2>From impulse to itinerary without losing the mood.</h2>
-          </div>
-          <div className="feature-list feature-list--product">
-            {highlights.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article className="feature-list-item" key={item.title}>
-                  <div className="feature-list-icon">
-                    <Icon strokeWidth={1.5} />
-                  </div>
-                  <div className="feature-list-content">
-                    <strong>{item.title}</strong>
-                    <span>{item.text}</span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+      <section className="shell final-route-cta">
+        <div>
+          <p className="eyebrow">Open the planner</p>
+          <h2>Start with a wish. Leave with a route you can defend.</h2>
         </div>
-
-        <div className="product-profile-list">
-          {customerProfiles.map((profile) => (
-            <article className="product-profile-card" key={profile.title}>
-              <strong>{profile.title}</strong>
-              <p>{profile.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="shell product-cta product-cta--final">
-        <div className="product-cta__copy">
-          <p className="eyebrow">Ready for the first route</p>
-          <h2>Start with a mood, leave with a route worth booking.</h2>
-          <p className="muted-copy">
-            Wild Route keeps the adventure front and center while the product
-            does the practical work: ranking destinations, shaping route logic,
-            saving options, and handing off to providers.
-          </p>
-        </div>
-        <div className="product-cta__actions">
-          <Link href="/planner" className="button">
-            Launch Planner
-            <Mountain size={18} />
-          </Link>
-          <Link href="/saved" className="product-inline-link">
-            Saved route index
-            <ShieldCheck size={18} />
-          </Link>
-        </div>
+        <Link className="button button-island" href="/planner">
+          <span>Plan from Singapore</span>
+          <span className="button-island__icon" aria-hidden="true">
+            <PlaneTakeoff size={17} />
+          </span>
+        </Link>
       </section>
 
       <div className="shell product-media-credit">

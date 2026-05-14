@@ -1,66 +1,68 @@
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Compass, Heart, LayoutDashboard, Target } from "lucide-react";
 
 import { AuthLink } from "@/components/auth-link";
 import { getCurrentUser } from "@/lib/auth";
 import { site } from "@/lib/site";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Compass },
-  { href: "/planner", label: "Planner", icon: Target },
-  { href: "/saved", label: "Saved", icon: Heart },
-] satisfies Array<{ href: Route; label: string; icon: any }>;
+  { href: "/", label: "Index", code: "01" },
+  { href: "/planner", label: "Planner", code: "02" },
+  { href: "/saved", label: "Vault", code: "03" },
+] satisfies Array<{ href: Route; label: string; code: string }>;
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
     <header className="site-header">
-      <div className="site-header-glass">
+      <div className="site-command">
         <Link
           href="/"
-          className="brand-minimal"
+          className="site-command__brand"
           aria-label={`${site.name} home`}
         >
-          <Image
-            className="brand-mark-small"
-            src="/wild-route-mark.svg"
-            alt=""
-            width={32}
-            height={32}
-            aria-hidden="true"
-          />
-          <div className="brand-status">
+          <span className="site-command__mark">
+            <Image
+              className="brand-mark-small"
+              src="/wild-route-mark.svg"
+              alt=""
+              width={32}
+              height={32}
+              aria-hidden="true"
+            />
+          </span>
+          <div>
             <span className="brand-name">{site.name}</span>
-            <div className="status-indicator">
-              <span className="status-dot"></span>
-              <span className="status-text">Network Live</span>
-            </div>
+            <span className="site-command__status">terrain index online</span>
           </div>
         </Link>
 
-        <nav className="site-nav-console" aria-label="Primary">
+        <div className="site-command__signal" aria-hidden="true">
+          <span>route os</span>
+          <strong>SIN · 12d · max 1 stop</strong>
+        </div>
+
+        <nav className="site-command__nav" aria-label="Primary">
           {navItems.map((item) => {
-            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="nav-item-console"
+                className="site-command__nav-item"
               >
-                <Icon size={16} className="nav-icon" />
-                <span className="nav-label">{item.label}</span>
+                <span>{item.code}</span>
+                <strong>{item.label}</strong>
               </Link>
             );
           })}
         </nav>
 
-        <div className="site-actions-minimal">
+        <div className="site-command__actions">
           <AuthLink user={user} />
-          <Link href="/planner" className="button-sm button-primary-sm">
-            Launch Planner
+          <Link href="/planner" className="site-command__cta">
+            Start
           </Link>
         </div>
       </div>

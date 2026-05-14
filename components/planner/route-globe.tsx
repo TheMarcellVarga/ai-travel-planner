@@ -58,9 +58,12 @@ const GLOBE_TEXTURE_URL =
   "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg";
 const GLOBE_BUMP_URL =
   "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png";
+const GLOBE_ACCENT = "#bfdc76";
+const GLOBE_WARM = "#f7df8e";
+const GLOBE_SOFT = "#8bcf9c";
 
 function buildTooltip(point: GlobePoint) {
-  const accent = point.kind === "route-marker" ? "#f7df8e" : "#9eff67";
+  const accent = point.kind === "route-marker" ? GLOBE_WARM : GLOBE_ACCENT;
   const price =
     point.price !== undefined
       ? `<div style="color:${accent};font-weight:800;font-size:13px;margin-top:4px">$${point.price}</div>`
@@ -183,7 +186,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
     return () => window.clearInterval(interval);
   }, [isIdle, routes.length]);
 
-   useEffect(() => {
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIdleHighlightIndex(0);
   }, [routes]);
@@ -205,7 +208,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           lat: stop.coordinates.lat,
           lng: stop.coordinates.lng,
           altitude: isHighlighted ? 0.19 : isIdle ? 0.11 : 0.14,
-          color: isHighlighted ? "#f7df8e" : "#9eff67",
+          color: isHighlighted ? GLOBE_WARM : GLOBE_ACCENT,
           radius: isHighlighted ? 0.5 : isIdle ? 0.28 : 0.34,
           kind: "route-marker",
           title: stop.name,
@@ -229,7 +232,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
         lat: stop.coordinates.lat,
         lng: stop.coordinates.lng,
         altitude: stop.kind === "origin" ? 0.02 : 0.035,
-        color: stop.kind === "origin" ? "#6cff98" : "#f7df8e",
+        color: stop.kind === "origin" ? GLOBE_SOFT : GLOBE_WARM,
         radius: stop.kind === "origin" ? 0.22 : 0.18,
         kind: "route-stop",
         title: `${stop.name} (${stop.code})`,
@@ -251,7 +254,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
         startLng: stop.coordinates.lng,
         endLat: activeRoute.stops[index + 1].coordinates.lat,
         endLng: activeRoute.stops[index + 1].coordinates.lng,
-        color: ["#f7df8e", "#9eff67"]
+        color: [GLOBE_WARM, GLOBE_ACCENT]
       }));
     },
     [activeRoute]
@@ -274,7 +277,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
             id: `ring-idle-${idleRecommendation.id}`,
             lat: idleStop.coordinates.lat,
             lng: idleStop.coordinates.lng,
-            color: ["rgba(158, 255, 103, 0.92)", "rgba(158, 255, 103, 0)"],
+            color: ["rgba(191, 220, 118, 0.88)", "rgba(191, 220, 118, 0)"],
             maxRadius: 5.4,
             propagationSpeed: 1.25,
             repeatPeriod: 1100
@@ -314,7 +317,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           globeImageUrl={GLOBE_TEXTURE_URL}
           bumpImageUrl={GLOBE_BUMP_URL}
           showAtmosphere
-          atmosphereColor="#6cff98"
+          atmosphereColor={GLOBE_SOFT}
           atmosphereAltitude={0.16}
           pointsData={pointsData}
           pointLat="lat"
@@ -355,19 +358,6 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           onGlobeReady={() => setGlobeReady(true)}
         />
       </div>
-      {/* <div className="orbital-globe-hint">
-        {isIdle ? (
-          <>
-            <span className="status-pill">Auto-spinning recommendations</span>
-            <span className="status-pill status-pill-accent">Click a pulse to inspect the route</span>
-          </>
-        ) : (
-          <>
-            <span className="status-pill">Drag to orbit</span>
-            <span className="status-pill status-pill-accent">Click glowing stops to swap routes</span>
-          </>
-        )}
-      </div> */}
     </div>
   );
 }

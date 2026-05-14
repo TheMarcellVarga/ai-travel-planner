@@ -17,41 +17,34 @@ export default async function SavedPage() {
 
   if (!user) {
     return (
-      <main className="planner-command-shell">
-        <div className="planner-stage-globe">
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: `url('${heroMedia.src}') center/cover`,
-              opacity: 0.24,
-              filter: "blur(12px)",
-            }}
+      <main className="planner-command-shell saved-vault-shell saved-vault-shell-empty">
+        <div className="planner-stage-globe saved-vault-media">
+          <Image
+            alt={heroMedia.alt}
+            className="saved-vault-media__image"
+            fill
+            priority
+            sizes="100vw"
+            src={heroMedia.src}
           />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "rgba(3, 10, 6, 0.75)",
-            }}
-          />
+          <div className="saved-vault-media__wash" />
         </div>
         <div className="planner-stage-header">
           <div className="planner-stage-title">
             <p className="eyebrow">Saved routes</p>
             <h1>
-              Sign in to keep route hunts, published slugs, and booking history.
+              Route memory needs an account.
             </h1>
           </div>
         </div>
-        <aside className="floating-sidebar floating-sidebar-left">
-          <div className="floating-sidebar__inner">
-            <p className="lede" style={{ fontSize: "0.95rem" }}>
+        <aside className="floating-sidebar floating-sidebar-left vault-panel vault-panel-left">
+          <div className="floating-sidebar__inner vault-panel__inner">
+            <p className="lede vault-panel__lede">
               Anonymous users can explore the planner, but route storage and
               publishing are account-backed features.
             </p>
-            <div className="layout-v-stack" style={{ marginTop: "24px" }}>
-              <Link href="/auth" className="button layout-fill">
+            <div className="vault-panel__actions">
+              <Link href="/auth" className="button button-island layout-fill">
                 Sign In
               </Link>
               <Link href="/planner" className="button button-ghost layout-fill">
@@ -74,32 +67,24 @@ export default async function SavedPage() {
       : getSharedRoutesForUser(user.id);
 
   return (
-    <main className="planner-command-shell">
-      <div className="planner-stage-globe">
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `url('${heroMedia.src}') center/cover`,
-            opacity: 0.2,
-            filter: "blur(12px)",
-          }}
+    <main className="planner-command-shell saved-vault-shell">
+      <div className="planner-stage-globe saved-vault-media">
+        <Image
+          alt={heroMedia.alt}
+          className="saved-vault-media__image"
+          fill
+          priority
+          sizes="100vw"
+          src={heroMedia.src}
         />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(180deg, rgba(3, 10, 6, 0.75), rgba(3, 10, 6, 0.94))",
-          }}
-        />
+        <div className="saved-vault-media__wash" />
       </div>
 
       <div className="planner-stage-header">
         <div className="planner-stage-title">
           <p className="eyebrow">Saved route vault</p>
           <h1>
-            {savedRoutes.length} routes saved for {user.name}.
+            {savedRoutes.length} route files in the vault.
           </h1>
         </div>
         <div className="planner-stage-badges">
@@ -110,17 +95,17 @@ export default async function SavedPage() {
         </div>
       </div>
 
-      <aside className="floating-sidebar floating-sidebar-left">
-        <div className="floating-sidebar__inner">
+      <aside className="floating-sidebar floating-sidebar-left vault-panel vault-panel-left">
+        <div className="floating-sidebar__inner vault-panel__inner">
           <div className="floating-sidebar__header">
             <p className="eyebrow">Saved routes</p>
-            <h2>Vault</h2>
+            <h2>Private route stack</h2>
           </div>
 
-          <div className="stop-stack">
+          <div className="stop-stack vault-card-stack">
             {savedRoutes.length ? (
               savedRoutes.map((item) => (
-                <article className="stop-card" key={item.id} style={{ padding: "18px" }}>
+                <article className="stop-card vault-route-card" key={item.id}>
                   <div className="card-header">
                     <div>
                       <strong className="card-title">{item.route.title}</strong>
@@ -134,7 +119,7 @@ export default async function SavedPage() {
                       height={60}
                     />
                   </div>
-                  <p className="muted-copy text-small" style={{ margin: "10px 0 0" }}>{item.route.tagline}</p>
+                  <p className="muted-copy text-small vault-route-card__tagline">{item.route.tagline}</p>
                 </article>
               ))
             ) : (
@@ -144,23 +129,23 @@ export default async function SavedPage() {
               </p>
             )}
           </div>
-          <Link href="/planner" className="button button-ghost layout-fill" style={{ marginTop: "12px" }}>
+          <Link href="/planner" className="button button-ghost layout-fill vault-panel__footer-action">
             Generate more
           </Link>
         </div>
       </aside>
 
-      <aside className="floating-sidebar floating-sidebar-right">
-        <div className="floating-sidebar__inner">
+      <aside className="floating-sidebar floating-sidebar-right vault-panel vault-panel-right">
+        <div className="floating-sidebar__inner vault-panel__inner">
           <div className="floating-sidebar__header">
             <p className="eyebrow">Public shares</p>
-            <h2>Published pages</h2>
+            <h2>Share slugs</h2>
           </div>
 
-          <div className="stop-stack">
+          <div className="stop-stack vault-card-stack">
             {sharedRoutes.length ? (
               sharedRoutes.map((item) => (
-                <article className="stop-card" key={item.id} style={{ padding: "18px" }}>
+                <article className="stop-card vault-route-card" key={item.id}>
                   <div className="card-header">
                     <div>
                       <strong className="card-title">{item.route.title}</strong>
@@ -173,7 +158,7 @@ export default async function SavedPage() {
                       height={60}
                     />
                   </div>
-                  <Link className="button button-ghost layout-fill text-small" href={`/share/${item.slug}`} style={{ padding: "8px", marginTop: "10px" }}>
+                  <Link className="button button-ghost layout-fill text-small vault-route-card__link" href={`/share/${item.slug}`}>
                     Open /share/{item.slug}
                   </Link>
                 </article>

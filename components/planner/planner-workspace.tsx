@@ -114,7 +114,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         >
           <div className="planner-stage-title">
             <p className="eyebrow">
-              {activeRoute ? "Active route" : "Orbital planner"}
+              {activeRoute ? "Active route" : "Route sweep"}
             </p>
             <h1>
               {activeRoute
@@ -140,7 +140,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             ) : (
               <>
                 <span className="status-pill">{recommendationCountLabel}</span>
-                <span className="status-pill status-pill-accent">Tap a pulse</span>
+                <span className="status-pill status-pill-accent">Pick a route</span>
               </>
             )}
           </div>
@@ -157,6 +157,28 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           />
         </div>
 
+        <section className="planner-route-dock" aria-label="Ranked route options">
+          {generation.routes.map((route, index) => (
+            <button
+              key={route.id}
+              type="button"
+              className={
+                route.id === activeRoute?.id
+                  ? "planner-route-dock__card planner-route-dock__card-active"
+                  : "planner-route-dock__card"
+              }
+              onClick={() => {
+                setActiveRouteId(route.id);
+                setIsMissionPanelOpen(false);
+              }}
+            >
+              <span>0{index + 1}</span>
+              <strong>{route.title}</strong>
+              <small>${route.estimatedCostUsd} · {Math.round(route.confidence * 100)}%</small>
+            </button>
+          ))}
+        </section>
+
         <aside className={missionPanelShellClass}>
           <div className="floating-sidebar__inner floating-sidebar__inner-planner planner-mission-panel">
             <button
@@ -170,7 +192,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 className="planner-mission-panel__toggle-icon"
                 aria-hidden="true"
               />
-              <span>Mission Parameters</span>
+              <span>Route controls</span>
               <ChevronDown
                 className="planner-mission-panel__toggle-chevron"
                 aria-hidden="true"
@@ -179,19 +201,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
 
             <div className="planner-mission-panel__body">
               <div className="floating-sidebar__header">
-                <p className="eyebrow">Mission Parameters</p>
+                <p className="eyebrow">Route controls</p>
                 <h2>Constraints</h2>
                 <p className="muted-copy">Tune the sweep, then launch.</p>
               </div>
 
-              <PlannerForm
-                initialIntent={generation.tripIntent}
-                onChange={setSecondaryValues}
-              />
-
               <div className="planner-mission-panel__brief">
                 <div className="planner-mission-panel__brief-copy">
-                  <p className="eyebrow">Route Brief</p>
+                  <p className="eyebrow">Route brief</p>
                 </div>
                 <textarea
                   className="planner-mission-panel__prompt"
@@ -205,7 +222,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   onClick={handlePlan}
                   disabled={isPending}
                 >
-                  {isPending ? "Calculating..." : "Generate Route Hunt"}
+                  {isPending ? "Calculating..." : "Generate route hunt"}
                 </button>
                 {errorMessage ? (
                   <p className="error-copy planner-mission-panel__error">
@@ -213,6 +230,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   </p>
                 ) : null}
               </div>
+
+              <PlannerForm
+                initialIntent={generation.tripIntent}
+                onChange={setSecondaryValues}
+              />
             </div>
           </div>
         </aside>

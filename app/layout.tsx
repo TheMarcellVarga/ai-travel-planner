@@ -19,12 +19,31 @@ const bodyFont = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: site.name,
   description: site.description,
+  openGraph: {
+    title: site.name,
+    description: site.description,
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: `${site.name} route planning preview`
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: site.name,
+    description: site.description,
+    images: ["/logo.png"]
+  },
   icons: {
     icon: "/wild-route-mark.svg",
-    apple: "/wild-route-mark.svg",
-  },
+    apple: "/wild-route-mark.svg"
+  }
 };
 
 export default function RootLayout({
@@ -35,9 +54,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${displayFont.variable} ${bodyFont.variable}`}>
+        <a className="skip-link" href="#content">
+          Skip to content
+        </a>
         <div className="page-noise" aria-hidden="true" />
         <SiteHeader />
-        {children}
+        <div id="content">{children}</div>
         <AppFooter />
       </body>
     </html>

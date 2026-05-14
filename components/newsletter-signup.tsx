@@ -52,39 +52,42 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
   }
 
   return (
-    <article className="footer-newsletter">
+    <article className="footer-newsletter newsletter-console">
       <div className="footer-newsletter__heading">
-        <p className="eyebrow">Email updates</p>
-        <h2>Get route drops and optional trip alerts.</h2>
+        <p className="eyebrow">Signal list</p>
+        <h2>Route drops, not travel spam.</h2>
         <p className="muted-copy">
-          One monthly newsletter, plus route notifications for signed-in members who want them.
+          Monthly dispatches for new markets, plus account alerts when saved
+          routes are ready to publish or hand off.
         </p>
       </div>
 
       <form className="newsletter-form" onSubmit={handleSubmit}>
-        <label className="field newsletter-field">
-          <span>Email</span>
-          <input
-            autoComplete="email"
-            name="email"
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="traveler@example.com"
-            type="email"
-            value={email}
-          />
-        </label>
+        <div className="newsletter-console__fields">
+          <label className="field newsletter-field">
+            <span>Email</span>
+            <input
+              autoComplete="email"
+              name="email"
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="traveler@example.com"
+              type="email"
+              value={email}
+            />
+          </label>
 
-        <label className="field newsletter-field">
-          <span>Name</span>
-          <input
-            autoComplete="name"
-            name="name"
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Your name"
-            type="text"
-            value={name}
-          />
-        </label>
+          <label className="field newsletter-field">
+            <span>Name</span>
+            <input
+              autoComplete="name"
+              name="name"
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Your name"
+              type="text"
+              value={name}
+            />
+          </label>
+        </div>
 
         <div className="newsletter-options">
           <label className="newsletter-option">
@@ -94,7 +97,7 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
               type="checkbox"
             />
             <span>
-              <strong>Newsletter</strong>
+              <strong>Monthly dispatch</strong>
               <small>Launch notes, new destinations, and product updates.</small>
             </span>
           </label>
@@ -112,8 +115,8 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
           </label>
         </div>
 
-        <button className="button" disabled={isPending || !email} type="submit">
-          {isPending ? "Joining..." : "Join the list"}
+        <button className="button button-island newsletter-console__button" disabled={isPending || !email} type="submit">
+          <span>{isPending ? "Joining..." : "Join signal list"}</span>
         </button>
 
         {status ? <p className="status-copy newsletter-status">{status}</p> : null}

@@ -38,8 +38,12 @@ export function RouteActions({ routeId }: RouteActionsProps) {
   }
 
   return (
-    <div className="route-actions">
-      <div className="route-actions__row">
+    <div className="route-actions route-action-console">
+      <div className="route-action-console__header">
+        <span>Decision tools</span>
+        <small>{isPending ? "working" : "ready"}</small>
+      </div>
+      <div className="route-actions__row route-action-console__secondary">
         <button
           className="button button-ghost"
           disabled={isPending}
@@ -70,7 +74,7 @@ export function RouteActions({ routeId }: RouteActionsProps) {
           }
           type="button"
         >
-          Booking Handoff
+          Open booking handoff
         </button>
       </div>
       {message ? <p className="status-copy">{message}</p> : null}
