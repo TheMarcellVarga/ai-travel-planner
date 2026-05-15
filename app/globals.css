@@ -5662,7 +5662,7 @@ body:has(.planner-command-shell) {
   line-height: 0.86;
 }
 
- (max-width: 1180px) {
+@media (max-width: 1180px) {
   .saved-vault-shell .planner-stage-header,
   .share-route-shell .planner-stage-header {
     left: 390px;
@@ -5670,7 +5670,7 @@ body:has(.planner-command-shell) {
   }
 }
 
- (max-width: 980px) {
+@media (max-width: 980px) {
   .saved-vault-shell .planner-stage-header,
   .share-route-shell .planner-stage-header {
     position: relative;
@@ -5691,9 +5691,425 @@ body:has(.planner-command-shell) {
   }
 }
 
- (max-width: 720px) {
+@media (max-width: 720px) {
   .saved-vault-shell .planner-stage-header h1,
   .share-route-shell .planner-stage-header h1 {
     font-size: clamp(2.7rem, 13vw, 4rem);
   }
+}
+
+/* Last-mile planner flattening pass */
+body:has(.planner-command-shell) .site-command,
+body:has(.planner-command-shell) .site-command__brand,
+body:has(.planner-command-shell) .site-command__signal,
+body:has(.planner-command-shell) .site-command__nav,
+body:has(.planner-command-shell) .auth-chip,
+body:has(.planner-command-shell) .site-command__cta,
+.planner-stage-title,
+.floating-sidebar__inner,
+.planner-mission-panel__toggle,
+.planner-mission-panel__brief,
+.planner-route-dock,
+.planner-route-dock__card,
+.route-action-console,
+.stop-card,
+.tag-pill,
+.segment-chip,
+.wish-chip,
+.field textarea,
+.field input,
+.field select {
+  box-shadow: none !important;
+}
+
+body:has(.planner-command-shell) .site-command {
+  gap: 0.45rem;
+  border: 1px solid rgba(237, 248, 239, 0.1);
+  background: rgba(5, 13, 9, 0.72);
+  backdrop-filter: blur(18px);
+}
+
+body:has(.planner-command-shell) .site-command__brand,
+body:has(.planner-command-shell) .site-command__signal,
+body:has(.planner-command-shell) .site-command__nav,
+body:has(.planner-command-shell) .auth-chip {
+  border: 1px solid rgba(237, 248, 239, 0.055);
+  background: rgba(237, 248, 239, 0.045);
+}
+
+.planner-command-stage-route-active,
+.planner-command-stage-mission-open,
+.planner-command-stage-mission-docked {
+  --planner-left-reserve: 0px;
+  --planner-right-reserve: 0px;
+}
+
+.planner-stage-globe {
+  top: 118px;
+  right: 0;
+  bottom: 118px;
+  left: 0;
+  z-index: 1;
+}
+
+.orbital-globe-stage {
+  display: grid;
+  place-items: center;
+}
+
+.orbital-globe-shell {
+  transform: translate3d(0, 0, 0) scale(0.94);
+}
+
+.planner-route-dock {
+  bottom: 26px;
+  width: min(1120px, calc(100% - 620px));
+  min-width: 720px;
+  padding: 0.35rem;
+  border: 1px solid rgba(237, 248, 239, 0.08);
+  border-radius: 1rem;
+  background: rgba(5, 13, 9, 0.68);
+  backdrop-filter: blur(14px);
+}
+
+.planner-route-dock__card {
+  min-height: 5.35rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(237, 248, 239, 0.06);
+  border-radius: 0.72rem;
+  background: rgba(237, 248, 239, 0.04);
+}
+
+.planner-route-dock__card:hover {
+  transform: none;
+  background: rgba(237, 248, 239, 0.07);
+}
+
+.planner-route-dock__card-active {
+  border-color: rgba(212, 234, 134, 0.52);
+  background: #d4ea86;
+}
+
+.floating-sidebar {
+  top: 142px;
+  bottom: 24px;
+}
+
+.floating-sidebar-left-planner,
+.planner-mission-panel-shell,
+.planner-mission-panel-shell-open {
+  width: min(380px, calc(100vw - 80px));
+}
+
+.planner-mission-panel-shell-open {
+  top: 132px;
+  bottom: 24px;
+}
+
+.planner-mission-panel-shell-docked {
+  top: 330px;
+  width: 190px;
+}
+
+.floating-sidebar-right {
+  top: 168px;
+  right: 42px;
+  bottom: 30px;
+  width: min(300px, calc(100vw - 80px));
+}
+
+.floating-sidebar__inner {
+  overflow: auto;
+  border: 1px solid rgba(237, 248, 239, 0.075);
+  border-radius: 1rem;
+  background: rgba(9, 23, 16, 0.68);
+  backdrop-filter: blur(18px);
+  scrollbar-width: thin;
+}
+
+.planner-mission-panel {
+  padding: 0.85rem;
+}
+
+.planner-mission-panel__toggle {
+  min-height: 3rem;
+  border: 1px solid rgba(237, 248, 239, 0.07);
+  border-radius: 0.75rem;
+  background: rgba(237, 248, 239, 0.05);
+}
+
+.planner-mission-panel__body {
+  gap: 1rem;
+}
+
+.planner-mission-panel__brief {
+  gap: 0.7rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(237, 248, 239, 0.06);
+  border-radius: 0.85rem;
+  background: rgba(237, 248, 239, 0.045);
+}
+
+.planner-mission-panel__prompt {
+  min-height: 6.4rem;
+  max-height: none;
+  padding: 0.8rem;
+  border-radius: 0.75rem;
+  background: rgba(2, 8, 5, 0.58);
+  line-height: 1.35;
+}
+
+.planner-mission-panel__launch {
+  min-height: 3rem;
+  border-radius: 0.8rem;
+}
+
+.planner-form-hud,
+.planner-grid-hud {
+  gap: 0.75rem;
+}
+
+.planner-grid-hud {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
+}
+
+.field-hud,
+.segment-chip,
+.wish-chip {
+  border-radius: 0.72rem;
+}
+
+.segment-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.segment-grid-triple,
+.wish-grid {
+  gap: 0.42rem;
+}
+
+.segment-chip,
+.wish-chip {
+  min-width: 0;
+  padding: 0.56rem 0.62rem;
+  border: 1px solid rgba(237, 248, 239, 0.055);
+  background: rgba(237, 248, 239, 0.035);
+}
+
+.segment-chip strong,
+.wish-chip {
+  font-size: 0.72rem;
+}
+
+.segment-chip small {
+  font-size: 0.58rem;
+}
+
+.route-inspector__media {
+  min-height: 7.5rem;
+  border-radius: 0.85rem;
+}
+
+.route-inspector__copy {
+  right: 0.75rem;
+  bottom: 0.7rem;
+  left: 0.75rem;
+}
+
+.route-inspector__copy strong {
+  max-width: 15ch;
+  font-size: 1.1rem;
+  line-height: 1.05;
+}
+
+.route-inspector__copy span {
+  display: none;
+}
+
+.route-inspector__section {
+  gap: 0.7rem;
+  padding-block: 0.9rem;
+}
+
+.route-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.tag-pill {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(237, 248, 239, 0.055);
+  border-radius: 0.65rem;
+  background: rgba(237, 248, 239, 0.05);
+}
+
+.stop-stack {
+  gap: 0.55rem;
+}
+
+.stop-card {
+  padding: 0.7rem;
+  border: 1px solid rgba(237, 248, 239, 0.055);
+  border-radius: 0.72rem;
+  background: rgba(237, 248, 239, 0.04);
+}
+
+.route-action-console {
+  padding: 0.65rem;
+  border: 1px solid rgba(237, 248, 239, 0.06);
+  border-radius: 0.85rem;
+  background: rgba(237, 248, 239, 0.045);
+}
+
+.route-action-console .button {
+  min-height: 2.7rem;
+}
+
+@media (max-width: 1180px) {
+  .planner-route-dock {
+    right: 24px;
+    left: 24px;
+    width: auto;
+    min-width: 0;
+    transform: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .planner-stage-globe {
+    position: relative;
+    inset: auto;
+    order: 2;
+    min-height: 420px;
+  }
+
+  .planner-route-dock {
+    order: 3;
+    grid-template-columns: 1fr;
+  }
+
+  .floating-sidebar {
+    position: relative;
+    inset: auto;
+    width: auto;
+    margin: 0;
+  }
+}
+
+/* Planner spacing correction for active routes */
+.planner-command-stage-mission-open .planner-route-dock {
+  right: 352px;
+  left: 420px;
+  width: auto;
+  min-width: 0;
+  transform: none;
+}
+
+.planner-command-stage-mission-open .planner-route-dock__card {
+  padding-inline: 0.7rem;
+}
+
+.floating-sidebar-right {
+  top: 132px;
+  width: min(330px, calc(100vw - 80px));
+}
+
+.floating-sidebar__inner-tight {
+  gap: 0.7rem;
+  padding: 0.85rem;
+}
+
+.route-inspector__media {
+  min-height: 5.7rem;
+}
+
+.route-inspector__copy strong {
+  font-size: 1rem;
+}
+
+.route-inspector__section {
+  padding-block: 0.58rem;
+}
+
+.route-tagline {
+  font-size: 1rem;
+}
+
+.route-chip-row .tag-pill {
+  padding: 0.42rem 0.55rem;
+}
+
+.floating-sidebar-right .stop-stack {
+  gap: 0.42rem;
+}
+
+.floating-sidebar-right .stop-card {
+  gap: 0.18rem;
+  padding: 0.55rem 0.62rem;
+}
+
+.floating-sidebar-right .stop-card strong {
+  font-size: 0.78rem;
+}
+
+.floating-sidebar-right .stop-card span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(237, 248, 239, 0.72);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.floating-sidebar-right .route-action-console {
+  gap: 0.45rem;
+  padding: 0.55rem;
+}
+
+.floating-sidebar-right .route-action-console__header {
+  padding-bottom: 0.15rem;
+}
+
+.floating-sidebar-right .route-action-console .button {
+  min-height: 2.25rem;
+  padding: 0.48rem 0.58rem;
+  font-size: 0.62rem;
+}
+
+@media (max-width: 1180px) {
+  .planner-command-stage-mission-open .planner-route-dock {
+    right: 24px;
+    left: 24px;
+    width: auto;
+  }
+}
+
+/* Planner inspector density: keep actions visible without a cramped image card */
+.floating-sidebar-right .route-inspector__media {
+  display: none;
+}
+
+.floating-sidebar-right .route-inspector__image,
+.floating-sidebar-right .route-inspector__overlay {
+  display: none;
+}
+
+.floating-sidebar-right .route-inspector__copy {
+  position: static;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.floating-sidebar-right .route-inspector__copy strong {
+  max-width: none;
+}
+
+.floating-sidebar-right .route-inspector__section {
+  padding-block: 0.48rem;
+}
+
+.floating-sidebar-right .route-tagline {
+  font-size: 0.95rem;
 }
