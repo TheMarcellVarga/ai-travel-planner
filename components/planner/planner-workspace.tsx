@@ -56,20 +56,6 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     generation.routes.length === 1
       ? "1 route ready"
       : `${generation.routes.length} routes ready`;
-  const isMissionPanelExpanded = isMissionPanelOpen;
-  const missionPanelShellClass = isMissionPanelExpanded
-    ? "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-open"
-    : "floating-sidebar floating-sidebar-left floating-sidebar-left-planner planner-mission-panel-shell planner-mission-panel-shell-docked";
-  const plannerStageClassName = [
-    "planner-command-stage",
-    isMissionPanelExpanded
-      ? "planner-command-stage-mission-open"
-      : "planner-command-stage-mission-docked",
-    activeRoute
-      ? "planner-command-stage-route-active"
-      : "planner-command-stage-route-idle",
-  ].join(" ");
-
   function handlePlan() {
     startTransition(async () => {
       setErrorMessage(null);
@@ -103,50 +89,31 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   }
 
   return (
-    <main className="planner-command-shell planner-command-deck">
-      <section className={plannerStageClassName}>
-        <div
-          className={
-            activeRoute
-              ? "planner-stage-header planner-stage-header-active"
-              : "planner-stage-header planner-stage-header-idle"
-          }
-        >
-          <div className="planner-stage-title">
-            <p className="eyebrow">
-              {activeRoute ? "Active route" : "Route sweep"}
-            </p>
-            <h1>
+    <main className="planner-command-shell route-studio">
+      <section className="route-studio__layout">
+        <header className="route-studio__summary">
+          <p className="route-studio__kicker">
+            {activeRoute ? "Active route" : "Route sweep"}
+          </p>
+          <h1>{activeRoute ? activeRoute.title : "Pick a signal."}</h1>
+          <p className="route-studio__summary-copy">
+            {activeRoute
+              ? activeRoute.tagline
+              : "Choose a route from the globe or the ranked list below."}
+          </p>
+          <div className="route-studio__metrics">
+            <span>
               {activeRoute
-                ? activeRoute.title
-                : "Pick a signal."}
-            </h1>
-            <p className="planner-stage-subcopy">
-              {activeRoute
-                ? activeRoute.tagline
-                : "The globe stays primary. Open the mission console only when you need to tune the sweep."}
-            </p>
+                ? `${Math.round(activeRoute.confidence * 100)}% confidence`
+                : recommendationCountLabel}
+            </span>
+            <strong>
+              {activeRoute ? `$${activeRoute.estimatedCostUsd}` : "ready"}
+            </strong>
           </div>
-          <div className="planner-stage-badges">
-            {activeRoute ? (
-              <>
-                <span className="status-pill">
-                  Confidence {Math.round(activeRoute.confidence * 100)}%
-                </span>
-                <span className="status-pill status-pill-accent">
-                  ${activeRoute.estimatedCostUsd}
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="status-pill">{recommendationCountLabel}</span>
-                <span className="status-pill status-pill-accent">Pick a route</span>
-              </>
-            )}
-          </div>
-        </div>
+        </header>
 
-        <div className="planner-stage-globe">
+        <div className="route-studio__globe">
           <RouteGlobe
             routes={generation.routes}
             activeRouteId={activeRouteId}
@@ -157,77 +124,71 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           />
         </div>
 
-        <section className="planner-route-dock" aria-label="Ranked route options">
+        <section className="route-studio__dock" aria-label="Ranked route options">
           {generation.routes.map((route, index) => (
             <button
               key={route.id}
               type="button"
               className={
                 route.id === activeRoute?.id
-                  ? "planner-route-dock__card planner-route-dock__card-active"
-                  : "planner-route-dock__card"
+                  ? "route-studio__route route-studio__route--active"
+                  : "route-studio__route"
               }
               onClick={() => {
                 setActiveRouteId(route.id);
                 setIsMissionPanelOpen(false);
               }}
             >
-              <span>0{index + 1}</span>
+              <span className="route-studio__route-index">0{index + 1}</span>
               <strong>{route.title}</strong>
-              <small>${route.estimatedCostUsd} · {Math.round(route.confidence * 100)}%</small>
+              <small>
+                ${route.estimatedCostUsd} · {Math.round(route.confidence * 100)}%
+              </small>
             </button>
           ))}
         </section>
 
-        <aside className={missionPanelShellClass}>
-          <div className="floating-sidebar__inner floating-sidebar__inner-planner planner-mission-panel">
-            <button
-              className="planner-mission-panel__toggle"
-              aria-expanded={isMissionPanelExpanded}
-              aria-label="Toggle mission parameters"
-              onClick={() => setIsMissionPanelOpen((current) => !current)}
-              type="button"
-            >
-              <SlidersHorizontal
-                className="planner-mission-panel__toggle-icon"
-                aria-hidden="true"
-              />
-              <span>Route controls</span>
-              <ChevronDown
-                className="planner-mission-panel__toggle-chevron"
-                aria-hidden="true"
-              />
-            </button>
+        <aside
+          className={
+            isMissionPanelOpen
+              ? "route-studio__controls route-studio__controls--open"
+              : "route-studio__controls"
+          }
+        >
+          <button
+            className="route-studio__controls-toggle"
+            aria-expanded={isMissionPanelOpen}
+            onClick={() => setIsMissionPanelOpen((current) => !current)}
+            type="button"
+          >
+            <SlidersHorizontal aria-hidden="true" />
+            <span>Route controls</span>
+            <ChevronDown aria-hidden="true" />
+          </button>
 
-            <div className="planner-mission-panel__body">
-              <div className="floating-sidebar__header">
-                <p className="eyebrow">Route controls</p>
-                <h2>Constraints</h2>
-                <p className="muted-copy">Tune the sweep, then launch.</p>
+          {isMissionPanelOpen ? (
+            <div className="route-studio__controls-body">
+              <div className="route-studio__section-heading">
+                <p>Route brief</p>
+                <span>Adjust the sweep, then generate a new ranked set.</span>
               </div>
-
-              <div className="planner-mission-panel__brief">
-                <div className="planner-mission-panel__brief-copy">
-                  <p className="eyebrow">Route brief</p>
-                </div>
+              <div className="route-studio__brief">
                 <textarea
-                  className="planner-mission-panel__prompt"
+                  className="route-studio__prompt"
                   placeholder="Jungle riding, cold water, one dramatic stop, low friction transfers..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  rows={1}
+                  rows={4}
                 />
                 <button
-                  className="button planner-mission-panel__launch"
+                  className="route-studio__primary-action"
                   onClick={handlePlan}
                   disabled={isPending}
                 >
                   {isPending ? "Calculating..." : "Generate route hunt"}
                 </button>
                 {errorMessage ? (
-                  <p className="error-copy planner-mission-panel__error">
-                    {errorMessage}
-                  </p>
+                  <p className="route-studio__error">{errorMessage}</p>
                 ) : null}
               </div>
 
@@ -236,48 +197,48 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 onChange={setSecondaryValues}
               />
             </div>
-          </div>
+          ) : null}
         </aside>
 
-        {activeRoute ? (
-          <aside className="floating-sidebar floating-sidebar-right">
-            <div className="floating-sidebar__inner floating-sidebar__inner-tight">
-              <div className="route-inspector__media" style={{ position: "relative" }}>
+        <aside className="route-studio__inspector">
+          {activeRoute ? (
+            <>
+              <div className="route-studio__inspector-media">
                 <Image
                   alt={promotedMedia.alt}
-                  className="route-inspector__image"
+                  className="route-studio__inspector-image"
                   src={promotedMedia.src}
                   fill
                   sizes="(max-width: 768px) 100vw, 400px"
                 />
-                <div className="route-inspector__overlay" />
-                <div className="route-inspector__copy">
-                  <p className="eyebrow">Target stop</p>
+                <div className="route-studio__inspector-overlay" />
+                <div className="route-studio__inspector-copy">
+                  <p>Target stop</p>
                   <strong>{promotedStop?.name}</strong>
                   <span>{promotedMedia.punchline}</span>
                 </div>
               </div>
 
-              <div className="route-inspector__section">
-                <p className="eyebrow">Route path</p>
-                <p className="route-tagline">{activeRoute.tagline}</p>
-                <div className="route-chip-row">
+              <section className="route-studio__inspector-section">
+                <p className="route-studio__kicker">Route path</p>
+                <p className="route-studio__path">{activeRoute.tagline}</p>
+                <div className="route-studio__tags">
                   {inspectorWishTags.map((tag) => (
-                    <span key={tag} className="tag-pill">
+                    <span key={tag}>
                       {tag}
                     </span>
                   ))}
                   {inspectorWishOverflow > 0 ? (
-                    <span className="tag-pill">+{inspectorWishOverflow}</span>
+                    <span>+{inspectorWishOverflow}</span>
                   ) : null}
                 </div>
-              </div>
+              </section>
 
-              <div className="route-inspector__section">
-                <p className="eyebrow">Leg order</p>
-                <div className="stop-stack">
+              <section className="route-studio__inspector-section">
+                <p className="route-studio__kicker">Leg order</p>
+                <div className="route-studio__stops">
                   {destinationStops.map((stop) => (
-                    <article className="stop-card" key={stop.id}>
+                    <article key={stop.id}>
                       <strong>
                         {stop.name} ({stop.code})
                       </strong>
@@ -285,33 +246,19 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                     </article>
                   ))}
                 </div>
-              </div>
+              </section>
 
               <RouteActions routeId={activeRoute.id} />
+            </>
+          ) : (
+            <div className="route-studio__inspector-empty">
+              <p className="route-studio__kicker">Route detail</p>
+              <strong>Select a signal</strong>
+              <span>Route legs, travel wishes, and decision tools appear here.</span>
             </div>
-          </aside>
-        ) : null}
+          )}
+        </aside>
       </section>
-
-      {activeRoute ? (
-        <section className="planner-mobile-routebar">
-          {generation.routes.map((route) => (
-            <button
-              key={route.id}
-              type="button"
-              className={
-                route.id === activeRoute.id
-                  ? "mobile-route-card mobile-route-card-active"
-                  : "mobile-route-card"
-              }
-              onClick={() => setActiveRouteId(route.id)}
-            >
-              <strong>{route.title}</strong>
-              <span>${route.estimatedCostUsd}</span>
-            </button>
-          ))}
-        </section>
-      ) : null}
     </main>
   );
 }

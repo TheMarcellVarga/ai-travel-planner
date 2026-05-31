@@ -6113,3 +6113,984 @@ body:has(.planner-command-shell) .auth-chip {
 .floating-sidebar-right .route-tagline {
   font-size: 0.95rem;
 }
+
+/* Planner rebuild: isolated from the legacy cockpit experiments above. */
+.route-studio {
+  --route-line: rgba(231, 241, 222, 0.11);
+  --route-line-strong: rgba(210, 232, 130, 0.44);
+  --route-panel: rgba(5, 14, 10, 0.9);
+  --route-control: rgba(231, 241, 222, 0.055);
+  --route-control-hover: rgba(231, 241, 222, 0.09);
+  --route-text: #f1f5ea;
+  --route-muted: #a5b6a5;
+  --route-accent: #d2e882;
+  display: block;
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  padding: 6.4rem clamp(0.85rem, 1.8vw, 1.65rem) 1.2rem;
+  background:
+    radial-gradient(circle at 52% 46%, rgba(131, 177, 105, 0.13), transparent 25rem),
+    linear-gradient(180deg, #06110c 0%, #030906 100%);
+}
+
+.route-studio__layout {
+  display: grid;
+  position: relative;
+  z-index: 1;
+  grid-template-columns: minmax(16rem, 19rem) minmax(30rem, 1fr) minmax(16rem, 19rem);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "summary globe inspector"
+    "controls globe inspector"
+    ". dock inspector";
+  column-gap: clamp(3.25rem, 5.8vw, 6.5rem);
+  row-gap: 1rem;
+  width: 100%;
+  max-width: none;
+  min-height: calc(100dvh - 7.8rem);
+  margin: 0;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.route-studio__summary,
+.route-studio__controls,
+.route-studio__inspector,
+.route-studio__dock {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.route-studio__summary {
+  grid-area: summary;
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  padding: 0.95rem 0 1rem;
+  border-top: 1px solid var(--route-line);
+  border-bottom: 1px solid var(--route-line);
+}
+
+.route-studio__kicker,
+.route-studio__section-heading p,
+.route-studio__inspector-copy p {
+  margin: 0;
+  color: var(--route-accent);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.route-studio__summary h1 {
+  max-width: 9ch;
+  color: var(--route-text);
+  font-size: clamp(2.6rem, 4vw, 4.6rem);
+  line-height: 0.84;
+  letter-spacing: 0.015em;
+  text-wrap: balance;
+}
+
+.route-studio__summary-copy,
+.route-studio__path {
+  margin: 0;
+  color: var(--route-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.route-studio__metrics {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.route-studio__metrics span,
+.route-studio__metrics strong {
+  padding: 0.38rem 0.48rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.38rem;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.route-studio__metrics span {
+  color: var(--route-muted);
+}
+
+.route-studio__metrics strong {
+  border-color: transparent;
+  background: var(--route-accent);
+  color: #07120d;
+}
+
+.route-studio__globe {
+  grid-area: globe;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.route-studio__globe .orbital-globe-stage {
+  width: 100vw;
+  height: 100dvh;
+  min-height: 0;
+  padding: 0;
+}
+
+.route-studio__globe .orbital-globe-frame {
+  inset: 0;
+}
+
+.route-studio__controls {
+  grid-area: controls;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  margin-top: clamp(0.65rem, 1vw, 0.9rem);
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--route-line);
+  border-radius: 0.72rem;
+  background: var(--route-panel);
+}
+
+.route-studio__controls-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.62rem;
+  width: 100%;
+  min-height: 3.1rem;
+  padding: 0.72rem 0.8rem;
+  border: 0;
+  background: transparent;
+  color: var(--route-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.route-studio__controls-toggle:hover {
+  background: var(--route-control-hover);
+}
+
+.route-studio__controls-toggle:focus-visible,
+.route-studio__route:focus-visible,
+.route-studio-form button:focus-visible,
+.route-studio-actions button:focus-visible,
+.route-studio textarea:focus-visible,
+.route-studio input:focus-visible {
+  outline: 2px solid rgba(210, 232, 130, 0.82);
+  outline-offset: -2px;
+}
+
+.route-studio__controls-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--route-accent);
+  transition: transform 180ms ease;
+}
+
+.route-studio__controls-toggle svg:last-child {
+  color: var(--route-muted);
+}
+
+.route-studio__controls--open .route-studio__controls-toggle svg:last-child {
+  transform: rotate(180deg);
+}
+
+.route-studio__controls-toggle span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.route-studio__controls-body {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0.75rem;
+  padding: 0.76rem;
+  overflow-y: auto;
+  border-top: 1px solid var(--route-line);
+  scrollbar-color: rgba(210, 232, 130, 0.42) transparent;
+  scrollbar-width: thin;
+}
+
+.route-studio__section-heading {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.route-studio__section-heading span {
+  color: var(--route-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.route-studio__brief {
+  display: grid;
+  gap: 0.48rem;
+}
+
+.route-studio__prompt {
+  width: 100%;
+  min-height: 5.85rem;
+  padding: 0.72rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.55rem;
+  background: rgba(231, 241, 222, 0.045);
+  color: var(--route-text);
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1.48;
+  resize: vertical;
+}
+
+.route-studio__prompt:hover,
+.route-studio-form input:hover {
+  border-color: rgba(231, 241, 222, 0.2);
+}
+
+.route-studio__primary-action,
+.route-studio-actions__primary-button {
+  min-height: 2.7rem;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 0.58rem;
+  background: var(--route-accent);
+  color: #07120d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.route-studio__primary-action:hover,
+.route-studio-actions__primary-button:hover {
+  background: #dfef9c;
+}
+
+.route-studio__primary-action:active,
+.route-studio-actions__primary-button:active,
+.route-studio-actions__secondary-button:active,
+.route-studio__route:active,
+.route-studio-form button:active {
+  transform: translateY(1px);
+}
+
+.route-studio__error,
+.route-studio-actions__message {
+  margin: 0;
+  color: #f0c887;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.route-studio-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.route-studio-form__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.58rem;
+}
+
+.route-studio-form__field {
+  display: grid;
+  gap: 0.32rem;
+}
+
+.route-studio-form__field--wide {
+  grid-column: 1 / -1;
+}
+
+.route-studio-form__field > span {
+  color: var(--route-muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.route-studio-form input {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.58rem 0.64rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.52rem;
+  background: rgba(231, 241, 222, 0.05);
+  color: var(--route-text);
+  font: inherit;
+  font-size: 0.72rem;
+}
+
+.route-studio-form__number {
+  position: relative;
+}
+
+.route-studio-form__number input {
+  padding-right: 2.5rem;
+}
+
+.route-studio-form__number small {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  color: var(--route-muted);
+  font-size: 0.56rem;
+  transform: translateY(-50%);
+}
+
+.route-studio-form__segments,
+.route-studio-form__wishes {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.route-studio-form__segments {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.route-studio-form__segments--budget {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.route-studio-form__segments--stops {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.route-studio-form__segment,
+.route-studio-form__wish {
+  min-width: 0;
+  padding: 0.7rem 0.72rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.72rem;
+  background:
+    linear-gradient(180deg, rgba(231, 241, 222, 0.055), rgba(231, 241, 222, 0.03)),
+    var(--route-control);
+  color: var(--route-muted);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.route-studio-form__segment {
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+  min-height: 3.9rem;
+}
+
+.route-studio-form__segment strong,
+.route-studio-form__wish {
+  font-size: 0.72rem;
+  line-height: 1.15;
+}
+
+.route-studio-form__segment small {
+  color: rgba(165, 182, 165, 0.72);
+  font-size: 0.58rem;
+  line-height: 1.2;
+}
+
+.route-studio-form__segment:hover,
+.route-studio-form__wish:hover {
+  border-color: rgba(231, 241, 222, 0.2);
+  background: var(--route-control-hover);
+  color: var(--route-text);
+}
+
+.route-studio-form__segment--active,
+.route-studio-form__wish--active {
+  border-color: transparent;
+  background: var(--route-accent);
+  color: #07120d;
+}
+
+.route-studio-form__segment--active small {
+  color: rgba(7, 18, 13, 0.7);
+}
+
+.route-studio-form__wishes {
+  grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr));
+}
+
+.route-studio__dock {
+  grid-area: dock;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0.2rem;
+  justify-self: center;
+  width: min(100%, 39rem);
+  overflow: hidden;
+  border: 1px solid var(--route-line);
+  border-radius: 0.72rem;
+  background: var(--route-panel);
+}
+
+.route-studio__route {
+  display: grid;
+  gap: 0.24rem;
+  min-width: 0;
+  min-height: 5.45rem;
+  padding: 0.68rem 0.72rem;
+  border: 0;
+  border-left: 1px solid var(--route-line);
+  background: transparent;
+  color: var(--route-text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.route-studio__route:first-child {
+  border-left: 0;
+}
+
+.route-studio__route:hover {
+  background: var(--route-control-hover);
+}
+
+.route-studio__route--active,
+.route-studio__route--active:hover {
+  background: var(--route-accent);
+  color: #07120d;
+}
+
+.route-studio__route-index {
+  color: var(--route-accent);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.route-studio__route strong {
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.18;
+  text-overflow: ellipsis;
+}
+
+.route-studio__route small {
+  color: var(--route-muted);
+  font-size: 0.62rem;
+}
+
+.route-studio__route--active .route-studio__route-index,
+.route-studio__route--active small {
+  color: rgba(7, 18, 13, 0.72);
+}
+
+.route-studio__inspector {
+  grid-area: inspector;
+  display: grid;
+  align-content: start;
+  gap: 0;
+  margin-top: clamp(0.65rem, 1vw, 0.9rem);
+  min-height: 0;
+  align-self: stretch;
+  justify-self: end;
+  overflow-y: auto;
+  border: 1px solid var(--route-line);
+  border-radius: 0.72rem;
+  background: var(--route-panel);
+  scrollbar-color: rgba(210, 232, 130, 0.42) transparent;
+  scrollbar-width: thin;
+}
+
+.route-studio__inspector-media {
+  position: relative;
+  min-height: 10.8rem;
+  overflow: hidden;
+  border-bottom: 1px solid var(--route-line);
+}
+
+.route-studio__inspector-image {
+  object-fit: cover;
+}
+
+.route-studio__inspector-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 20%, rgba(3, 9, 6, 0.9));
+}
+
+.route-studio__inspector-copy {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.8rem;
+  left: 0.85rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.route-studio__inspector-copy strong {
+  color: var(--route-text);
+  font-size: 1.5rem;
+  line-height: 0.9;
+}
+
+.route-studio__inspector-copy span {
+  color: rgba(241, 245, 234, 0.76);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.route-studio__inspector-section {
+  display: grid;
+  gap: 0.72rem;
+  padding: 0.9rem;
+  border-bottom: 1px solid var(--route-line);
+}
+
+.route-studio__path {
+  color: rgba(241, 245, 234, 0.9);
+  font-size: 0.82rem;
+}
+
+.route-studio__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+}
+
+.route-studio__tags span {
+  padding: 0.38rem 0.48rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.38rem;
+  background: var(--route-control);
+  color: var(--route-muted);
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.route-studio__stops {
+  display: grid;
+  gap: 0.62rem;
+}
+
+.route-studio__stops article {
+  display: grid;
+  gap: 0.2rem;
+  padding-top: 0.62rem;
+  border-top: 1px solid var(--route-line);
+}
+
+.route-studio__stops strong {
+  color: var(--route-text);
+  font-size: 0.7rem;
+}
+
+.route-studio__stops span {
+  color: var(--route-muted);
+  font-size: 0.64rem;
+  line-height: 1.38;
+}
+
+.route-studio__inspector-empty {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+}
+
+.route-studio__inspector-empty strong {
+  color: var(--route-text);
+  font-size: 1.5rem;
+}
+
+.route-studio__inspector-empty span {
+  color: var(--route-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.route-studio-actions {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.9rem;
+}
+
+.route-studio-actions__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.route-studio-actions__header span {
+  color: var(--route-accent);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.route-studio-actions__header small {
+  color: var(--route-muted);
+  font-size: 0.62rem;
+}
+
+.route-studio-actions__secondary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+
+.route-studio-actions__secondary-button {
+  min-height: 2.45rem;
+  padding: 0.6rem;
+  border: 1px solid var(--route-line);
+  border-radius: 0.52rem;
+  background: var(--route-control);
+  color: var(--route-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+
+.route-studio-actions__secondary-button:hover {
+  border-color: rgba(231, 241, 222, 0.2);
+  background: var(--route-control-hover);
+}
+
+.route-studio button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 1120px) {
+  .route-studio {
+    overflow-y: auto;
+  }
+
+  .route-studio__layout {
+    grid-template-columns: minmax(14rem, 16rem) minmax(24rem, 1fr);
+    grid-template-rows: auto minmax(26rem, 1fr) auto auto;
+    grid-template-areas:
+      "summary globe"
+      "controls globe"
+      "inspector globe"
+      "dock dock";
+    height: auto;
+    min-height: 100%;
+  }
+
+  .route-studio__inspector {
+    max-height: 26rem;
+  }
+}
+
+@media (max-width: 1500px) {
+  .route-studio {
+    padding-top: 5.8rem;
+  }
+
+  .route-studio__layout {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    grid-template-rows: auto minmax(28rem, 1fr) auto auto;
+    grid-template-areas:
+      "summary summary"
+      "globe globe"
+      "dock dock"
+      "controls inspector";
+    gap: 1rem;
+    min-height: auto;
+  }
+
+  .route-studio__summary {
+    padding-bottom: 0.85rem;
+  }
+
+  .route-studio__globe {
+    padding: 0;
+  }
+
+  .route-studio__dock {
+    margin-top: 0;
+    justify-self: center;
+    width: min(100%, 52rem);
+  }
+
+  .route-studio__controls,
+  .route-studio__inspector {
+    margin-top: 0;
+    justify-self: stretch;
+    max-height: min(calc(100dvh - 16rem), 36rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .route-studio {
+    overflow-y: auto;
+    padding: 5.4rem 0.75rem 0.75rem;
+  }
+
+  .route-studio__layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(22rem, auto) auto auto auto;
+    grid-template-areas:
+      "summary"
+      "globe"
+      "dock"
+      "controls"
+      "inspector";
+    gap: 0.72rem;
+  }
+
+  .route-studio__summary h1 {
+    font-size: clamp(2.9rem, 15vw, 4.4rem);
+  }
+
+  .route-studio__dock {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .route-studio__route {
+    flex: 0 0 min(76vw, 17rem);
+    min-height: 4.8rem;
+    scroll-snap-align: start;
+  }
+
+  .route-studio__controls-body,
+  .route-studio__inspector {
+    max-height: none;
+  }
+}
+
+/* Planner HUD v2: browser-bounded overlay layout. */
+.route-studio {
+  height: 100dvh;
+  min-height: 100dvh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.route-studio__layout {
+  position: fixed;
+  inset: 5.8rem 1rem 0.85rem;
+  display: grid;
+  grid-template-columns: clamp(15rem, 20vw, 18rem) minmax(0, 1fr) clamp(15rem, 20vw, 18rem);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "summary globe inspector"
+    "controls globe inspector"
+    "controls dock inspector";
+  width: auto;
+  height: auto;
+  min-height: 0;
+  gap: 0.72rem clamp(1rem, 3vw, 3rem);
+  pointer-events: none;
+}
+
+.route-studio__summary,
+.route-studio__controls,
+.route-studio__dock,
+.route-studio__inspector {
+  pointer-events: auto;
+}
+
+.route-studio__summary {
+  padding: 0.78rem 0 0.82rem;
+  background: linear-gradient(90deg, rgba(3, 10, 7, 0.72), rgba(3, 10, 7, 0));
+}
+
+.route-studio__summary h1 {
+  font-size: clamp(2.75rem, 4.4vw, 4.7rem);
+}
+
+.route-studio__globe {
+  pointer-events: auto;
+}
+
+.route-studio__controls {
+  align-self: stretch;
+  height: auto;
+  margin-top: 0;
+  border-radius: 0.62rem;
+  background: rgba(3, 11, 7, 0.88);
+  backdrop-filter: blur(16px);
+}
+
+.route-studio__controls:not(.route-studio__controls--open) {
+  align-self: start;
+}
+
+.route-studio__controls-toggle {
+  flex: 0 0 auto;
+  min-height: 2.85rem;
+  padding: 0.62rem 0.72rem;
+}
+
+.route-studio__controls-body {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0.72rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.route-studio__controls-body > * + * {
+  margin-top: 0.68rem;
+}
+
+.route-studio__prompt {
+  min-height: 5.35rem;
+}
+
+.route-studio-form {
+  gap: 0.72rem;
+}
+
+.route-studio-form__grid {
+  gap: 0.52rem;
+}
+
+.route-studio-form__segments {
+  gap: 0.34rem;
+}
+
+.route-studio-form__segments--stops,
+.route-studio-form__segments--budget {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.route-studio-form__segment {
+  min-height: 3.55rem;
+  padding: 0.58rem 0.48rem;
+}
+
+.route-studio-form__segment strong {
+  font-size: 0.68rem;
+}
+
+.route-studio-form__segment small {
+  font-size: 0.54rem;
+}
+
+.route-studio-form__wish {
+  padding: 0.58rem 0.62rem;
+}
+
+.route-studio__dock {
+  align-self: end;
+  justify-self: center;
+  width: min(100%, 42rem);
+  margin-top: 0;
+  border-radius: 0.62rem;
+  background: rgba(3, 11, 7, 0.86);
+  backdrop-filter: blur(16px);
+}
+
+.route-studio__route {
+  min-height: 4.7rem;
+  padding: 0.58rem 0.62rem;
+}
+
+.route-studio__inspector {
+  align-self: stretch;
+  justify-self: stretch;
+  height: auto;
+  margin-top: 0;
+  overflow-y: auto;
+  border-radius: 0.62rem;
+  background: rgba(3, 11, 7, 0.88);
+  backdrop-filter: blur(16px);
+}
+
+@media (max-height: 780px) and (min-width: 901px) {
+  .route-studio__layout {
+    inset: 5.35rem 0.85rem 0.7rem;
+    grid-template-columns: clamp(14rem, 19vw, 16.5rem) minmax(0, 1fr) clamp(14rem, 19vw, 16.5rem);
+    gap: 0.56rem clamp(0.85rem, 2.6vw, 2.4rem);
+  }
+
+  .route-studio__summary {
+    gap: 0.38rem;
+    padding: 0.62rem 0 0.66rem;
+  }
+
+  .route-studio__summary h1 {
+    font-size: clamp(2.45rem, 3.8vw, 3.85rem);
+  }
+
+  .route-studio__summary-copy {
+    font-size: 0.69rem;
+  }
+
+  .route-studio__metrics {
+    gap: 0.34rem;
+  }
+
+  .route-studio__metrics span,
+  .route-studio__metrics strong {
+    padding: 0.3rem 0.38rem;
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .route-studio {
+    height: auto;
+    min-height: 100dvh;
+    padding: 13.9rem 0.72rem 0.72rem;
+    overflow-y: auto;
+  }
+
+  .route-studio__layout {
+    position: relative;
+    inset: auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(22rem, 58dvh) auto auto auto;
+    grid-template-areas:
+      "summary"
+      "globe"
+      "dock"
+      "controls"
+      "inspector";
+    width: 100%;
+    min-height: auto;
+    gap: 0.72rem;
+  }
+
+  .route-studio__summary {
+    background: rgba(3, 11, 7, 0.72);
+  }
+
+  .route-studio__controls,
+  .route-studio__inspector {
+    max-height: min(34rem, 70dvh);
+  }
+
+  .route-studio__dock {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .route-studio__route {
+    flex: 0 0 min(72vw, 16rem);
+    scroll-snap-align: start;
+  }
+}

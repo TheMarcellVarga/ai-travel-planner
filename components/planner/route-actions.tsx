@@ -38,14 +38,14 @@ export function RouteActions({ routeId }: RouteActionsProps) {
   }
 
   return (
-    <div className="route-actions route-action-console">
-      <div className="route-action-console__header">
+    <div className="route-studio-actions">
+      <div className="route-studio-actions__header">
         <span>Decision tools</span>
         <small>{isPending ? "working" : "ready"}</small>
       </div>
-      <div className="route-actions__row route-action-console__secondary">
+      <div className="route-studio-actions__secondary">
         <button
-          className="button button-ghost"
+          className="route-studio-actions__secondary-button"
           disabled={isPending}
           onClick={() =>
             runAction(`/api/routes/${routeId}/save`, () => "Saved to your route vault.")
@@ -55,7 +55,7 @@ export function RouteActions({ routeId }: RouteActionsProps) {
           Save
         </button>
         <button
-          className="button button-ghost"
+          className="route-studio-actions__secondary-button"
           disabled={isPending}
           onClick={() =>
             runAction(`/api/routes/${routeId}/publish`, (payload) => `Published at /share/${payload.slug}`)
@@ -65,19 +65,17 @@ export function RouteActions({ routeId }: RouteActionsProps) {
           Publish
         </button>
       </div>
-      <div className="route-actions__row route-actions__row-primary">
-        <button
-          className="button"
-          disabled={isPending}
-          onClick={() =>
-            runAction(`/api/routes/${routeId}/handoff`, () => "Opened booking handoff.", true)
-          }
-          type="button"
-        >
-          Open booking handoff
-        </button>
-      </div>
-      {message ? <p className="status-copy">{message}</p> : null}
+      <button
+        className="route-studio-actions__primary-button"
+        disabled={isPending}
+        onClick={() =>
+          runAction(`/api/routes/${routeId}/handoff`, () => "Opened booking handoff.", true)
+        }
+        type="button"
+      >
+        Open booking handoff
+      </button>
+      {message ? <p className="route-studio-actions__message">{message}</p> : null}
     </div>
   );
 }

@@ -71,16 +71,16 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   }
 
   return (
-    <div className="planner-form planner-form-hud">
-      <div className="planner-grid planner-grid-hud">
-        <label className="field field-hud field-span-2">
+    <div className="route-studio-form">
+      <div className="route-studio-form__grid">
+        <label className="route-studio-form__field route-studio-form__field--wide">
           <span>Origin</span>
           <input value={origin} onChange={(event) => setOrigin(event.target.value)} />
         </label>
 
-        <label className="field field-hud">
+        <label className="route-studio-form__field">
           <span>Trip length</span>
-          <div className="field-number-shell">
+          <div className="route-studio-form__number">
             <input
               min={4}
               max={30}
@@ -92,17 +92,17 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
           </div>
         </label>
 
-        <div className="field field-hud">
+        <div className="route-studio-form__field">
           <span>Max stops</span>
-          <div className="segment-grid">
+          <div className="route-studio-form__segments route-studio-form__segments--stops">
             {maxStopOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 className={
                   maxStops === option.value
-                    ? "segment-chip segment-chip-active"
-                    : "segment-chip"
+                    ? "route-studio-form__segment route-studio-form__segment--active"
+                    : "route-studio-form__segment"
                 }
                 onClick={() => setMaxStops(option.value)}
               >
@@ -113,17 +113,17 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
           </div>
         </div>
 
-        <div className="field field-hud field-span-2">
+        <div className="route-studio-form__field route-studio-form__field--wide">
           <span>Budget posture</span>
-          <div className="segment-grid segment-grid-triple">
+          <div className="route-studio-form__segments route-studio-form__segments--budget">
             {budgetModeOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 className={
                   budgetMode === option.value
-                    ? "segment-chip segment-chip-active"
-                    : "segment-chip"
+                    ? "route-studio-form__segment route-studio-form__segment--active"
+                    : "route-studio-form__segment"
                 }
                 onClick={() => setBudgetMode(option.value)}
               >
@@ -135,14 +135,18 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
         </div>
       </div>
 
-      <div className="field field-hud">
+      <div className="route-studio-form__field">
         <span>Trip wishes</span>
-        <div className="wish-grid">
+        <div className="route-studio-form__wishes">
           {wishTags.map((tag) => (
             <button
               key={tag}
               type="button"
-              className={selectedTags.includes(tag) ? "wish-chip wish-chip-active" : "wish-chip"}
+              className={
+                selectedTags.includes(tag)
+                  ? "route-studio-form__wish route-studio-form__wish--active"
+                  : "route-studio-form__wish"
+              }
               onClick={() => toggleTag(tag)}
             >
               {formatWishLabel(tag)}
