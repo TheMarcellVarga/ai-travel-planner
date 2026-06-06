@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Manrope } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 
 import { AppFooter } from "@/components/app-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -7,15 +7,16 @@ import { site } from "@/lib/site";
 
 import "./globals.css";
 
-const displayFont = Bebas_Neue({
+const displayFont = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: "400"
+  weight: ["500", "600", "700"]
 });
 
-const bodyFont = Manrope({
+const bodyFont = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-body"
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700"]
 });
 
 export const metadata: Metadata = {

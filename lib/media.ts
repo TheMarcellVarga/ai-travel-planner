@@ -38,12 +38,12 @@ export const heroMedia: MediaAsset = {
 
 export const kineticMedia: MediaAsset = {
   kind: "image",
-  src: unsplashImage("photo-1761225155424-d6bfed504284", 1600),
-  alt: "A mountain biker jumping through a forest trail.",
-  title: "Mountain biker jumps over a dirt trail in forest",
-  author: "Simone Nicora",
+  src: unsplashImage("photo-1757440156710-574dcfae0bcc", 1800),
+  alt: "Madeira coastal cliffs with a waterfall dropping toward the ocean.",
+  title: "Coastal cliffs with a waterfall cascading into the ocean",
+  author: "Mick Waanders",
   sourceUrl:
-    "https://unsplash.com/photos/mountain-biker-jumps-over-a-dirt-trail-in-forest-H-j7HZFpGsU",
+    "https://unsplash.com/photos/coastal-cliffs-with-a-waterfall-cascading-into-the-ocean-Ael_O98yBwI",
   ...unsplashLicense
 };
 

@@ -7,9 +7,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { site } from "@/lib/site";
 
 const navItems = [
-  { href: "/", label: "Index", code: "01" },
+  { href: "/", label: "Journal", code: "01" },
   { href: "/planner", label: "Planner", code: "02" },
-  { href: "/saved", label: "Vault", code: "03" },
+  { href: "/saved", label: "Saved", code: "03" },
 ] satisfies Array<{ href: Route; label: string; code: string }>;
 
 export async function SiteHeader() {
@@ -17,31 +17,31 @@ export async function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="site-command">
-        <Link
-          href="/"
-          className="site-command__brand"
-          aria-label={`${site.name} home`}
-        >
-          <span className="site-command__mark">
-            <Image
-              className="brand-mark-small"
-              src="/wild-route-mark.svg"
-              alt=""
-              width={32}
-              height={32}
-              aria-hidden="true"
-            />
-          </span>
-          <div>
-            <span className="brand-name">{site.name}</span>
-            <span className="site-command__status">terrain index online</span>
-          </div>
-        </Link>
+      <Link
+        href="/"
+        className="site-corner-brand"
+        aria-label={`${site.name} home`}
+      >
+        <span className="site-corner-brand__mark">
+          <Image
+            className="brand-mark-small"
+            src="/wild-route-mark.svg"
+            alt=""
+            width={36}
+            height={36}
+            aria-hidden="true"
+          />
+        </span>
+        <div>
+          <span className="brand-name">{site.name}</span>
+          <span className="site-corner-brand__status">routes, considered</span>
+        </div>
+      </Link>
 
+      <div className="site-command">
         <div className="site-command__signal" aria-hidden="true">
-          <span>route os</span>
-          <strong>SIN · 12d · max 1 stop</strong>
+          <span>current study</span>
+          <strong>SIN · 12 days · one stop</strong>
         </div>
 
         <nav className="site-command__nav" aria-label="Primary">
@@ -62,7 +62,7 @@ export async function SiteHeader() {
         <div className="site-command__actions">
           <AuthLink user={user} />
           <Link href="/planner" className="site-command__cta">
-            Start
+            Compose
           </Link>
         </div>
       </div>

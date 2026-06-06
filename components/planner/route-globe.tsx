@@ -55,15 +55,14 @@ const Globe = dynamic(() => import("react-globe.gl"), {
 }) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods | undefined> }>;
 
 const GLOBE_TEXTURE_URL =
-  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg";
+  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg";
 const GLOBE_BUMP_URL =
   "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png";
-const GLOBE_ACCENT = "#bfdc76";
-const GLOBE_WARM = "#f7df8e";
-const GLOBE_SOFT = "#8bcf9c";
+const GLOBE_ACCENT = "#d4ff00";
+const GLOBE_SOFT = "#d8d3c8";
 
 function buildTooltip(point: GlobePoint) {
-  const accent = point.kind === "route-marker" ? GLOBE_WARM : GLOBE_ACCENT;
+  const accent = point.kind === "route-marker" ? GLOBE_ACCENT : GLOBE_SOFT;
   const price =
     point.price !== undefined
       ? `<div style="color:${accent};font-weight:800;font-size:13px;margin-top:4px">$${point.price}</div>`
@@ -208,7 +207,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           lat: stop.coordinates.lat,
           lng: stop.coordinates.lng,
           altitude: isHighlighted ? 0.19 : isIdle ? 0.11 : 0.14,
-          color: isHighlighted ? GLOBE_WARM : GLOBE_ACCENT,
+          color: GLOBE_ACCENT,
           radius: isHighlighted ? 0.5 : isIdle ? 0.28 : 0.34,
           kind: "route-marker",
           title: stop.name,
@@ -232,7 +231,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
         lat: stop.coordinates.lat,
         lng: stop.coordinates.lng,
         altitude: stop.kind === "origin" ? 0.02 : 0.035,
-        color: stop.kind === "origin" ? GLOBE_SOFT : GLOBE_WARM,
+        color: stop.kind === "origin" ? GLOBE_SOFT : GLOBE_ACCENT,
         radius: stop.kind === "origin" ? 0.22 : 0.18,
         kind: "route-stop",
         title: `${stop.name} (${stop.code})`,
@@ -254,7 +253,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
         startLng: stop.coordinates.lng,
         endLat: activeRoute.stops[index + 1].coordinates.lat,
         endLng: activeRoute.stops[index + 1].coordinates.lng,
-        color: [GLOBE_WARM, GLOBE_ACCENT]
+        color: [GLOBE_ACCENT, GLOBE_ACCENT]
       }));
     },
     [activeRoute]
@@ -277,7 +276,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
             id: `ring-idle-${idleRecommendation.id}`,
             lat: idleStop.coordinates.lat,
             lng: idleStop.coordinates.lng,
-            color: ["rgba(191, 220, 118, 0.88)", "rgba(191, 220, 118, 0)"],
+            color: ["rgba(212, 255, 0, 0.88)", "rgba(212, 255, 0, 0)"],
             maxRadius: 5.4,
             propagationSpeed: 1.25,
             repeatPeriod: 1100
@@ -294,7 +293,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           id: `ring-${activeRoute.id}`,
           lat: promotedStop.coordinates.lat,
           lng: promotedStop.coordinates.lng,
-          color: ["rgba(247, 223, 142, 0.9)", "rgba(247, 223, 142, 0)"],
+          color: ["rgba(212, 255, 0, 0.9)", "rgba(212, 255, 0, 0)"],
           maxRadius: 6.4,
           propagationSpeed: 1.5,
           repeatPeriod: 900

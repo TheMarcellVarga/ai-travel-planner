@@ -93,13 +93,13 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
       <section className="route-studio__layout">
         <header className="route-studio__summary">
           <p className="route-studio__kicker">
-            {activeRoute ? "Active route" : "Route sweep"}
+            {activeRoute ? "Selected route" : "Route composition"}
           </p>
-          <h1>{activeRoute ? activeRoute.title : "Pick a signal."}</h1>
+          <h1>{activeRoute ? activeRoute.title : "Choose a direction."}</h1>
           <p className="route-studio__summary-copy">
             {activeRoute
               ? activeRoute.tagline
-              : "Choose a route from the globe or the ranked list below."}
+              : "Choose a route from the globe or the considered set below."}
           </p>
           <div className="route-studio__metrics">
             <span>
@@ -170,7 +170,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             <div className="route-studio__controls-body">
               <div className="route-studio__section-heading">
                 <p>Route brief</p>
-                <span>Adjust the sweep, then generate a new ranked set.</span>
+                <span>Adjust the shape of the journey, then compose a new set.</span>
               </div>
               <div className="route-studio__brief">
                 <textarea
@@ -185,7 +185,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   onClick={handlePlan}
                   disabled={isPending}
                 >
-                  {isPending ? "Calculating..." : "Generate route hunt"}
+                  {isPending ? "Composing..." : "Compose new routes"}
                 </button>
                 {errorMessage ? (
                   <p className="route-studio__error">{errorMessage}</p>
@@ -253,7 +253,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           ) : (
             <div className="route-studio__inspector-empty">
               <p className="route-studio__kicker">Route detail</p>
-              <strong>Select a signal</strong>
+              <strong>Select a route</strong>
               <span>Route legs, travel wishes, and decision tools appear here.</span>
             </div>
           )}

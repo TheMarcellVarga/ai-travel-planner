@@ -54,11 +54,11 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
   return (
     <article className="footer-newsletter newsletter-console">
       <div className="footer-newsletter__heading">
-        <p className="eyebrow">Signal list</p>
-        <h2>Route drops, not travel spam.</h2>
+        <p className="eyebrow">Occasional notes</p>
+        <h2>A short letter for the next departure.</h2>
         <p className="muted-copy">
-          Monthly dispatches for new markets, plus account alerts when saved
-          routes are ready to publish or hand off.
+          New route studies, selected destinations, and account alerts for the
+          journeys you keep.
         </p>
       </div>
 
@@ -116,7 +116,7 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
         </div>
 
         <button className="button button-island newsletter-console__button" disabled={isPending || !email} type="submit">
-          <span>{isPending ? "Joining..." : "Join signal list"}</span>
+          <span>{isPending ? "Joining..." : "Join the list"}</span>
         </button>
 
         {status ? <p className="status-copy newsletter-status">{status}</p> : null}

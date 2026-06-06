@@ -7,33 +7,32 @@ import { destinations } from "@/lib/data/destinations";
 import {
   destinationMedia,
   expeditionIndex,
-  heroMedia,
   kineticMedia
 } from "@/lib/media";
 import { wishTags } from "@/lib/site";
 
 const productSignals = [
-  { label: "Route candidates", value: "4", detail: "ranked against mood, budget, and stop rules" },
-  { label: "Promoted stop", value: "1", detail: "free-tier rule is visible instead of hidden" },
-  { label: "Search window", value: "12d", detail: "built for one-way exploration, not package tours" }
+  { label: "Route studies", value: "04", detail: "ranked against pace, budget, and the stops that matter" },
+  { label: "Considered stop", value: "01", detail: "one clear recommendation, with its reasoning in view" },
+  { label: "Travel window", value: "12d", detail: "made for one-way exploration rather than package tours" }
 ];
 
 const planningStack = [
   {
-    title: "Prompt parsing",
-    text: "The planner turns messy intent into origin, days, stops, budget posture, and travel wishes."
+    title: "Begin with the feeling.",
+    text: "Describe the pace, climate, and detours you have in mind. The planner turns that into a useful brief."
   },
   {
-    title: "Route scoring",
-    text: "Destinations are ranked for terrain, logistics, price bands, and how strong the story looks."
+    title: "Compare the shape.",
+    text: "Routes are weighed by distance, logistics, price, and whether each stop earns its place."
   },
   {
-    title: "Save and publish",
-    text: "Signed-in travelers keep routes, publish one clean share page, and hand off when ready."
+    title: "Keep the right one.",
+    text: "Save a route privately, or publish a clean link when it is ready to leave your notes."
   },
   {
-    title: "Provider exit",
-    text: "Wild Route stops at decision quality, then sends travelers out to flight and lodging providers."
+    title: "Book with context.",
+    text: "Wild Route hands the itinerary to flight and stay providers once the decisions are made."
   }
 ];
 
@@ -74,48 +73,35 @@ export default function HomePage() {
     <main className="journey-index">
       <section className="atlas-hero">
         <div className="atlas-hero__media" aria-hidden="true">
-          {heroMedia.kind === "video" ? (
-            <video
-              autoPlay
-              className="atlas-hero__image"
-              loop
-              muted
-              playsInline
-              poster={heroMedia.poster}
-            >
-              <source src={heroMedia.src} type="video/webm" />
-            </video>
-          ) : (
-            <Image
-              alt=""
-              className="atlas-hero__image"
-              src={heroMedia.src}
-              fill
-              priority
-              sizes="100vw"
-            />
-          )}
+          <Image
+            alt=""
+            className="atlas-hero__image"
+            src="/editorial/route-ribbon-hero.png"
+            fill
+            priority
+            sizes="100vw"
+          />
         </div>
         <div className="atlas-hero__wash" />
 
         <div className="shell atlas-hero__grid">
           <div className="atlas-hero__copy">
-            <p className="eyebrow">Wild Route adventure planner</p>
-            <h1>Routes for terrain-first travelers.</h1>
+            <p className="eyebrow">Wild Route · journey composition</p>
+            <h1>Travel, composed.</h1>
             <p className="atlas-hero__lede">
-              Type the kind of trip you want. Wild Route turns it into ranked
-              one-way adventure routes with stop logic, cost bands, saved cards,
-              public share pages, and clean booking handoff.
+              Describe the way you want to move. Wild Route shapes the intent
+              into a small set of one-way journeys with clear stops, useful
+              tradeoffs, and a calm path to booking.
             </p>
             <div className="atlas-hero__actions">
               <Link className="button button-island" href="/planner">
-                <span>Build a route</span>
+                <span>Compose a route</span>
                 <span className="button-island__icon" aria-hidden="true">
                   <ArrowRight size={17} />
                 </span>
               </Link>
               <Link className="text-link" href="/saved">
-                Open saved vault
+                Revisit saved routes
                 <ArrowUpRight size={16} />
               </Link>
             </div>
@@ -123,12 +109,12 @@ export default function HomePage() {
 
           <aside className="route-console" aria-label="Route planning preview">
             <div className="route-console__header">
-              <span>Prompt console</span>
-              <small>live intent model</small>
+              <span>Route study · 01</span>
+              <small>Singapore · 12 days</small>
             </div>
             <p className="route-console__prompt">
-              12 days from Singapore. One stop max. Jungle, surf, a cheap
-              work base, and one place worth publishing.
+              A warm-weather departure with room to work, a little surf, and
+              one stop that changes the rhythm of the trip.
             </p>
             <div className="route-console__tags" aria-label="Trip wishes">
               {wishTags.map((tag) => (
@@ -153,12 +139,12 @@ export default function HomePage() {
 
       <section className="shell route-proof">
         <div className="route-proof__intro">
-          <p className="eyebrow">From impulse to handoff</p>
-          <h2>Not a city list. A decision surface.</h2>
+          <p className="eyebrow">From thought to itinerary</p>
+          <h2>A route is more than a list of cities.</h2>
           <p>
-            The MVP is a real product shell: anonymous exploration, account
-            vaults, public route pages, and a booking handoff model designed for
-            deeper provider data later.
+            Wild Route gives each journey a point of view: a pace, a price
+            posture, a reason for every stop, and a shareable form when the
+            pieces feel settled.
           </p>
         </div>
         <div className="route-proof__metrics">
@@ -174,8 +160,8 @@ export default function HomePage() {
 
       <section className="shell planning-stack">
         <div className="planning-stack__heading">
-          <p className="eyebrow">Planner architecture</p>
-          <h2>Every screen should answer a traveler’s next question.</h2>
+          <p className="eyebrow">How a route takes shape</p>
+          <h2>Make fewer choices, with better reasons.</h2>
         </div>
         <div className="planning-bento" aria-label="Product workflow">
           <article className="planning-bento__cell planning-bento__cell--wide">
@@ -204,11 +190,11 @@ export default function HomePage() {
 
       <section className="shell atlas-section">
         <div className="atlas-section__heading">
-          <p className="eyebrow">Destination atlas</p>
-          <h2>Places with a point of view.</h2>
+          <p className="eyebrow">The destination index</p>
+          <h2>Places that change the route.</h2>
           <p>
-            Each market needs scenery, logistics, and a reason to move. The
-            route card should already feel like a shareable artifact.
+            A strong stop brings more than scenery. It changes the pace,
+            opens a different way forward, or makes the journey worth sharing.
           </p>
         </div>
 
@@ -281,39 +267,45 @@ export default function HomePage() {
         <div className="kinetic-story__shade" />
         <div className="shell kinetic-story__grid">
           <div>
-            <p className="eyebrow">Shareable output</p>
-            <h2>A route card should feel like something worth sending.</h2>
+            <p className="eyebrow">A route, ready to share</p>
+            <h2>Keep the useful detail. Lose the planning noise.</h2>
           </div>
           <div className="share-artifact">
             <div className="share-artifact__top">
-              <span>published route</span>
-              <b>confidence 82%</b>
+              <span>published study</span>
+              <b>fit 82%</b>
             </div>
-            <h3>Jungle base, surf exit, one promoted stop.</h3>
+            <h3>A warm base, a surf exit, one meaningful detour.</h3>
             <ol>
-              <li>Singapore origin</li>
-              <li>Bali promoted stop</li>
-              <li>Provider handoff ready</li>
+              <li>Depart Singapore</li>
+              <li>Pause in Bali</li>
+              <li>Continue when ready</li>
             </ol>
           </div>
         </div>
       </section>
 
       <section className="shell final-route-cta">
-        <div>
+        <div className="final-route-cta__copy">
           <p className="eyebrow">Open the planner</p>
-          <h2>Start with a wish. Leave with a route you can defend.</h2>
+          <h2>Start with a thought. Leave with a route that makes sense.</h2>
         </div>
-        <Link className="button button-island" href="/planner">
-          <span>Plan from Singapore</span>
-          <span className="button-island__icon" aria-hidden="true">
-            <PlaneTakeoff size={17} />
-          </span>
-        </Link>
+        <div className="final-route-cta__actions">
+          <div className="final-route-cta__brief" aria-label="Starting route brief">
+            <span>Singapore origin</span>
+            <span>12 days</span>
+            <span>One-way study</span>
+          </div>
+          <Link className="button button-island" href="/planner">
+            <span>Plan from Singapore</span>
+            <span className="button-island__icon" aria-hidden="true">
+              <PlaneTakeoff size={17} />
+            </span>
+          </Link>
+        </div>
       </section>
 
       <div className="shell product-media-credit">
-        <MediaCredit asset={heroMedia} compact />
         <MediaCredit asset={kineticMedia} compact />
       </div>
     </main>
