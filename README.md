@@ -16,6 +16,24 @@ Wild Route is a Next.js travel planner with a production-style backend built on 
 - User data storage: route generations, saved routes, public shares, booking handoffs, entitlements, and profiles
 - Payment: Stripe checkout, Stripe billing portal, and subscription-to-entitlement syncing
 
+## Project Process And Guidelines
+
+Future implementation should start from the repo process docs:
+
+- [AGENTS.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/AGENTS.md): top-level rules for AI agents and contributors
+- [docs/MASTER_EXECUTION_ROADMAP.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/MASTER_EXECUTION_ROADMAP.md): phase order, gates, skills, and task template
+- [docs/PROJECT_ACCELERATOR.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/PROJECT_ACCELERATOR.md): current build status, real-vs-fallback audit, and next implementation tasks
+- [docs/PRODUCT_SPEC.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/PRODUCT_SPEC.md): product scope, target user, golden path, and non-goals
+- [docs/ARCHITECTURE.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/ARCHITECTURE.md): system components and runtime boundaries
+- [docs/API_SPEC.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/API_SPEC.md): route handler contracts and API rules
+- [docs/DATABASE_SCHEMA.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/DATABASE_SCHEMA.md): Supabase table responsibilities and RLS expectations
+- [docs/AI_AND_ROUTE_GENERATION.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/AI_AND_ROUTE_GENERATION.md): route-generation pipeline, AI rules, provider-data rules, and eval expectations
+- [docs/SECURITY_PRIVACY_AND_COMPLIANCE.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/SECURITY_PRIVACY_AND_COMPLIANCE.md): auth, privacy, billing, and travel-safety checklist
+- [docs/TESTING_STRATEGY.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/TESTING_STRATEGY.md): unit, API, database, AI/provider, and frontend QA expectations
+- [docs/ENVIRONMENT.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/ENVIRONMENT.md): local setup and environment variables
+- [docs/IMPLEMENTATION_PROCESS.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/IMPLEMENTATION_PROCESS.md): coding workflow, verification, and definition of done
+- [ai-dev/README.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/ai-dev/README.md): repo-local AI task skills and usage
+
 ## Data Model
 
 Supabase migrations live in [supabase/migrations](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/supabase/migrations).

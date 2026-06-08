@@ -7,5 +7,12 @@ dist
 *.log
 
 *.md
+!README.md
+!AI-TRAVEL-PLANNER-PLAN.md
+!AGENTS.md
+!app/AGENTS.md
+!docs/*.md
+!ai-dev/README.md
+!ai-dev/skills/*/SKILL.md
 
 .history
