@@ -99,12 +99,8 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
   const [globeTimedOut, setGlobeTimedOut] = useState(false);
-  const [webGlAvailable, setWebGlAvailable] = useState(canUseWebGL);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const [webGlAvailable, setWebGlAvailable] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [idleHighlightIndex, setIdleHighlightIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
@@ -142,14 +138,28 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   }, []);
 
   useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setWebGlAvailable(canUseWebGL());
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const timeout = window.setTimeout(() => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    }, 0);
 
     function handleMotionPreferenceChange(event: MediaQueryListEvent) {
       setPrefersReducedMotion(event.matches);
     }
 
     mediaQuery.addEventListener("change", handleMotionPreferenceChange);
-    return () => mediaQuery.removeEventListener("change", handleMotionPreferenceChange);
+    return () => {
+      window.clearTimeout(timeout);
+      mediaQuery.removeEventListener("change", handleMotionPreferenceChange);
+    };
   }, []);
 
   useEffect(() => {

@@ -8937,12 +8937,15 @@ body:has(.route-studio) {
 .route-studio__controls {
   align-self: start;
   min-height: 0;
-  max-height: calc(100dvh - 22rem);
+  max-height: max(12rem, min(24rem, calc(100dvh - 23rem)));
   overflow: hidden;
 }
 
 .route-studio__controls--open {
   align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  max-height: max(12rem, min(24rem, calc(100dvh - 23rem)));
 }
 
 .route-studio__controls-toggle {
@@ -8950,7 +8953,9 @@ body:has(.route-studio) {
 }
 
 .route-studio__controls-body {
-  max-height: calc(100dvh - 25.6rem);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
