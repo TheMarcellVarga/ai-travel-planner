@@ -33,7 +33,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | Phase | Current Status | Outcome |
 | --- | --- | --- |
 | 0. Control Plane | Complete | Repo docs, agent rules, local skills, roadmap, and source-of-truth map are in place. |
-| 1. Product And Brand Lock | Complete for MVP | Positioning, MVP user, golden path, entitlement rules, and visual direction are explicit. |
+| 1. Product And Brand Lock | Complete | Positioning, MVP user, golden path, entitlement rules, and visual direction are explicit. |
 | 2. App Shell And Design System | Partially implemented | Landing, planner, saved routes, account, shared route views, responsive navigation, and visual tokens are coherent. |
 | 3. Backend And Data Foundation | Partially implemented | Supabase migrations, auth/RLS, route-generation persistence, profile/entitlement flows, and health checks are reliable. |
 | 4. Route Generation MVP | Partially implemented | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
@@ -59,7 +59,7 @@ Current result:
 | Phase | Done Now | Not Done Yet | Status |
 | --- | --- | --- | --- |
 | 0. Control Plane | `AGENTS.md`, `app/AGENTS.md`, `docs/*`, `ai-dev/*`, README map, and `docs/PROJECT_ACCELERATOR.md` exist. | Nothing blocking. | Complete |
-| 1. Product And Brand Lock | Product spec, guardrails, golden path, MVP user, non-goals, entitlement shape, and visual direction are documented. Existing UI reflects the Wild Route brand. | Pricing/product details may still evolve, but the MVP direction is locked enough to build. | Complete for MVP |
+| 1. Product And Brand Lock | Product spec, guardrails, target users, non-target users, exact demo script, MVP golden path, concrete Free/Pro limits, non-goals, copy boundaries, and visual direction are documented. Existing UI reflects the Wild Route brand. | Nothing blocking Phase 2 implementation. Future pricing/product changes should be explicit roadmap changes. | Complete |
 | 2. App Shell And Design System | Public/app routes build: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`. Header/footer/global styles and distinctive planner UI exist. | No recorded browser QA pass. `RouteMapFallback` exists but is not wired into `RouteGlobe`/planner fallback behavior. Accessibility and responsive QA are not formally verified. | Partial |
 | 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. | No automated migration/RLS verification script. Persistence fallback is silent in API responses. Some operational behavior depends on configured Supabase/Stripe credentials. | Partial |
 | 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, and unit tests exist. | No API route tests. No provider data/freshness fields. Booking links are deep-link searches, not provider-confirmed inventory. Unsafe/unsupported prompt fixtures are not in place. | Partial |
@@ -88,7 +88,7 @@ Acceptance gate:
 - No implementation task is blocked by missing process guidance.
 
 ## Phase 1: Product And Brand Lock
-Status: complete for MVP; keep refining only when product decisions change.
+Status: complete.
 
 Primary skills: `travel-product-guardrails`, `nextjs-travel-ui`.
 
@@ -99,12 +99,17 @@ Deliverables:
 - free/pro entitlement rules
 - route claim boundaries
 - brand and media direction
+- exact demo script
+- copy guardrails
+- non-target users and non-goals
 
 Acceptance gate:
 - Wild Route can be explained in one sentence without implying it books travel.
 - The free-plan promoted-stop limit is concrete enough to test.
 - The MVP demo flow is exact.
 - Visual direction is specific enough to preserve across implementation.
+- Free and Pro limits are concrete and aligned with `lib/account/entitlements.ts`.
+- Copy guardrails prevent guaranteed price, safety, visa/legal, and direct-booking claims.
 
 ## Phase 2: App Shell And Design System
 Status: partially implemented.

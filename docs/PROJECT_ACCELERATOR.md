@@ -56,7 +56,7 @@ Last audited: 2026-06-17.
 | Phase | Status | Reason |
 | --- | --- | --- |
 | 0. Control Plane | Complete | Roadmap, accelerator, agent rules, docs, and local skills exist. |
-| 1. Product And Brand Lock | Complete for MVP | Product spec, golden path, non-goals, entitlements, and Wild Route visual direction are defined. |
+| 1. Product And Brand Lock | Complete | Product spec, target and non-target users, exact demo flow, non-goals, concrete entitlements, copy guardrails, and Wild Route visual direction are defined. |
 | 2. App Shell And Design System | Partial | Routes and UI shell exist, but browser QA/accessibility are not recorded and the 2D map fallback is not wired. |
 | 3. Backend And Data Foundation | Partial | Supabase migrations/RLS, clients, health, export/delete exist, but migration/RLS verification and explicit persistence fallback are missing. |
 | 4. Route Generation MVP | Partial | Deterministic generation and tests exist, but API route tests, provider freshness, and unsafe/unsupported fixtures are missing. |
