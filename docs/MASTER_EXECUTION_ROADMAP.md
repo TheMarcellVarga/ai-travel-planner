@@ -30,17 +30,43 @@ Use this routing table when assigning future AI tasks.
 ## Timeline Overview
 Assume a focused solo/AI-assisted build. Compress or expand based on available time, but keep the order.
 
-| Phase | Outcome |
-| --- | --- |
-| 0. Control Plane | Repo docs, agent rules, local skills, roadmap, and source-of-truth map are in place. |
-| 1. Product And Brand Lock | Positioning, MVP user, golden path, entitlement rules, and visual direction are explicit. |
-| 2. App Shell And Design System | Landing, planner, saved routes, account, shared route views, responsive navigation, and visual tokens are coherent. |
-| 3. Backend And Data Foundation | Supabase migrations, auth/RLS, route-generation persistence, profile/entitlement flows, and health checks are reliable. |
-| 4. Route Generation MVP | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
-| 5. Save, Share, Account, Billing | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
-| 6. Real Data And AI Hardening | Provider adapters, freshness metadata, optional live AI path, structured outputs, cost controls, and eval fixtures are added. |
-| 7. Security, Observability, QA | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
-| 8. Portfolio Polish And Launch Prep | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
+| Phase | Current Status | Outcome |
+| --- | --- | --- |
+| 0. Control Plane | Complete | Repo docs, agent rules, local skills, roadmap, and source-of-truth map are in place. |
+| 1. Product And Brand Lock | Complete for MVP | Positioning, MVP user, golden path, entitlement rules, and visual direction are explicit. |
+| 2. App Shell And Design System | Partially implemented | Landing, planner, saved routes, account, shared route views, responsive navigation, and visual tokens are coherent. |
+| 3. Backend And Data Foundation | Partially implemented | Supabase migrations, auth/RLS, route-generation persistence, profile/entitlement flows, and health checks are reliable. |
+| 4. Route Generation MVP | Partially implemented | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
+| 5. Save, Share, Account, Billing | Partially implemented | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
+| 6. Real Data And AI Hardening | Not started | Provider adapters, freshness metadata, optional live AI path, structured outputs, cost controls, and eval fixtures are added. |
+| 7. Security, Observability, QA | Not started | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
+| 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
+
+## Current Completion Audit
+Last audited: 2026-06-17.
+
+Verification:
+
+```bash
+npm run test
+npm run build
+```
+
+Current result:
+- Tests pass: 4 files, 11 tests.
+- Production build passes on Next.js 15.5.15.
+
+| Phase | Done Now | Not Done Yet | Status |
+| --- | --- | --- | --- |
+| 0. Control Plane | `AGENTS.md`, `app/AGENTS.md`, `docs/*`, `ai-dev/*`, README map, and `docs/PROJECT_ACCELERATOR.md` exist. | Nothing blocking. | Complete |
+| 1. Product And Brand Lock | Product spec, guardrails, golden path, MVP user, non-goals, entitlement shape, and visual direction are documented. Existing UI reflects the Wild Route brand. | Pricing/product details may still evolve, but the MVP direction is locked enough to build. | Complete for MVP |
+| 2. App Shell And Design System | Public/app routes build: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`. Header/footer/global styles and distinctive planner UI exist. | No recorded browser QA pass. `RouteMapFallback` exists but is not wired into `RouteGlobe`/planner fallback behavior. Accessibility and responsive QA are not formally verified. | Partial |
+| 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. | No automated migration/RLS verification script. Persistence fallback is silent in API responses. Some operational behavior depends on configured Supabase/Stripe credentials. | Partial |
+| 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, and unit tests exist. | No API route tests. No provider data/freshness fields. Booking links are deep-link searches, not provider-confirmed inventory. Unsafe/unsupported prompt fixtures are not in place. | Partial |
+| 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save limit is enforced. Webhook signature verification exists. | Generation limit is displayed but not enforced by `/api/trips/plan`. Route ownership/API behavior lacks automated tests. Public share payload has not had a documented privacy hardening pass. Stripe flows are not live-verified here. | Partial |
+| 6. Real Data And AI Hardening | None beyond deterministic route generation and external booking search links. | No provider adapter boundary, live travel data, freshness metadata, optional AI path, AI schema/evals, or usage/cost tracking. | Not started |
+| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only clients, and webhook signature verification exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, browser QA checklist/pass, accessibility pass, or observability setup. | Not started |
+| 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |
 
 ## Phase 0: Control Plane
 Status: complete.
@@ -62,7 +88,7 @@ Acceptance gate:
 - No implementation task is blocked by missing process guidance.
 
 ## Phase 1: Product And Brand Lock
-Status: mostly complete; keep refining through docs.
+Status: complete for MVP; keep refining only when product decisions change.
 
 Primary skills: `travel-product-guardrails`, `nextjs-travel-ui`.
 
@@ -167,7 +193,7 @@ Acceptance gate:
 - Entitlements are server-enforced, not UI-only.
 
 ## Phase 6: Real Data And AI Hardening
-Status: planned.
+Status: not started.
 
 Primary skills: `route-generation-ai`, `security-review-travel`.
 
@@ -187,7 +213,7 @@ Acceptance gate:
 - Provider failures degrade to partial route results with visible status.
 
 ## Phase 7: Security, Observability, QA
-Status: planned.
+Status: not started.
 
 Primary skills: `security-review-travel`.
 
@@ -207,8 +233,8 @@ Acceptance gate:
 - Prompt and route data are not sent to analytics by default.
 - Critical flows have tests or documented manual verification.
 
-## Phase 8: Portfolio Polish And Launch Prep
-Status: planned.
+## Phase 8: Polish And Launch Prep
+Status: not started.
 
 Primary skills: `nextjs-travel-ui`, `travel-product-guardrails`.
 
