@@ -61,6 +61,8 @@ export type BookingLink = {
   label: string;
   url: string;
   kind: "route" | "leg" | "stay";
+  status: "external_search";
+  disclaimer: string;
 };
 
 export type RouteOption = {
@@ -72,6 +74,10 @@ export type RouteOption = {
   score: number;
   confidence: number;
   estimatedCostUsd: number;
+  estimateStatus: "planning_estimate";
+  availabilityStatus: "external_search_required";
+  dataFreshness: string;
+  disclaimer: string;
   reasons: string[];
   wishTags: WishTag[];
   stops: RouteStop[];

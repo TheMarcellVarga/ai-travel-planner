@@ -1,5 +1,8 @@
 import type { BookingLink, RouteStop } from "@/lib/types";
 
+const EXTERNAL_SEARCH_DISCLAIMER =
+  "External provider search only. Final price and availability are confirmed by the provider, not Wild Route.";
+
 function toQuery(value: string) {
   return encodeURIComponent(value);
 }
@@ -15,7 +18,9 @@ export function buildBookingLinks(stops: RouteStop[]): BookingLink[] {
     url: `https://www.google.com/travel/flights?q=${toQuery(
       `Flights ${stops[0]?.code} to ${destinationStops.map((stop) => stop.code).join(" ")}`
     )}`,
-    kind: "route"
+    kind: "route",
+    status: "external_search",
+    disclaimer: EXTERNAL_SEARCH_DISCLAIMER
   };
 
   const legLinks = destinationStops.flatMap((stop, index) => {
@@ -28,18 +33,21 @@ export function buildBookingLinks(stops: RouteStop[]): BookingLink[] {
         url: `https://www.google.com/travel/flights?q=${toQuery(
           `Flights ${previous.code} to ${stop.code}`
         )}`,
-        kind: "leg" as const
+        kind: "leg" as const,
+        status: "external_search" as const,
+        disclaimer: EXTERNAL_SEARCH_DISCLAIMER
       },
       {
         id: `${stop.code}-stay`,
         provider: "Booking.com",
         label: `Stay in ${stop.name}`,
         url: `https://www.booking.com/searchresults.html?ss=${toQuery(stop.name)}`,
-        kind: "stay" as const
+        kind: "stay" as const,
+        status: "external_search" as const,
+        disclaimer: EXTERNAL_SEARCH_DISCLAIMER
       }
     ];
   });
 
   return [routeLink, ...legLinks];
 }
-

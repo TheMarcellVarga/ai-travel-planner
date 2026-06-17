@@ -19,7 +19,18 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const payload = requestSchema.parse(body);
+  const parsed = requestSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid trip planning request.",
+        details: parsed.error.flatten()
+      },
+      { status: 400 }
+    );
+  }
+
+  const payload = parsed.data;
   const tripIntent = interpretTripIntent(payload);
   const user = await getCurrentUser();
   const candidateGeneration = createTripGeneration(tripIntent);

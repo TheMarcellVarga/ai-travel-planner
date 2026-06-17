@@ -18,6 +18,25 @@ const tagKeywords: Record<WishTag, string[]> = {
   surf: ["surf", "waves", "coast", "beach"]
 };
 
+const unsupportedSafetyPatterns = [
+  {
+    pattern: /\b(guarantee|guaranteed|guarantees)\b/i,
+    message: "Wild Route cannot guarantee price, availability, safety, or route feasibility."
+  },
+  {
+    pattern: /\b(visa|immigration|passport)\b/i,
+    message: "Visa, immigration, and passport requirements must be checked with official sources."
+  },
+  {
+    pattern: /\b(safe|safest|risk-free|no risk)\b/i,
+    message: "Route output is not safety, legal, health, weather, or emergency advice."
+  },
+  {
+    pattern: /\b(illegal|smuggl|evade|bypass border|fake documents?)\b/i,
+    message: "Wild Route will not help plan illegal or unsafe travel activity."
+  }
+];
+
 function inferOrigin(input?: string): OriginProfile {
   if (!input?.trim()) {
     return defaultOrigin;
@@ -85,6 +104,18 @@ function collectTags(prompt: string, explicitTags: string[] = []): WishTag[] {
   return Array.from(discovered);
 }
 
+function collectExclusions(prompt: string) {
+  const exclusions = new Set<string>();
+
+  unsupportedSafetyPatterns.forEach(({ pattern, message }) => {
+    if (pattern.test(prompt)) {
+      exclusions.add(message);
+    }
+  });
+
+  return Array.from(exclusions);
+}
+
 export function interpretTripIntent(input: TripIntentInput): TripIntent {
   const prompt = input.prompt.trim();
   const wishTags = collectTags(prompt, input.wishTags);
@@ -97,7 +128,6 @@ export function interpretTripIntent(input: TripIntentInput): TripIntent {
     wishTags,
     budgetMode: input.budgetMode ?? "balanced",
     vibe: inferVibe(prompt),
-    exclusions: []
+    exclusions: collectExclusions(prompt)
   };
 }
-

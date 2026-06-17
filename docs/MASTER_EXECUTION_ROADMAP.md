@@ -36,7 +36,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 1. Product And Brand Lock | Complete | Positioning, MVP user, golden path, entitlement rules, and visual direction are explicit. |
 | 2. App Shell And Design System | Complete | Landing, planner, saved routes, account, shared route views, responsive navigation, and visual tokens are coherent. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations, auth/RLS, route-generation persistence, profile/entitlement flows, and health checks are reliable. |
-| 4. Route Generation MVP | Partially implemented | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
+| 4. Route Generation MVP | Complete | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
 | 5. Save, Share, Account, Billing | Partially implemented | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
 | 6. Real Data And AI Hardening | Not started | Provider adapters, freshness metadata, optional live AI path, structured outputs, cost controls, and eval fixtures are added. |
 | 7. Security, Observability, QA | Not started | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
@@ -62,7 +62,7 @@ Current result:
 | 1. Product And Brand Lock | Product spec, guardrails, target users, non-target users, exact demo script, MVP golden path, concrete Free/Pro limits, non-goals, copy boundaries, and visual direction are documented. Existing UI reflects the Wild Route brand. | Nothing blocking Phase 2 implementation. Future pricing/product changes should be explicit roadmap changes. | Complete |
 | 2. App Shell And Design System | Public/app routes build: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`. Header/footer/global styles and distinctive planner UI exist. `RouteMapFallback` is wired into `RouteGlobe`. Browser QA covers homepage, planner, saved, auth, account, planner interaction, and mobile planner viewport. | Broader accessibility and multi-browser QA remain in Phase 7. | Complete |
 | 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. `npm run verify:migrations` validates migration order, required tables, RLS enablement, owner policies, and public share policy. Generation/save/publish/handoff APIs disclose database vs memory persistence. | Live Supabase application remains environment-dependent; deeper owner-isolation API tests remain in Phase 5. | Complete |
-| 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, and unit tests exist. | No API route tests. No provider data/freshness fields. Booking links are deep-link searches, not provider-confirmed inventory. Unsafe/unsupported prompt fixtures are not in place. | Partial |
+| 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, planning-estimate metadata, external-search disclaimers, unsupported safety/visa/guarantee caveats, unit tests, and trip API tests exist. | Live provider adapters and provider-confirmed freshness remain Phase 6 hardening work. | Complete |
 | 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save limit is enforced. Webhook signature verification exists. | Generation limit is displayed but not enforced by `/api/trips/plan`. Route ownership/API behavior lacks automated tests. Public share payload has not had a documented privacy hardening pass. Stripe flows are not live-verified here. | Partial |
 | 6. Real Data And AI Hardening | None beyond deterministic route generation and external booking search links. | No provider adapter boundary, live travel data, freshness metadata, optional AI path, AI schema/evals, or usage/cost tracking. | Not started |
 | 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only clients, and webhook signature verification exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, browser QA checklist/pass, accessibility pass, or observability setup. | Not started |
@@ -158,7 +158,7 @@ Acceptance gate:
 - Demo-memory fallback is explicit in API responses.
 
 ## Phase 4: Route Generation MVP
-Status: partially implemented.
+Status: complete.
 
 Primary skills: `route-generation-ai`, `travel-product-guardrails`.
 
@@ -172,12 +172,17 @@ Deliverables:
 - confidence and reasons
 - booking handoff links
 - unit tests for intent and generation
+- trip planning API tests
+- planning-estimate and external-search metadata
+- unsupported safety/visa/guarantee caveats
 
 Acceptance gate:
 - Routes respect origin, days, stop count, tags, and budget mode.
 - Free users get exactly one promoted stop per generated route.
 - Confidence values and reasons are plausible and clearly app-generated.
 - Missing provider data does not fabricate confirmed prices or availability.
+- Invalid trip planning input returns a controlled `400` response.
+- Booking links disclose external provider search status.
 
 ## Phase 5: Save, Share, Account, Billing
 Status: partially implemented.

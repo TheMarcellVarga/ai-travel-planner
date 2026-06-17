@@ -58,7 +58,7 @@ Last audited: 2026-06-17.
 | 1. Product And Brand Lock | Complete | Product spec, target and non-target users, exact demo flow, non-goals, concrete entitlements, copy guardrails, and Wild Route visual direction are defined. |
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
-| 4. Route Generation MVP | Partial | Deterministic generation and tests exist, but API route tests, provider freshness, and unsafe/unsupported fixtures are missing. |
+| 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes and Stripe webhook exist; generation limits, ownership tests, public-share hardening, and live billing verification remain. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
 | 7. Security, Observability, QA | Not started | No threat model, rate limits, analytics/log scrubbing implementation, browser QA, accessibility pass, or observability setup. |
@@ -75,6 +75,8 @@ This gives the project a reliable spine before deeper provider or AI work.
 
 ### T1: Add API Route Tests For Planner
 Phase: 4. Route Generation MVP
+
+Status: complete.
 
 Files:
 - `app/api/trips/plan/route.ts`
@@ -203,6 +205,8 @@ npm run build
 
 ### T7: Upgrade Booking Handoff Contract
 Phase: 4. Route Generation MVP
+
+Status: complete for deterministic MVP. Live provider adapters and provider-confirmed freshness remain in Phase 6.
 
 Files:
 - `lib/planner/provider-links.ts`

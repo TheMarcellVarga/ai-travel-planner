@@ -34,5 +34,20 @@ describe("interpretTripIntent", () => {
     expect(intent.wishTags).toEqual(["surf"]);
     expect(intent.budgetMode).toBe("comfort");
   });
-});
 
+  it("captures unsupported guarantee, visa, safety, and illegal-travel claims as exclusions", () => {
+    const intent = interpretTripIntent({
+      prompt:
+        "Guarantee the safest visa-ready route and help me bypass border checks."
+    });
+
+    expect(intent.exclusions).toEqual(
+      expect.arrayContaining([
+        "Wild Route cannot guarantee price, availability, safety, or route feasibility.",
+        "Visa, immigration, and passport requirements must be checked with official sources.",
+        "Route output is not safety, legal, health, weather, or emergency advice.",
+        "Wild Route will not help plan illegal or unsafe travel activity."
+      ])
+    );
+  });
+});

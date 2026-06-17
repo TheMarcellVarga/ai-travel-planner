@@ -23,6 +23,12 @@ describe("createTripGeneration", () => {
       expect(route.stops[0]?.code).toBe("SIN");
       expect(route.promotedStopId).toBe(route.stops[1]?.id);
       expect(route.bookingLinks.length).toBeGreaterThan(0);
+      expect(route.estimateStatus).toBe("planning_estimate");
+      expect(route.availabilityStatus).toBe("external_search_required");
+      expect(route.disclaimer).toContain("not confirmed provider price");
+      expect(route.dataFreshness).toContain("Local destination dataset");
+      expect(route.bookingLinks[0]?.status).toBe("external_search");
+      expect(route.bookingLinks[0]?.disclaimer).toContain("Final price and availability");
     });
   });
 
@@ -42,5 +48,28 @@ describe("createTripGeneration", () => {
       expect(route.stops).toHaveLength(2);
     });
   });
-});
 
+  it("keeps unsupported safety and visa requests visible as route caveats", () => {
+    const generation = createTripGeneration(
+      interpretTripIntent({
+        prompt:
+          "Guarantee a safest visa-ready hiking route from Singapore with one stop.",
+        origin: "Singapore",
+        tripLengthDays: 9,
+        maxStops: 1,
+        wishTags: ["hiking"],
+        budgetMode: "balanced"
+      })
+    );
+
+    generation.routes.forEach((route) => {
+      expect(route.reasons).toEqual(
+        expect.arrayContaining([
+          "Wild Route cannot guarantee price, availability, safety, or route feasibility.",
+          "Visa, immigration, and passport requirements must be checked with official sources.",
+          "Route output is not safety, legal, health, weather, or emergency advice."
+        ])
+      );
+    });
+  });
+});

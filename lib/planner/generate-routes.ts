@@ -2,6 +2,9 @@ import { destinations } from "@/lib/data/destinations";
 import { buildBookingLinks } from "@/lib/planner/provider-links";
 import type { DestinationProfile, RouteOption, RouteStop, TripGeneration, TripIntent } from "@/lib/types";
 
+const PLANNING_ESTIMATE_DISCLAIMER =
+  "Estimated cost and confidence are Wild Route planning signals, not confirmed provider price, availability, safety, visa, legal, health, weather, or emergency advice.";
+
 function createId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
@@ -68,7 +71,9 @@ function createReasons(stops: DestinationProfile[], intent: TripIntent) {
   return [
     `Matches ${matchedTags.length || 1} of your active route wishes.`,
     `Keeps the route within a ${intent.tripLengthDays}-day travel window.`,
-    `${stops[0]?.name} is used as the free promoted stop for stronger discovery placement.`
+    `${stops[0]?.name} is used as the free promoted stop for stronger discovery placement.`,
+    "Booking links are external provider searches; final price and availability must be confirmed there.",
+    ...intent.exclusions
   ];
 }
 
@@ -110,6 +115,10 @@ function buildRouteOptions(intent: TripIntent): RouteOption[] {
       score: Math.round(scoreDestination(primary, intent) + (useSecondary ? scoreDestination(secondary, intent) * 0.48 : 0)),
       confidence: Number((0.72 - index * 0.06 + intent.wishTags.length * 0.03).toFixed(2)),
       estimatedCostUsd,
+      estimateStatus: "planning_estimate",
+      availabilityStatus: "external_search_required",
+      dataFreshness: "Local destination dataset; external provider inventory is not queried in this MVP route generation path.",
+      disclaimer: PLANNING_ESTIMATE_DISCLAIMER,
       reasons: createReasons(routeDestinations, intent),
       wishTags: Array.from(new Set(routeDestinations.flatMap((stop) => stop.tags))).filter((tag) =>
         intent.wishTags.length ? intent.wishTags.includes(tag) : true
@@ -128,4 +137,3 @@ export function createTripGeneration(intent: TripIntent): TripGeneration {
     routes: buildRouteOptions(intent)
   };
 }
-

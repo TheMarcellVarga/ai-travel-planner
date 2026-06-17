@@ -41,6 +41,8 @@ The canonical definitions currently live in `lib/types.ts`.
 - Do not claim confirmed availability or final price unless a provider confirms it.
 - If provider data is stale or unavailable, return partial route output with status.
 - Keep provider-specific payloads out of UI and analytics unless explicitly reviewed.
+- Current MVP route output uses `planning_estimate` and `external_search_required` metadata because no live provider inventory is queried.
+- Current booking links use `external_search` status and disclaimers to keep the provider-confirmation boundary explicit.
 
 ## Scoring Principles
 Route scoring should consider:
@@ -73,3 +75,13 @@ Required fixture groups when AI is introduced:
 ## Acceptance Rule
 No AI-backed route feature is complete until deterministic tests still pass and eval fixtures catch at least schema, unsafe-travel, and stale-data failures.
 
+## Current Deterministic MVP Status
+Phase 4 is complete without live AI:
+- prompt interpretation is deterministic
+- route scoring is deterministic
+- route output includes planning-estimate metadata
+- booking links disclose external-search status
+- unsupported safety, visa, guarantee, and illegal-travel claims are captured as caveats
+- trip API tests cover invalid input, successful planning, persistence metadata, and memory-backed retrieval
+
+Live provider adapters, provider-confirmed freshness, and AI schema/evals remain Phase 6 work.
