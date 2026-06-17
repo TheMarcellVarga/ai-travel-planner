@@ -45,10 +45,9 @@ Build routes currently include:
 - API route tests are missing.
 - Supabase RLS behavior is documented but not automatically verified.
 - Entitlement generation limits are not fully enforced at the planning endpoint.
-- `RouteMapFallback` exists but is not wired into the planner as an actual globe failure/degraded-performance fallback.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
-- Browser QA is not automated.
+- Broader browser/accessibility QA remains for Phase 7.
 
 ## Current Phase Status
 Last audited: 2026-06-17.
@@ -57,7 +56,7 @@ Last audited: 2026-06-17.
 | --- | --- | --- |
 | 0. Control Plane | Complete | Roadmap, accelerator, agent rules, docs, and local skills exist. |
 | 1. Product And Brand Lock | Complete | Product spec, target and non-target users, exact demo flow, non-goals, concrete entitlements, copy guardrails, and Wild Route visual direction are defined. |
-| 2. App Shell And Design System | Partial | Routes and UI shell exist, but browser QA/accessibility are not recorded and the 2D map fallback is not wired. |
+| 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Partial | Supabase migrations/RLS, clients, health, export/delete exist, but migration/RLS verification and explicit persistence fallback are missing. |
 | 4. Route Generation MVP | Partial | Deterministic generation and tests exist, but API route tests, provider freshness, and unsafe/unsupported fixtures are missing. |
 | 5. Save, Share, Account, Billing | Partial | Core routes and Stripe webhook exist; generation limits, ownership tests, public-share hardening, and live billing verification remain. |
@@ -218,15 +217,17 @@ npm run test
 npm run build
 ```
 
-### T8: Add Browser QA Checklist And First Manual Pass
+### T8: Expand Browser QA And Accessibility Pass
 Phase: 7. Security, Observability, QA
 
 Files:
 - `docs/BROWSER_QA.md`
 
 Acceptance criteria:
-- Checklist covers homepage, planner, saved, account, auth, share, mobile, and reduced motion.
-- First pass records date, command, browser target, issues, and screenshots if useful.
+- Extend the existing Phase 2 browser QA record to include public share, signed-in/demo saved routes, account states, and reduced motion.
+- Add keyboard navigation checks for planner controls, route cards, auth, saved routes, and account forms.
+- Add accessibility notes for focus visibility, labels, route confidence text, and non-map alternatives.
+- Record any issues with exact route, viewport, and reproduction steps.
 
 Verification:
 
@@ -327,7 +328,7 @@ Sprint 3: Route Quality
 - T10: Add Provider Adapter Boundary
 
 Sprint 4: Launch Readiness
-- T8: Add Browser QA Checklist And First Manual Pass
+- T8: Expand Browser QA And Accessibility Pass
 - T12: No-Placeholder Product Audit
 
 ## What Not To Do Next

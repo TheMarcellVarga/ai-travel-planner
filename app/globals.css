@@ -6176,6 +6176,68 @@ body:has(.planner-command-shell) .site-command__cta,
   inset: 0;
 }
 
+.route-studio__globe .orbital-globe-frame--loading {
+  opacity: 0;
+}
+
+.orbital-globe-fallback {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1rem, 4vw, 3rem);
+  z-index: 2;
+  width: min(34rem, calc(100vw - 2rem));
+  padding: 0.85rem;
+  border: 1px solid rgba(216, 211, 200, 0.18);
+  border-radius: 1.1rem;
+  background:
+    linear-gradient(135deg, rgba(8, 27, 17, 0.94), rgba(4, 13, 8, 0.82)),
+    rgba(4, 13, 8, 0.9);
+  box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.42);
+  color: var(--route-text);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(0.6rem);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.orbital-globe-fallback--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.orbital-globe-fallback__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.orbital-globe-fallback__header span {
+  color: var(--route-accent);
+  font-weight: 800;
+}
+
+.orbital-globe-fallback__header small {
+  overflow: hidden;
+  max-width: 62%;
+  color: var(--route-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orbital-globe-fallback .map-fallback svg {
+  display: block;
+  height: clamp(9rem, 23vw, 14rem);
+  border-radius: 0.8rem;
+}
+
 .route-studio__controls {
   grid-area: controls;
   display: flex;
@@ -6742,6 +6804,11 @@ body:has(.planner-command-shell) .site-command__cta,
     padding: 0;
   }
 
+  .orbital-globe-fallback {
+    bottom: 1rem;
+    width: min(30rem, calc(100vw - 1.5rem));
+  }
+
   .route-studio__dock {
     margin-top: 0;
     justify-self: center;
@@ -6837,9 +6904,22 @@ body:has(.planner-command-shell) .site-command__cta,
   font-size: clamp(2.75rem, 4.4vw, 4.7rem);
 }
 
-.route-studio__globe {
-  pointer-events: auto;
-}
+  .route-studio__globe {
+    pointer-events: auto;
+  }
+
+  .orbital-globe-fallback {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0 auto;
+    transform: none;
+  }
+
+  .orbital-globe-fallback--visible {
+    transform: none;
+  }
 
 .route-studio__controls {
   align-self: stretch;

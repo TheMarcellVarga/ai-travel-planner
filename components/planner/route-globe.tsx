@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
+import { RouteMapFallback } from "@/components/planner/route-map-fallback";
 import type { RouteOption } from "@/lib/types";
 
 type RouteGlobeProps = {
@@ -80,6 +81,12 @@ function buildTooltip(point: GlobePoint) {
 export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeProps) {
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
+  const [globeTimedOut, setGlobeTimedOut] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   const [idleHighlightIndex, setIdleHighlightIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
@@ -89,6 +96,8 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
 
   const activeRoute = routes.find((route) => route.id === activeRouteId) ?? null;
   const idleRecommendation = routes[idleHighlightIndex % Math.max(routes.length, 1)] ?? null;
+  const fallbackRoute = activeRoute ?? idleRecommendation ?? routes[0] ?? null;
+  const shouldPrioritizeFallback = prefersReducedMotion || globeTimedOut;
   const isIdle = activeRoute === null;
   const promotedStop =
     activeRoute
@@ -113,6 +122,29 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
     observer.observe(current);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function handleMotionPreferenceChange(event: MediaQueryListEvent) {
+      setPrefersReducedMotion(event.matches);
+    }
+
+    mediaQuery.addEventListener("change", handleMotionPreferenceChange);
+    return () => mediaQuery.removeEventListener("change", handleMotionPreferenceChange);
+  }, []);
+
+  useEffect(() => {
+    if (globeReady) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setGlobeTimedOut(true);
+    }, 4200);
+
+    return () => window.clearTimeout(timeout);
+  }, [globeReady, routes]);
 
   useEffect(() => {
     if (!globeReady || !globeRef.current) {
@@ -307,56 +339,83 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
 
   return (
     <div className="orbital-globe-stage" ref={containerRef}>
-      <div className="orbital-globe-frame">
-        <Globe
-          ref={globeRef}
-          width={globeWidth}
-          height={globeHeight}
-          backgroundColor="rgba(0,0,0,0)"
-          globeImageUrl={GLOBE_TEXTURE_URL}
-          bumpImageUrl={GLOBE_BUMP_URL}
-          showAtmosphere
-          atmosphereColor={GLOBE_SOFT}
-          atmosphereAltitude={0.16}
-          pointsData={pointsData}
-          pointLat="lat"
-          pointLng="lng"
-          pointAltitude="altitude"
-          pointColor="color"
-          pointRadius="radius"
-          pointResolution={18}
-          pointLabel={(point) => buildTooltip(point as GlobePoint)}
-          onPointClick={(point) => {
-            const selectedPoint = point as GlobePoint;
-            if (selectedPoint.kind === "route-marker") {
-              onSelectRoute(selectedPoint.routeId);
-            }
-          }}
-          arcsData={arcsData}
-          arcStartLat="startLat"
-          arcStartLng="startLng"
-          arcEndLat="endLat"
-          arcEndLng="endLng"
-          arcColor="color"
-          arcAltitudeAutoScale={0.22}
-          arcStroke={0.85}
-          arcDashLength={0.38}
-          arcDashGap={0.25}
-          arcDashAnimateTime={1400}
-          ringsData={ringsData}
-          ringLat="lat"
-          ringLng="lng"
-          ringColor="color"
-          ringMaxRadius="maxRadius"
-          ringPropagationSpeed="propagationSpeed"
-          ringRepeatPeriod="repeatPeriod"
-          enablePointerInteraction
-          showPointerCursor={(objType, objData) =>
-            objType === "point" && (objData as GlobePoint | undefined)?.kind === "route-marker"
+      {fallbackRoute ? (
+        <div
+          className={
+            shouldPrioritizeFallback || !globeReady
+              ? "orbital-globe-fallback orbital-globe-fallback--visible"
+              : "orbital-globe-fallback"
           }
-          onGlobeReady={() => setGlobeReady(true)}
-        />
-      </div>
+        >
+          <div className="orbital-globe-fallback__header">
+            <span>{shouldPrioritizeFallback ? "2D route view" : "Loading 3D route view"}</span>
+            <small>{fallbackRoute.tagline}</small>
+          </div>
+          <RouteMapFallback route={fallbackRoute} />
+        </div>
+      ) : null}
+
+      {!shouldPrioritizeFallback ? (
+        <div
+          className={
+            globeReady
+              ? "orbital-globe-frame"
+              : "orbital-globe-frame orbital-globe-frame--loading"
+          }
+        >
+          <Globe
+            ref={globeRef}
+            width={globeWidth}
+            height={globeHeight}
+            backgroundColor="rgba(0,0,0,0)"
+            globeImageUrl={GLOBE_TEXTURE_URL}
+            bumpImageUrl={GLOBE_BUMP_URL}
+            showAtmosphere
+            atmosphereColor={GLOBE_SOFT}
+            atmosphereAltitude={0.16}
+            pointsData={pointsData}
+            pointLat="lat"
+            pointLng="lng"
+            pointAltitude="altitude"
+            pointColor="color"
+            pointRadius="radius"
+            pointResolution={18}
+            pointLabel={(point) => buildTooltip(point as GlobePoint)}
+            onPointClick={(point) => {
+              const selectedPoint = point as GlobePoint;
+              if (selectedPoint.kind === "route-marker") {
+                onSelectRoute(selectedPoint.routeId);
+              }
+            }}
+            arcsData={arcsData}
+            arcStartLat="startLat"
+            arcStartLng="startLng"
+            arcEndLat="endLat"
+            arcEndLng="endLng"
+            arcColor="color"
+            arcAltitudeAutoScale={0.22}
+            arcStroke={0.85}
+            arcDashLength={0.38}
+            arcDashGap={0.25}
+            arcDashAnimateTime={prefersReducedMotion ? 0 : 1400}
+            ringsData={ringsData}
+            ringLat="lat"
+            ringLng="lng"
+            ringColor="color"
+            ringMaxRadius="maxRadius"
+            ringPropagationSpeed="propagationSpeed"
+            ringRepeatPeriod="repeatPeriod"
+            enablePointerInteraction
+            showPointerCursor={(objType, objData) =>
+              objType === "point" && (objData as GlobePoint | undefined)?.kind === "route-marker"
+            }
+            onGlobeReady={() => {
+              setGlobeReady(true);
+              setGlobeTimedOut(false);
+            }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
