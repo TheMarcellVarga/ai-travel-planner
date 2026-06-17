@@ -6376,11 +6376,16 @@ body:has(.planner-command-shell) .site-command__cta,
 }
 
 .route-studio__error,
+.route-studio__notice,
 .route-studio-actions__message {
   margin: 0;
   color: #f0c887;
   font-size: 0.7rem;
   line-height: 1.4;
+}
+
+.route-studio__notice {
+  color: rgba(216, 211, 200, 0.78);
 }
 
 .route-studio-form {

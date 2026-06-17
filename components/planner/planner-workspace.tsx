@@ -8,6 +8,7 @@ import { PlannerForm } from "@/components/planner/planner-form";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { getDestinationMedia } from "@/lib/media";
+import type { PersistenceStatus } from "@/lib/store/persistence";
 import type { RouteOption, TripGeneration } from "@/lib/types";
 
 type PlannerWorkspaceProps = {
@@ -18,6 +19,7 @@ type PlannerApiResponse = {
   generationId: string;
   tripIntent: TripGeneration["tripIntent"];
   routes: RouteOption[];
+  persistence?: PersistenceStatus;
 };
 
 export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
@@ -25,6 +27,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [generation, setGeneration] = useState(initialGeneration);
   const [activeRouteId, setActiveRouteId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
   const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
 
   const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
@@ -83,6 +86,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         tripIntent: payload.tripIntent,
         routes: payload.routes,
       });
+      setPersistenceStatus(payload.persistence ?? null);
       setActiveRouteId(null);
       setIsMissionPanelOpen(false);
     });
@@ -189,6 +193,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </button>
                 {errorMessage ? (
                   <p className="route-studio__error">{errorMessage}</p>
+                ) : null}
+                {persistenceStatus && !persistenceStatus.durable ? (
+                  <p className="route-studio__notice">
+                    Demo persistence: this route set is kept only for the current local app session.
+                  </p>
                 ) : null}
               </div>
 

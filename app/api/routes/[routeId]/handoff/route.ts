@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { maybeSendRouteNotification } from "@/lib/notifications";
 import { getRoute, recordHandoff } from "@/lib/store/demo-store";
+import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import {
   findRouteInDatabase,
   recordHandoffInDatabase
@@ -22,9 +23,15 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });
   }
 
+  const persistedHandoff = await recordHandoffInDatabase(
+    routeId,
+    user?.id ?? null,
+    routeMatch.route.bookingLinks
+  );
   const handoff =
-    (await recordHandoffInDatabase(routeId, user?.id ?? null, routeMatch.route.bookingLinks)) ??
+    persistedHandoff ??
     recordHandoff(routeId, user?.id ?? null, routeMatch.route.bookingLinks);
+  const persistence = persistedHandoff ? DATABASE_PERSISTENCE : MEMORY_PERSISTENCE;
 
   if (user) {
     void maybeSendRouteNotification({
@@ -36,6 +43,7 @@ export async function POST(_request: Request, context: RouteContext) {
 
   return NextResponse.json({
     handoffId: handoff.id,
-    links: routeMatch.route.bookingLinks
+    links: routeMatch.route.bookingLinks,
+    persistence
   });
 }

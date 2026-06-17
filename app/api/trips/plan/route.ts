@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
 import { saveGeneration } from "@/lib/store/demo-store";
+import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import { saveGenerationToDatabase } from "@/lib/store/persistent-store";
 
 const requestSchema = z.object({
@@ -22,13 +23,14 @@ export async function POST(request: Request) {
   const tripIntent = interpretTripIntent(payload);
   const user = await getCurrentUser();
   const candidateGeneration = createTripGeneration(tripIntent);
-  const generation =
-    (await saveGenerationToDatabase(candidateGeneration, user?.id)) ??
-    saveGeneration(candidateGeneration);
+  const persistedGeneration = await saveGenerationToDatabase(candidateGeneration, user?.id);
+  const generation = persistedGeneration ?? saveGeneration(candidateGeneration);
+  const persistence = persistedGeneration ? DATABASE_PERSISTENCE : MEMORY_PERSISTENCE;
 
   return NextResponse.json({
     generationId: generation.id,
     tripIntent: generation.tripIntent,
-    routes: generation.routes
+    routes: generation.routes,
+    persistence
   });
 }

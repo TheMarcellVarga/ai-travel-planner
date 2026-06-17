@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { maybeSendRouteNotification } from "@/lib/notifications";
 import { publishRouteForUser } from "@/lib/store/demo-store";
+import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import { publishRouteForUserInDatabase } from "@/lib/store/persistent-store";
 
 type RouteContext = {
@@ -16,9 +17,9 @@ export async function POST(_request: Request, context: RouteContext) {
   }
 
   const { routeId } = await context.params;
-  const sharedRoute =
-    (await publishRouteForUserInDatabase(user.id, routeId)) ??
-    publishRouteForUser(user.id, routeId);
+  const persistedSharedRoute = await publishRouteForUserInDatabase(user.id, routeId);
+  const sharedRoute = persistedSharedRoute ?? publishRouteForUser(user.id, routeId);
+  const persistence = persistedSharedRoute ? DATABASE_PERSISTENCE : MEMORY_PERSISTENCE;
 
   if (!sharedRoute) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });
@@ -33,6 +34,7 @@ export async function POST(_request: Request, context: RouteContext) {
 
   return NextResponse.json({
     slug: sharedRoute.slug,
-    shareUrl: `/share/${sharedRoute.slug}`
+    shareUrl: `/share/${sharedRoute.slug}`,
+    persistence
   });
 }

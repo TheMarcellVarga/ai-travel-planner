@@ -12,6 +12,7 @@
 
 ```bash
 npm install
+npm run verify:migrations
 npm run dev
 ```
 
@@ -68,4 +69,3 @@ Use `/api/health` to inspect whether auth/database/billing/email wiring is prese
 - Live AI disabled.
 - Deterministic fixtures preferred.
 - Secrets available only in protected environments.
-

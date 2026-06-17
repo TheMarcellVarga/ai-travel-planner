@@ -103,12 +103,15 @@ Rules:
 - Store only what is needed for product analytics and support.
 - Do not store sensitive payment details.
 
-### `newsletter_subscribers`
-Purpose: email subscriptions and route notification preferences.
+### Newsletter subscribers
+Current state: newsletter subscriptions are handled by the local demo store and optional email delivery path. There is no persistent `newsletter_subscribers` table in the current Supabase migrations.
+
+Planned table purpose: email subscriptions and route notification preferences.
 
 Rules:
 - Validate email.
 - Keep unsubscribe/export/delete behavior clear.
+- Add a migration, RLS/service-role policy, and export/delete behavior before treating newsletter subscriptions as durable account data.
 
 ## RLS Policy Requirements
 - User-owned tables must use `auth.uid()` ownership checks.
@@ -129,3 +132,16 @@ Rules:
 4. Update this doc when table responsibilities change.
 5. Add tests for ownership and entitlement-sensitive behavior.
 
+## Static Verification
+Run:
+
+```bash
+npm run verify:migrations
+```
+
+The verifier checks:
+- timestamped migration filenames
+- required current tables
+- RLS enablement for protected tables
+- owner policies using `auth.uid() = user_id`
+- public read policy for `shared_routes`

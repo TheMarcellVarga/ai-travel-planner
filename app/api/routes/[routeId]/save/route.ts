@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { maybeSendRouteNotification } from "@/lib/notifications";
 import { getSavedRoutesForUser, saveRouteForUser } from "@/lib/store/demo-store";
+import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import {
   getSavedRoutesForUserFromDatabase,
   saveRouteForUserInDatabase
@@ -28,9 +29,9 @@ export async function POST(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Your free save limit is reached." }, { status: 403 });
   }
 
-  const savedRoute =
-    (await saveRouteForUserInDatabase(user.id, routeId)) ??
-    saveRouteForUser(user.id, routeId);
+  const persistedSavedRoute = await saveRouteForUserInDatabase(user.id, routeId);
+  const savedRoute = persistedSavedRoute ?? saveRouteForUser(user.id, routeId);
+  const persistence = persistedSavedRoute ? DATABASE_PERSISTENCE : MEMORY_PERSISTENCE;
 
   if (!savedRoute) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });
@@ -42,5 +43,8 @@ export async function POST(_request: Request, context: RouteContext) {
     action: "saved"
   }).catch(() => undefined);
 
-  return NextResponse.json(savedRoute);
+  return NextResponse.json({
+    ...savedRoute,
+    persistence
+  });
 }

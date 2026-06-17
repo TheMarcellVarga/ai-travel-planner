@@ -1,0 +1,109 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const migrationsDir = path.join(process.cwd(), "supabase", "migrations");
+
+const requiredTables = [
+  "entitlements",
+  "destinations",
+  "destination_tag_mappings",
+  "route_generations",
+  "saved_routes",
+  "shared_routes",
+  "booking_handoffs",
+  "profiles"
+];
+
+const rlsTables = [
+  "entitlements",
+  "route_generations",
+  "saved_routes",
+  "shared_routes",
+  "booking_handoffs",
+  "profiles"
+];
+
+const ownershipPolicyTables = [
+  "entitlements",
+  "route_generations",
+  "saved_routes",
+  "shared_routes",
+  "booking_handoffs",
+  "profiles"
+];
+
+function fail(message) {
+  console.error(`Migration verification failed: ${message}`);
+  process.exitCode = 1;
+}
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+if (!fs.existsSync(migrationsDir)) {
+  fail(`missing migrations directory at ${migrationsDir}`);
+  process.exit();
+}
+
+const files = fs
+  .readdirSync(migrationsDir)
+  .filter((file) => file.endsWith(".sql"))
+  .sort();
+
+if (!files.length) {
+  fail("no SQL migrations found");
+  process.exit();
+}
+
+const unordered = files.some((file, index) => file !== [...files].sort()[index]);
+if (unordered) {
+  fail("migration filenames are not sorted lexicographically");
+}
+
+for (const file of files) {
+  if (!/^\d{8}_[a-z0-9_]+\.sql$/.test(file)) {
+    fail(`migration filename is not timestamped correctly: ${file}`);
+  }
+}
+
+const sql = files
+  .map((file) => fs.readFileSync(path.join(migrationsDir, file), "utf8"))
+  .join("\n")
+  .toLowerCase();
+
+for (const table of requiredTables) {
+  const pattern = new RegExp(`create\\s+table\\s+if\\s+not\\s+exists\\s+public\\.${escapeRegex(table)}\\b`);
+  if (!pattern.test(sql)) {
+    fail(`required table is not created: public.${table}`);
+  }
+}
+
+for (const table of rlsTables) {
+  const pattern = new RegExp(`alter\\s+table\\s+public\\.${escapeRegex(table)}\\s+enable\\s+row\\s+level\\s+security`);
+  if (!pattern.test(sql)) {
+    fail(`RLS is not enabled for public.${table}`);
+  }
+}
+
+for (const table of ownershipPolicyTables) {
+  const policyPattern = new RegExp(
+    `create\\s+policy\\s+["'][^"']+["']\\s+on\\s+public\\.${escapeRegex(table)}[\\s\\S]+?auth\\.uid\\(\\)\\s*=\\s*user_id`
+  );
+  if (!policyPattern.test(sql)) {
+    fail(`owner policy using auth.uid() = user_id is missing for public.${table}`);
+  }
+}
+
+if (!/create\s+policy\s+["']shared routes are public["']\s+on\s+public\.shared_routes[\s\S]+?for\s+select\s+using\s+\(true\)/.test(sql)) {
+  fail("public select policy for shared_routes is missing");
+}
+
+if (process.exitCode) {
+  process.exit();
+}
+
+console.log(`Verified ${files.length} Supabase migration files.`);
+console.log(`Tables: ${requiredTables.join(", ")}`);
+console.log(`RLS tables: ${rlsTables.join(", ")}`);
+
