@@ -115,7 +115,7 @@ export default function HomePage() {
         <div className="shell atlas-hero__grid">
           <div className="atlas-hero__copy">
             <p className="eyebrow">Wild Route route planner</p>
-            <h1>Build the kind of trip you can explain.</h1>
+            <h1>Plan a route you can explain.</h1>
             <p className="atlas-hero__lede">
               Prompt a one-way adventure, compare the tradeoffs, and hand the
               final shape to booking providers.
