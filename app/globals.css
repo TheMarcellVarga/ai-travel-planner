@@ -3654,7 +3654,7 @@ h3,
 
 .feature-list-content strong {
   font-size: 0.95rem;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -7137,7 +7137,7 @@ h1,
 h2,
 h3,
 .brand-copy strong {
-  letter-spacing: -0.045em;
+  letter-spacing: 0;
 }
 
 .brand-name {
@@ -7341,7 +7341,7 @@ h3,
   font-size: clamp(5.2rem, 9vw, 10.8rem);
   font-weight: 600;
   line-height: 0.74;
-  letter-spacing: -0.075em;
+  letter-spacing: 0;
 }
 
 .atlas-hero__lede {
@@ -7410,7 +7410,7 @@ h3,
 
 .route-console__prompt {
   color: #36372f;
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), system-ui, sans-serif;
   font-size: 1.42rem;
   font-weight: 600;
   line-height: 1.12;
@@ -7462,7 +7462,7 @@ h3,
   font-size: clamp(3.8rem, 7vw, 8rem);
   font-weight: 600;
   line-height: 0.82;
-  letter-spacing: -0.07em;
+  letter-spacing: 0;
 }
 
 .route-proof__metrics article,
@@ -7485,7 +7485,7 @@ h3,
 .footer-departure h2,
 .footer-newsletter h2 {
   font-weight: 600;
-  letter-spacing: -0.06em;
+  letter-spacing: 0;
 }
 
 .planning-bento__index,
@@ -7637,7 +7637,7 @@ h3,
 
 .footer-departure h2,
 .footer-newsletter h2 {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), system-ui, sans-serif;
 }
 
 .route-studio {
@@ -7657,9 +7657,9 @@ h3,
 .route-studio__summary h1,
 .route-studio__inspector-copy strong,
 .route-studio__inspector-empty strong {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), system-ui, sans-serif;
   font-weight: 600;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .route-studio__summary h1 {
@@ -7771,5 +7771,563 @@ h3,
   .final-route-cta h2,
   .footer-departure h2 {
     font-size: clamp(3.55rem, 16vw, 5.4rem);
+  }
+}
+
+/* 2026 product redesign pass */
+:root {
+  --bg: #0b100d;
+  --bg-deep: #050706;
+  --panel: rgba(21, 28, 23, 0.82);
+  --panel-soft: rgba(42, 52, 40, 0.66);
+  --line: rgba(235, 241, 222, 0.14);
+  --text: #f5f3ea;
+  --muted: #bab7a9;
+  --accent: #d5f45f;
+  --accent-strong: #f0b85a;
+  --warm: #f0b85a;
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow: 0 32px 90px rgba(1, 4, 2, 0.38);
+  --shadow-card: 0 20px 58px rgba(1, 4, 2, 0.28);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  color: var(--text);
+  font-family: var(--font-display), system-ui, sans-serif;
+  background:
+    linear-gradient(135deg, rgba(213, 244, 95, 0.08), transparent 38%),
+    linear-gradient(180deg, #151b16 0%, #0b100d 42%, #050706 100%);
+}
+
+.page-noise {
+  z-index: 80;
+  opacity: 0.11;
+  background-image:
+    linear-gradient(rgba(245, 243, 234, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 243, 234, 0.04) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.site-command {
+  grid-template-columns: minmax(170px, 0.56fr) minmax(310px, 1fr) auto;
+  gap: 0.35rem;
+  border: 1px solid rgba(245, 243, 234, 0.1);
+  border-radius: 1.1rem;
+  background: rgba(13, 18, 14, 0.78);
+}
+
+.site-corner-brand {
+  border: 1px solid rgba(245, 243, 234, 0.1);
+  background: rgba(13, 18, 14, 0.72);
+  backdrop-filter: blur(20px) saturate(1.2);
+}
+
+.site-command__signal span,
+.site-command__nav-item span,
+.auth-chip span,
+.eyebrow,
+.route-studio__kicker,
+.route-studio__section-heading p,
+.route-studio__inspector-copy p,
+.route-studio-actions__header span {
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.site-command__signal,
+.site-command__nav,
+.site-command__actions,
+.auth-chip,
+.site-command__cta {
+  border-radius: 0.78rem;
+}
+
+.site-command__nav {
+  justify-content: center;
+}
+
+.site-command__nav-item {
+  min-width: 0;
+  padding: 0.55rem 1rem;
+  border-radius: 0.65rem;
+}
+
+.site-command__nav-item strong,
+.site-command__cta,
+.auth-chip strong {
+  font-size: 0.82rem;
+  letter-spacing: 0;
+}
+
+.site-command__cta,
+.button,
+.button-island,
+.route-studio__primary-action,
+.route-studio-actions__primary-button {
+  background: var(--accent);
+  color: #10140c;
+}
+
+.journey-index {
+  background:
+    linear-gradient(180deg, rgba(245, 243, 234, 0.02), transparent 42rem),
+    transparent;
+}
+
+.journey-index h1,
+.journey-index h2,
+.journey-index h3,
+.route-studio__summary h1,
+.route-studio__inspector-copy strong,
+.route-studio__inspector-empty strong,
+.footer-departure h2,
+.footer-newsletter h2 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.atlas-hero {
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.atlas-hero__grid {
+  grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.64fr);
+  align-items: end;
+  min-height: 100dvh;
+  padding-top: clamp(7rem, 12vh, 8rem);
+  padding-bottom: clamp(2.5rem, 7vh, 5rem);
+}
+
+.atlas-hero__copy {
+  max-width: 920px;
+}
+
+.atlas-hero__copy h1 {
+  max-width: 12.5ch;
+  font-size: clamp(4.1rem, 7vw, 7.6rem);
+  line-height: 0.9;
+}
+
+.atlas-hero__lede {
+  max-width: 42rem;
+  color: rgba(245, 243, 234, 0.82);
+  font-size: clamp(1rem, 1.55vw, 1.28rem);
+  line-height: 1.55;
+}
+
+.atlas-hero__wash {
+  background:
+    linear-gradient(90deg, rgba(5, 7, 6, 0.94), rgba(5, 7, 6, 0.38) 58%, rgba(5, 7, 6, 0.82)),
+    linear-gradient(180deg, rgba(5, 7, 6, 0.08), rgba(5, 7, 6, 0.96));
+}
+
+.atlas-hero__image {
+  filter: saturate(0.84) contrast(1.08);
+}
+
+.route-console,
+.route-proof__metrics article,
+.planning-bento__cell,
+.share-artifact,
+.route-story__panel,
+.app-footer--redesign,
+.footer-departure,
+.footer-newsletter,
+.route-studio__controls,
+.route-studio__dock,
+.route-studio__inspector {
+  border: 1px solid rgba(245, 243, 234, 0.1);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, rgba(245, 243, 234, 0.075), rgba(245, 243, 234, 0.025)),
+    rgba(15, 20, 16, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    var(--shadow-card);
+}
+
+.route-console__header span,
+.route-console__header small,
+.prompt-strip span,
+.route-console__route span,
+.route-console__route b,
+.planning-bento__index,
+.atlas-row b,
+.share-artifact__top,
+.final-route-cta__brief span,
+.route-studio__metrics span,
+.route-studio__metrics strong,
+.route-studio__route-index,
+.route-studio__route small,
+.route-studio__tags span {
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 0;
+}
+
+.route-proof,
+.planning-stack,
+.atlas-section,
+.route-story,
+.final-route-cta {
+  padding-top: clamp(5.5rem, 12vw, 10rem);
+  padding-bottom: clamp(5.5rem, 12vw, 10rem);
+}
+
+.route-proof {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 6vw, 6rem);
+}
+
+.route-proof__intro h2,
+.planning-stack h2,
+.atlas-section h2,
+.kinetic-story h2,
+.final-route-cta h2,
+.footer-departure h2 {
+  max-width: 13ch;
+  font-size: clamp(3rem, 6vw, 6.4rem);
+  line-height: 0.92;
+}
+
+.route-proof__metrics {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  align-items: stretch;
+}
+
+.route-proof__metrics article:first-child {
+  grid-row: span 2;
+}
+
+.route-proof__metrics strong {
+  color: var(--accent);
+  font-size: clamp(4rem, 9vw, 8rem);
+  line-height: 0.85;
+}
+
+.planning-bento {
+  display: grid;
+  grid-auto-flow: dense;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.planning-bento__cell {
+  min-height: 17rem;
+  overflow: hidden;
+}
+
+.planning-bento__cell--wide {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.planning-bento__cell:nth-child(4) {
+  grid-column: span 2;
+}
+
+.planning-bento__cell h3 {
+  font-size: clamp(1.65rem, 3.2vw, 3.3rem);
+  line-height: 0.98;
+}
+
+.planning-bento__index {
+  color: var(--accent-strong);
+}
+
+.atlas-grid {
+  gap: 0.85rem;
+}
+
+.atlas-feature,
+.atlas-row__image-wrap,
+.route-story__media {
+  overflow: hidden;
+}
+
+.atlas-feature__copy h3 {
+  max-width: 11ch;
+  font-size: clamp(3rem, 6vw, 6.4rem);
+  line-height: 0.9;
+}
+
+.atlas-row {
+  min-height: 7.1rem;
+  border-radius: var(--radius-md);
+  background: rgba(245, 243, 234, 0.84);
+}
+
+.atlas-row strong {
+  color: #181d15;
+}
+
+.atlas-row b {
+  color: #3d471f;
+}
+
+.route-story {
+  width: min(1240px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.route-story__card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100dvh;
+  transform-origin: center top;
+  will-change: transform, opacity;
+}
+
+.route-story__panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1fr);
+  gap: clamp(1rem, 4vw, 3rem);
+  width: 100%;
+  min-height: min(74dvh, 720px);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.route-story__copy {
+  display: grid;
+  align-content: center;
+  gap: 1.1rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.route-story__copy h3 {
+  max-width: 12ch;
+  margin: 0;
+  font-size: clamp(3rem, 6vw, 6.2rem);
+  line-height: 0.92;
+}
+
+.route-story__copy p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.45vw, 1.24rem);
+  line-height: 1.55;
+}
+
+.route-story__media {
+  position: relative;
+  min-height: 32rem;
+  border-radius: var(--radius-md);
+  background: rgba(245, 243, 234, 0.06);
+}
+
+.route-story__visual {
+  object-fit: cover;
+  filter: saturate(0.78) contrast(1.08);
+  transform-origin: center;
+}
+
+.kinetic-story {
+  min-height: 86dvh;
+}
+
+.kinetic-story__grid {
+  min-height: 86dvh;
+}
+
+.share-artifact__top,
+.share-artifact li::before {
+  color: var(--accent);
+}
+
+.final-route-cta {
+  align-items: center;
+}
+
+.final-route-cta__brief span {
+  border-radius: var(--radius-md);
+  background: rgba(213, 244, 95, 0.09);
+  color: rgba(245, 243, 234, 0.76);
+}
+
+.app-footer--redesign {
+  margin-top: 2rem;
+  margin-bottom: 1.2rem;
+  background: rgba(15, 20, 16, 0.82);
+}
+
+.footer-departure,
+.footer-newsletter {
+  box-shadow: none;
+}
+
+.footer-departure p:not(.eyebrow) {
+  color: var(--muted);
+}
+
+.newsletter-console__fields input,
+.route-studio textarea,
+.route-studio-form input {
+  border-color: rgba(245, 243, 234, 0.16);
+  background: rgba(5, 7, 6, 0.42);
+  color: var(--text);
+}
+
+.route-studio {
+  min-height: 100dvh;
+  color: var(--text);
+  background:
+    linear-gradient(140deg, rgba(213, 244, 95, 0.07), transparent 42%),
+    linear-gradient(180deg, #141a15 0%, #070a08 100%);
+}
+
+.route-studio__layout {
+  gap: 0.75rem;
+}
+
+.route-studio__summary h1 {
+  max-width: 10ch;
+  font-size: clamp(2.7rem, 4.8vw, 5.25rem);
+  line-height: 0.92;
+}
+
+.route-studio__summary-copy,
+.route-studio__path,
+.route-studio__stops span,
+.route-studio-form__field > span,
+.route-studio__section-heading span {
+  color: var(--muted);
+}
+
+.route-studio__route {
+  border-color: rgba(245, 243, 234, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(245, 243, 234, 0.045);
+}
+
+.route-studio__route--active,
+.route-studio__route--active:hover,
+.route-studio-form__segment--active,
+.route-studio-form__wish--active {
+  border-color: rgba(213, 244, 95, 0.5);
+  background: rgba(213, 244, 95, 0.14);
+  color: var(--text);
+}
+
+.route-studio__inspector-media {
+  border-radius: var(--radius-md);
+}
+
+.route-studio-actions__secondary-button,
+.route-studio-form__segment,
+.route-studio-form__wish,
+.route-studio__controls-toggle {
+  border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .site-command {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .site-command__signal {
+    display: none;
+  }
+
+  .site-command__nav {
+    grid-column: auto;
+  }
+
+  .atlas-hero__grid,
+  .route-proof,
+  .route-story__panel,
+  .final-route-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .planning-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .route-story__card {
+    min-height: auto;
+    padding: 2rem 0;
+  }
+
+  .route-story__panel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-command {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .atlas-hero__grid {
+    min-height: 100dvh;
+  }
+
+  .atlas-hero__copy h1 {
+    max-width: 9.5ch;
+    font-size: clamp(3.35rem, 16vw, 5rem);
+  }
+
+  .atlas-hero__lede {
+    font-size: 1rem;
+  }
+
+  .route-proof__metrics,
+  .planning-bento {
+    grid-template-columns: 1fr;
+  }
+
+  .planning-bento__cell,
+  .planning-bento__cell--wide,
+  .planning-bento__cell:nth-child(4) {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 13rem;
+  }
+
+  .route-proof__intro h2,
+  .planning-stack h2,
+  .atlas-section h2,
+  .kinetic-story h2,
+  .final-route-cta h2,
+  .footer-departure h2,
+  .route-story__copy h3 {
+    font-size: clamp(2.55rem, 13vw, 4rem);
+  }
+
+  .route-story {
+    width: min(100% - 24px, 1240px);
+  }
+
+  .route-story__panel {
+    padding: 0.75rem;
+  }
+
+  .route-story__copy {
+    padding: 1rem;
+  }
+
+  .route-story__media {
+    min-height: 18rem;
   }
 }

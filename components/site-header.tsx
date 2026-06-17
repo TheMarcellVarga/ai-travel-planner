@@ -7,10 +7,10 @@ import { getCurrentUser } from "@/lib/auth";
 import { site } from "@/lib/site";
 
 const navItems = [
-  { href: "/", label: "Journal", code: "01" },
-  { href: "/planner", label: "Planner", code: "02" },
-  { href: "/saved", label: "Saved", code: "03" },
-] satisfies Array<{ href: Route; label: string; code: string }>;
+  { href: "/", label: "Overview" },
+  { href: "/planner", label: "Planner" },
+  { href: "/saved", label: "Saved" },
+] satisfies Array<{ href: Route; label: string }>;
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -34,14 +34,14 @@ export async function SiteHeader() {
         </span>
         <div>
           <span className="brand-name">{site.name}</span>
-          <span className="site-corner-brand__status">routes, considered</span>
+          <span className="site-corner-brand__status">adventure routes</span>
         </div>
       </Link>
 
       <div className="site-command">
         <div className="site-command__signal" aria-hidden="true">
-          <span>current study</span>
-          <strong>SIN · 12 days · one stop</strong>
+          <span>planner mode</span>
+          <strong>prompt / score / handoff</strong>
         </div>
 
         <nav className="site-command__nav" aria-label="Primary">
@@ -52,7 +52,6 @@ export async function SiteHeader() {
                 href={item.href}
                 className="site-command__nav-item"
               >
-                <span>{item.code}</span>
                 <strong>{item.label}</strong>
               </Link>
             );

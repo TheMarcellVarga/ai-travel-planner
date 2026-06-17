@@ -108,11 +108,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <div className="route-studio__metrics">
             <span>
               {activeRoute
-                ? `${Math.round(activeRoute.confidence * 100)}% confidence`
+                ? `${Math.round(activeRoute.confidence * 100)}% app confidence`
                 : recommendationCountLabel}
             </span>
             <strong>
-              {activeRoute ? `$${activeRoute.estimatedCostUsd}` : "ready"}
+              {activeRoute ? `$${activeRoute.estimatedCostUsd} est.` : "ready"}
             </strong>
           </div>
         </header>
@@ -146,7 +146,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <span className="route-studio__route-index">0{index + 1}</span>
               <strong>{route.title}</strong>
               <small>
-                ${route.estimatedCostUsd} · {Math.round(route.confidence * 100)}%
+                ${route.estimatedCostUsd} est. / {Math.round(route.confidence * 100)}% app fit
               </small>
             </button>
           ))}

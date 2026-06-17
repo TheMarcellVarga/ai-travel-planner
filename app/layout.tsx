@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 
 import { AppFooter } from "@/components/app-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -7,15 +7,15 @@ import { site } from "@/lib/site";
 
 import "./globals.css";
 
-const displayFont = Cormorant_Garamond({
+const displayFont = Geist({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["500", "600", "700"]
+  weight: ["400", "500", "600", "700", "800", "900"]
 });
 
-const bodyFont = DM_Sans({
+const bodyFont = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-mono",
   weight: ["400", "500", "600", "700"]
 });
 

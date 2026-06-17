@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, PlaneTakeoff } from "lucide-react";
 
 import { MediaCredit } from "@/components/media-credit";
+import { RouteScrollStory } from "@/components/route-scroll-story";
 import { destinations } from "@/lib/data/destinations";
 import {
   destinationMedia,
@@ -12,9 +13,9 @@ import {
 import { wishTags } from "@/lib/site";
 
 const productSignals = [
-  { label: "Route studies", value: "04", detail: "ranked against pace, budget, and the stops that matter" },
-  { label: "Considered stop", value: "01", detail: "one clear recommendation, with its reasoning in view" },
-  { label: "Travel window", value: "12d", detail: "made for one-way exploration rather than package tours" }
+  { label: "Ranked route studies", value: "4", detail: "Compared by pace, budget posture, and stop quality." },
+  { label: "Promoted stop", value: "1", detail: "Free routes keep one recommendation in focus." },
+  { label: "Planning window", value: "12d", detail: "Built for open-jaw travel, not packaged tours." }
 ];
 
 const planningStack = [
@@ -41,19 +42,19 @@ const plannerPreviewRoutes = [
     code: "SIN",
     title: "Singapore to Bali",
     meta: "surf, jungle, scooter radius",
-    price: "$380"
+    price: "$380 est."
   },
   {
     code: "CNX",
     title: "Chiang Mai climb loop",
     meta: "mtb, cafes, mountain air",
-    price: "$340"
+    price: "$340 est."
   },
   {
     code: "FNC",
     title: "Madeira cliff run",
     meta: "levadas, Atlantic light",
-    price: "$610"
+    price: "$610 est."
   }
 ];
 
@@ -67,6 +68,33 @@ const featuredDestinations = expeditionIndex
 
 const leadDestination = featuredDestinations[0];
 const atlasDestinations = featuredDestinations.slice(1);
+
+const routeStoryCards = [
+  {
+    title: "Intent becomes a route brief.",
+    text: "Wild Route reads the origin, trip length, stop limit, budget posture, and travel wishes before it scores anything.",
+    image: {
+      src: destinationMedia.bali.src,
+      alt: destinationMedia.bali.alt
+    }
+  },
+  {
+    title: "Every stop has to earn the detour.",
+    text: "The app ranks candidate cities by fit and logistics, then keeps the free-plan recommendation intentionally narrow.",
+    image: {
+      src: destinationMedia["chiang-mai"].src,
+      alt: destinationMedia["chiang-mai"].alt
+    }
+  },
+  {
+    title: "The handoff stays honest.",
+    text: "Booking links leave Wild Route for external providers. Prices and availability stay provider-confirmed, not promised here.",
+    image: {
+      src: destinationMedia.madeira.src,
+      alt: destinationMedia.madeira.alt
+    }
+  }
+];
 
 export default function HomePage() {
   return (
@@ -86,12 +114,11 @@ export default function HomePage() {
 
         <div className="shell atlas-hero__grid">
           <div className="atlas-hero__copy">
-            <p className="eyebrow">Wild Route · journey composition</p>
-            <h1>Travel, composed.</h1>
+            <p className="eyebrow">Wild Route route planner</p>
+            <h1>Build the kind of trip you can explain.</h1>
             <p className="atlas-hero__lede">
-              Describe the way you want to move. Wild Route shapes the intent
-              into a small set of one-way journeys with clear stops, useful
-              tradeoffs, and a calm path to booking.
+              Prompt a one-way adventure, compare the tradeoffs, and hand the
+              final shape to booking providers.
             </p>
             <div className="atlas-hero__actions">
               <Link className="button button-island" href="/planner">
@@ -101,7 +128,7 @@ export default function HomePage() {
                 </span>
               </Link>
               <Link className="text-link" href="/saved">
-                Revisit saved routes
+                Saved routes
                 <ArrowUpRight size={16} />
               </Link>
             </div>
@@ -109,8 +136,8 @@ export default function HomePage() {
 
           <aside className="route-console" aria-label="Route planning preview">
             <div className="route-console__header">
-              <span>Route study · 01</span>
-              <small>Singapore · 12 days</small>
+              <span>Planning estimate</span>
+              <small>Singapore / 12 days</small>
             </div>
             <p className="route-console__prompt">
               A warm-weather departure with room to work, a little surf, and
@@ -139,8 +166,7 @@ export default function HomePage() {
 
       <section className="shell route-proof">
         <div className="route-proof__intro">
-          <p className="eyebrow">From thought to itinerary</p>
-          <h2>A route is more than a list of cities.</h2>
+          <h2>A route is more than a city list.</h2>
           <p>
             Wild Route gives each journey a point of view: a pace, a price
             posture, a reason for every stop, and a shareable form when the
@@ -160,12 +186,10 @@ export default function HomePage() {
 
       <section className="shell planning-stack">
         <div className="planning-stack__heading">
-          <p className="eyebrow">How a route takes shape</p>
           <h2>Make fewer choices, with better reasons.</h2>
         </div>
         <div className="planning-bento" aria-label="Product workflow">
           <article className="planning-bento__cell planning-bento__cell--wide">
-            <span className="planning-bento__index">01</span>
             <h3>{planningStack[0].title}</h3>
             <p>{planningStack[0].text}</p>
             <div className="prompt-strip">
@@ -178,9 +202,7 @@ export default function HomePage() {
 
           {planningStack.slice(1).map((item, index) => (
             <article className="planning-bento__cell" key={item.title}>
-              <span className="planning-bento__index">
-                0{index + 2}
-              </span>
+              <span className="planning-bento__index">{index + 2}</span>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
             </article>
@@ -190,7 +212,6 @@ export default function HomePage() {
 
       <section className="shell atlas-section">
         <div className="atlas-section__heading">
-          <p className="eyebrow">The destination index</p>
           <h2>Places that change the route.</h2>
           <p>
             A strong stop brings more than scenery. It changes the pace,
@@ -234,12 +255,14 @@ export default function HomePage() {
                   <strong>{destination.name}</strong>
                   <p>{destination.scene}</p>
                 </div>
-                <b>${destination.baseCostUsd}</b>
+                <b>${destination.baseCostUsd} est.</b>
               </article>
             ))}
           </div>
         </div>
       </section>
+
+      <RouteScrollStory cards={routeStoryCards} />
 
       <section className="kinetic-story">
         <div className="kinetic-story__media" aria-hidden="true">
@@ -267,13 +290,12 @@ export default function HomePage() {
         <div className="kinetic-story__shade" />
         <div className="shell kinetic-story__grid">
           <div>
-            <p className="eyebrow">A route, ready to share</p>
             <h2>Keep the useful detail. Lose the planning noise.</h2>
           </div>
           <div className="share-artifact">
             <div className="share-artifact__top">
-              <span>published study</span>
-              <b>fit 82%</b>
+              <span>Published route</span>
+              <b>App score 82%</b>
             </div>
             <h3>A warm base, a surf exit, one meaningful detour.</h3>
             <ol>
@@ -287,7 +309,6 @@ export default function HomePage() {
 
       <section className="shell final-route-cta">
         <div className="final-route-cta__copy">
-          <p className="eyebrow">Open the planner</p>
           <h2>Start with a thought. Leave with a route that makes sense.</h2>
         </div>
         <div className="final-route-cta__actions">
