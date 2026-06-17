@@ -39,6 +39,11 @@ export function RouteScrollStory({ cards }: RouteScrollStoryProps) {
         const nextCard = cardEls[index + 1];
         const image = card.querySelector<HTMLElement>(".route-story__visual");
 
+        gsap.set(card, {
+          opacity: 1,
+          zIndex: index + 1,
+        });
+
         if (image) {
           gsap.fromTo(
             image,
@@ -82,9 +87,15 @@ export function RouteScrollStory({ cards }: RouteScrollStoryProps) {
           pinSpacing: false,
         });
 
+        ScrollTrigger.create({
+          trigger: nextCard,
+          start: "top 72%",
+          onEnter: () => gsap.set(card, { autoAlpha: 0 }),
+          onLeaveBack: () => gsap.set(card, { autoAlpha: 1 }),
+        });
+
         gsap.to(card, {
           scale: 0.92,
-          opacity: 0.5,
           ease: "none",
           scrollTrigger: {
             trigger: nextCard,

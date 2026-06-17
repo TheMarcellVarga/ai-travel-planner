@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, PlaneTakeoff } from "lucide-react";
 
+import { HomeGsapEffects } from "@/components/home-gsap-effects";
 import { MediaCredit } from "@/components/media-credit";
 import { RouteScrollStory } from "@/components/route-scroll-story";
 import { destinations } from "@/lib/data/destinations";
@@ -99,6 +100,7 @@ const routeStoryCards = [
 export default function HomePage() {
   return (
     <main className="journey-index">
+      <HomeGsapEffects />
       <section className="atlas-hero">
         <div className="atlas-hero__media" aria-hidden="true">
           <Image

@@ -8797,3 +8797,361 @@ body {
 .route-proof__metrics p {
   color: rgba(245, 243, 234, 0.72);
 }
+
+/* Final hero-preview guard: keep the GSAP-revealed console readable. */
+.atlas-hero__grid {
+  position: relative;
+  z-index: 2;
+}
+
+.route-console {
+  opacity: 1;
+  border-color: rgba(245, 243, 234, 0.18);
+  background:
+    linear-gradient(135deg, rgba(245, 243, 234, 0.11), rgba(245, 243, 234, 0.035)),
+    rgba(10, 14, 11, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 30px 88px rgba(1, 4, 2, 0.46);
+}
+
+.route-console__header,
+.route-console__prompt,
+.route-console__tags,
+.route-console__routes {
+  background: rgba(245, 243, 234, 0.08);
+}
+
+.route-console__prompt,
+.route-console__route strong {
+  color: rgba(245, 243, 234, 0.94);
+}
+
+.route-console__header small,
+.route-console__route small {
+  color: rgba(245, 243, 234, 0.66);
+}
+
+/* Final scroll-story guard: pinned GSAP cards must not show prior cards through them. */
+.route-story {
+  isolation: isolate;
+}
+
+.route-story__card {
+  opacity: 1;
+  isolation: isolate;
+}
+
+.route-story__panel {
+  border-color: rgba(245, 243, 234, 0.16);
+  background:
+    linear-gradient(135deg, rgba(245, 243, 234, 0.1), rgba(245, 243, 234, 0.035)),
+    #11170f;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 34px 96px rgba(1, 4, 2, 0.48);
+}
+
+.route-story__copy h3,
+.route-story__copy p {
+  text-shadow: 0 2px 18px rgba(1, 4, 2, 0.42);
+}
+
+.route-story__media {
+  background: #171d15;
+}
+
+/* Final planner repair: stable responsive route workspace. */
+body:has(.route-studio) {
+  overflow-x: hidden;
+}
+
+.route-studio {
+  --route-shell-gap: clamp(0.85rem, 1.8vw, 1.35rem);
+  min-height: 100dvh;
+  height: auto;
+  padding: clamp(6.15rem, 10vh, 7.1rem) clamp(0.85rem, 1.8vw, 1.4rem) 1.2rem;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 53% 38%, rgba(213, 244, 95, 0.08), transparent 24rem),
+    linear-gradient(180deg, #07100b 0%, #030806 100%);
+}
+
+.route-studio__layout {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: minmax(286px, 0.36fr) minmax(390px, 1fr) minmax(260px, 0.34fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "summary globe inspector"
+    "controls globe inspector"
+    ". dock inspector";
+  gap: var(--route-shell-gap);
+  width: min(100%, 1500px);
+  min-height: calc(100dvh - clamp(7.4rem, 12vh, 8.4rem));
+  height: auto;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.route-studio__summary,
+.route-studio__controls,
+.route-studio__dock,
+.route-studio__inspector {
+  border: 1px solid rgba(245, 243, 234, 0.13);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, rgba(245, 243, 234, 0.08), rgba(245, 243, 234, 0.025)),
+    rgba(12, 17, 13, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 24px 70px rgba(1, 4, 2, 0.28);
+  backdrop-filter: blur(18px) saturate(1.12);
+}
+
+.route-studio__summary {
+  align-self: start;
+  padding: clamp(1rem, 1.6vw, 1.2rem);
+}
+
+.route-studio__summary h1 {
+  max-width: 100%;
+  overflow-wrap: normal;
+  font-size: clamp(2.45rem, 3.1vw, 3.55rem);
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+.route-studio__summary-copy {
+  max-width: 34ch;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.route-studio__metrics span,
+.route-studio__metrics strong {
+  white-space: nowrap;
+}
+
+.route-studio__controls {
+  align-self: start;
+  min-height: 0;
+  max-height: calc(100dvh - 22rem);
+  overflow: hidden;
+}
+
+.route-studio__controls--open {
+  align-self: stretch;
+}
+
+.route-studio__controls-toggle {
+  min-height: 3rem;
+}
+
+.route-studio__controls-body {
+  max-height: calc(100dvh - 25.6rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.route-studio__globe {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  min-height: clamp(28rem, 61dvh, 40rem);
+  border: 1px solid rgba(245, 243, 234, 0.12);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(213, 244, 95, 0.1), transparent 23rem),
+    rgba(7, 20, 13, 0.74);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 28px 80px rgba(1, 4, 2, 0.32);
+  overflow: hidden;
+}
+
+.route-studio__globe .orbital-globe-stage {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(28rem, 61dvh, 40rem);
+}
+
+.route-studio__globe .orbital-globe-frame {
+  position: absolute;
+  inset: 0;
+}
+
+.route-studio__globe .orbital-globe-frame--loading {
+  opacity: 0.08;
+}
+
+.route-studio__globe .orbital-globe-fallback {
+  top: 50%;
+  bottom: auto;
+  left: 50%;
+  width: min(34rem, calc(100% - 2rem));
+  transform: translate(-50%, -50%);
+}
+
+.route-studio__globe .orbital-globe-fallback--visible {
+  transform: translate(-50%, -50%);
+}
+
+.route-studio__dock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-self: end;
+  justify-self: stretch;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.route-studio__route {
+  min-height: 5rem;
+}
+
+.route-studio__route strong,
+.route-studio__route small {
+  display: block;
+}
+
+.route-studio__route strong {
+  white-space: normal;
+}
+
+.route-studio__route small {
+  white-space: nowrap;
+}
+
+.route-studio__inspector {
+  align-self: stretch;
+  justify-self: stretch;
+  margin: 0;
+  max-height: none;
+  overflow-y: auto;
+}
+
+.route-studio__inspector-empty {
+  min-height: 100%;
+  align-content: start;
+  padding: clamp(1rem, 1.6vw, 1.2rem);
+}
+
+@media (max-width: 1180px) {
+  .route-studio {
+    padding-top: 7rem;
+  }
+
+  .route-studio__layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    grid-template-areas:
+      "summary"
+      "globe"
+      "dock"
+      "controls"
+      "inspector";
+    min-height: auto;
+  }
+
+  .route-studio__summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    column-gap: 1rem;
+  }
+
+  .route-studio__summary h1,
+  .route-studio__summary-copy {
+    grid-column: 1;
+  }
+
+  .route-studio__summary h1 {
+    font-size: clamp(2.7rem, 8vw, 4.7rem);
+  }
+
+  .route-studio__metrics {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    justify-content: end;
+    align-self: center;
+  }
+
+  .route-studio__globe,
+  .route-studio__globe .orbital-globe-stage {
+    min-height: clamp(26rem, 58dvh, 36rem);
+  }
+
+  .route-studio__controls,
+  .route-studio__controls-body,
+  .route-studio__inspector {
+    max-height: none;
+  }
+
+  .route-studio__inspector {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 760px) {
+  .route-studio {
+    padding: 7.2rem 0.75rem 0.9rem;
+  }
+
+  .route-studio__layout {
+    gap: 0.75rem;
+  }
+
+  .route-studio__summary {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .route-studio__summary h1 {
+    max-width: 10ch;
+    font-size: clamp(2.55rem, 13.5vw, 4rem);
+  }
+
+  .route-studio__metrics {
+    grid-column: auto;
+    grid-row: auto;
+    justify-content: start;
+  }
+
+  .route-studio__globe,
+  .route-studio__globe .orbital-globe-stage {
+    min-height: min(62dvh, 26rem);
+  }
+
+  .route-studio__dock {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .route-studio__route {
+    flex: 0 0 min(78vw, 18rem);
+    min-height: 4.85rem;
+    border-left: 1px solid rgba(245, 243, 234, 0.13);
+    scroll-snap-align: start;
+  }
+
+  .route-studio__route:first-child {
+    border-left: 0;
+  }
+
+  .route-studio-form__segments--stops,
+  .route-studio-form__segments--budget,
+  .route-studio-form__wishes {
+    grid-template-columns: 1fr;
+  }
+
+  .route-studio-actions__secondary {
+    grid-template-columns: 1fr;
+  }
+}

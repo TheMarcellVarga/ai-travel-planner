@@ -62,6 +62,23 @@ const GLOBE_BUMP_URL =
 const GLOBE_ACCENT = "#d4ff00";
 const GLOBE_SOFT = "#d8d3c8";
 
+function canUseWebGL() {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(
+      canvas.getContext("webgl2") ??
+        canvas.getContext("webgl") ??
+        canvas.getContext("experimental-webgl"),
+    );
+  } catch {
+    return false;
+  }
+}
+
 function buildTooltip(point: GlobePoint) {
   const accent = point.kind === "route-marker" ? GLOBE_ACCENT : GLOBE_SOFT;
   const price =
@@ -82,6 +99,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
   const [globeTimedOut, setGlobeTimedOut] = useState(false);
+  const [webGlAvailable, setWebGlAvailable] = useState(canUseWebGL);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () =>
       typeof window !== "undefined" &&
@@ -97,7 +115,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   const activeRoute = routes.find((route) => route.id === activeRouteId) ?? null;
   const idleRecommendation = routes[idleHighlightIndex % Math.max(routes.length, 1)] ?? null;
   const fallbackRoute = activeRoute ?? idleRecommendation ?? routes[0] ?? null;
-  const shouldPrioritizeFallback = prefersReducedMotion || globeTimedOut;
+  const shouldPrioritizeFallback = !webGlAvailable || prefersReducedMotion || globeTimedOut;
   const isIdle = activeRoute === null;
   const promotedStop =
     activeRoute
