@@ -5,6 +5,7 @@ import { interpretTripIntent } from "@/lib/planner/intent";
 import {
   getSavedRoutesForUser,
   getGenerationCountForUser,
+  getRouteForUserOrPublic,
   getSharedRoute,
   getNewsletterSubscriber,
   publishRouteForUser,
@@ -36,6 +37,43 @@ describe("demo store", () => {
 
     expect(saved).not.toBeNull();
     expect(getSavedRoutesForUser("demo:user")).toHaveLength(1);
+  });
+
+  it("allows a signed-in demo user to save an anonymous exploration route", () => {
+    const generation = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({
+          prompt: "Jungle route from Singapore.",
+          origin: "Singapore",
+          wishTags: ["hiking"]
+        })
+      )
+    );
+    const routeId = generation.routes[0]!.id;
+
+    const saved = saveRouteForUser("demo:new-user", routeId);
+
+    expect(saved?.route.id).toBe(routeId);
+    expect(getSavedRoutesForUser("demo:new-user")).toHaveLength(1);
+  });
+
+  it("does not let one demo user save another user's private generated route", () => {
+    const generation = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({
+          prompt: "Private hiking route from Singapore.",
+          origin: "Singapore",
+          wishTags: ["hiking"]
+        })
+      ),
+      "demo:user-a"
+    );
+    const routeId = generation.routes[0]!.id;
+
+    const saved = saveRouteForUser("demo:user-b", routeId);
+
+    expect(saved).toBeNull();
+    expect(getSavedRoutesForUser("demo:user-b")).toHaveLength(0);
   });
 
   it("counts generated routes by demo user for entitlement checks", () => {
@@ -78,6 +116,45 @@ describe("demo store", () => {
 
     expect(shared).not.toBeNull();
     expect(getSharedRoute(shared!.slug)?.route.id).toBe(routeId);
+  });
+
+  it("does not let one demo user publish another user's private generated route", () => {
+    const generation = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({
+          prompt: "Private surf route from Sydney.",
+          origin: "Sydney",
+          wishTags: ["surf"]
+        })
+      ),
+      "demo:user-a"
+    );
+    const routeId = generation.routes[0]!.id;
+
+    expect(publishRouteForUser("demo:user-b", routeId)).toBeNull();
+  });
+
+  it("resolves handoff routes only for owners or public shared snapshots", () => {
+    const generation = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({
+          prompt: "Private mountain route from Lisbon.",
+          origin: "Lisbon",
+          wishTags: ["hiking", "mtb"]
+        })
+      ),
+      "demo:user-a"
+    );
+    const route = generation.routes[0]!;
+
+    expect(getRouteForUserOrPublic(route.id, "demo:user-b")).toBeNull();
+    expect(getRouteForUserOrPublic(route.id, null)).toBeNull();
+
+    const shared = publishRouteForUser("demo:user-a", route.id);
+
+    expect(shared).not.toBeNull();
+    expect(getRouteForUserOrPublic(route.id, "demo:user-b")?.route.id).toBe(route.id);
+    expect(getRouteForUserOrPublic(route.id, null)?.route.id).toBe(route.id);
   });
 
   it("records booking handoffs without mutating route data", () => {

@@ -170,6 +170,8 @@ npm run test
 ### T5: Add Route Ownership Tests
 Phase: 5. Save, Share, Account, Billing
 
+Status: complete.
+
 Files:
 - `lib/store/persistent-store.ts`
 - `lib/store/demo-store.test.ts` or new store tests
@@ -178,6 +180,7 @@ Acceptance criteria:
 - User A cannot save User B private generated route.
 - Shared routes can be read only through public share payload.
 - Handoff can resolve public shared route without exposing private user data.
+- Demo memory fallback uses owner-or-public route resolution for save, publish, and handoff.
 
 Verification:
 

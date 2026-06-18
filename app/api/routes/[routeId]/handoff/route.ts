@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { maybeSendRouteNotification } from "@/lib/notifications";
-import { getRoute, recordHandoff } from "@/lib/store/demo-store";
+import { getRouteForUserOrPublic, recordHandoff } from "@/lib/store/demo-store";
 import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import {
   findRouteInDatabase,
@@ -17,7 +17,7 @@ export async function POST(_request: Request, context: RouteContext) {
   const { routeId } = await context.params;
   const user = await getCurrentUser();
   const routeMatch =
-    (await findRouteInDatabase(routeId, user?.id)) ?? getRoute(routeId);
+    (await findRouteInDatabase(routeId, user?.id)) ?? getRouteForUserOrPublic(routeId, user?.id);
 
   if (!routeMatch) {
     return NextResponse.json({ error: "Route not found." }, { status: 404 });

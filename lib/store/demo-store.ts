@@ -88,6 +88,48 @@ export function getRoute(routeId: string) {
   return null;
 }
 
+function getOwnedOrAnonymousRoute(routeId: string, userId: string) {
+  const store = createStore();
+
+  for (const generation of store.generations.values()) {
+    const ownerId = store.generationOwners.get(generation.id);
+    if (ownerId !== userId && ownerId !== ANONYMOUS_GENERATION_USER_ID) {
+      continue;
+    }
+
+    const route = generation.routes.find((item) => item.id === routeId);
+    if (route) {
+      return { route, generationId: generation.id };
+    }
+  }
+
+  return null;
+}
+
+function getSharedRouteByRouteId(routeId: string) {
+  for (const sharedRoute of createStore().sharedRoutes.values()) {
+    if (sharedRoute.route.id === routeId) {
+      return {
+        route: sharedRoute.route,
+        generationId: sharedRoute.generationId
+      };
+    }
+  }
+
+  return null;
+}
+
+export function getRouteForUserOrPublic(routeId: string, userId?: string | null) {
+  if (userId) {
+    const ownRoute = getOwnedOrAnonymousRoute(routeId, userId);
+    if (ownRoute) {
+      return ownRoute;
+    }
+  }
+
+  return getSharedRouteByRouteId(routeId);
+}
+
 export function saveRouteForUser(userId: string, routeId: string) {
   const existing = Array.from(createStore().savedRoutes.values()).find(
     (savedRoute) => savedRoute.userId === userId && savedRoute.route.id === routeId
@@ -97,7 +139,7 @@ export function saveRouteForUser(userId: string, routeId: string) {
     return existing;
   }
 
-  const routeMatch = getRoute(routeId);
+  const routeMatch = getOwnedOrAnonymousRoute(routeId, userId);
   if (!routeMatch) {
     return null;
   }
@@ -121,7 +163,7 @@ export function getSavedRoutesForUser(userId: string) {
 }
 
 export function publishRouteForUser(userId: string, routeId: string) {
-  const routeMatch = getRoute(routeId);
+  const routeMatch = getOwnedOrAnonymousRoute(routeId, userId);
   if (!routeMatch) {
     return null;
   }
