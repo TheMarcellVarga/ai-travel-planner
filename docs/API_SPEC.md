@@ -42,11 +42,22 @@ type PlanTripResponse = {
   generationId: string;
   tripIntent: TripIntent;
   routes: RouteOption[];
+  entitlement: {
+    plan: "free" | "pro";
+    generationLimit: number;
+  };
+  usage: {
+    limit: number;
+    used: number;
+    remaining: number;
+    allowed: boolean;
+  };
 };
 ```
 
 Rules:
 - Anonymous users may plan within free limits.
+- When the generation limit is reached, the endpoint returns `403` with `code: "GENERATION_LIMIT_REACHED"` and entitlement usage metadata.
 - Prompt must not be empty.
 - `tripLengthDays` and `maxStops` must be bounded.
 - Response must not claim confirmed price or availability unless a provider confirms it.
@@ -159,4 +170,3 @@ Rules:
 - Add OpenAPI contract once API shape stabilizes.
 - Add request IDs and structured logs.
 - Add rate limits for generation, handoff, and auth-adjacent endpoints.
-

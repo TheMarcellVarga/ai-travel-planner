@@ -43,6 +43,17 @@ export function getEntitlementShape(plan: Entitlement["plan"]) {
   return plan === "pro" ? PRO_ENTITLEMENT : FREE_ENTITLEMENT;
 }
 
+export function getGenerationLimitStatus(entitlement: Entitlement, usedCount: number) {
+  const remaining = Math.max(entitlement.generationLimit - usedCount, 0);
+
+  return {
+    limit: entitlement.generationLimit,
+    used: usedCount,
+    remaining,
+    allowed: usedCount < entitlement.generationLimit
+  };
+}
+
 export function mapEntitlementRow(row: EntitlementRow | null): Entitlement {
   if (!row) {
     return FREE_ENTITLEMENT;

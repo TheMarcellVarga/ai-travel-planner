@@ -4,6 +4,7 @@ import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
 import {
   getSavedRoutesForUser,
+  getGenerationCountForUser,
   getSharedRoute,
   getNewsletterSubscriber,
   publishRouteForUser,
@@ -35,6 +36,30 @@ describe("demo store", () => {
 
     expect(saved).not.toBeNull();
     expect(getSavedRoutesForUser("demo:user")).toHaveLength(1);
+  });
+
+  it("counts generated routes by demo user for entitlement checks", () => {
+    const firstGeneration = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Crypto and hiking route from Singapore.",
+        origin: "Singapore",
+        wishTags: ["crypto-friendly", "hiking"]
+      })
+    );
+    const secondGeneration = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Surf route from Sydney.",
+        origin: "Sydney",
+        wishTags: ["surf"]
+      })
+    );
+
+    saveGeneration(firstGeneration, "demo:user-a");
+    saveGeneration(secondGeneration, "demo:user-b");
+
+    expect(getGenerationCountForUser("demo:user-a")).toBe(1);
+    expect(getGenerationCountForUser("demo:user-b")).toBe(1);
+    expect(getGenerationCountForUser("demo:missing")).toBe(0);
   });
 
   it("publishes a stable shared snapshot for a route", () => {

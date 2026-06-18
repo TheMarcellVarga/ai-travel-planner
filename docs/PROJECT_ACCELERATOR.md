@@ -44,7 +44,7 @@ Build routes currently include:
 - Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
 - API route tests are missing.
 - Supabase RLS behavior is documented but not automatically verified.
-- Entitlement generation limits are not fully enforced at the planning endpoint.
+- Entitlement generation limits are enforced at the planning endpoint for anonymous, demo, and Supabase users.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
 - Broader browser/accessibility QA remains for Phase 7.
@@ -59,7 +59,7 @@ Last audited: 2026-06-17.
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
-| 5. Save, Share, Account, Billing | Partial | Core routes and Stripe webhook exist; generation limits, ownership tests, public-share hardening, and live billing verification remain. |
+| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, and Stripe webhook exist; ownership tests, public-share hardening, and live billing verification remain. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
 | 7. Security, Observability, QA | Not started | No threat model, rate limits, analytics/log scrubbing implementation, browser QA, accessibility pass, or observability setup. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
@@ -98,6 +98,8 @@ npm run build
 
 ### T2: Enforce Generation Limits Server-Side
 Phase: 5. Save, Share, Account, Billing
+
+Status: complete.
 
 Files:
 - `app/api/trips/plan/route.ts`

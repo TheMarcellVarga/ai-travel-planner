@@ -23,6 +23,7 @@ function slugify(value: string) {
 declare global {
   var __wildRouteStore__: {
     generations: Map<string, TripGeneration>;
+    generationOwners: Map<string, string>;
     savedRoutes: Map<string, SavedRoute>;
     sharedRoutes: Map<string, SharedRoute>;
     handoffs: BookingHandoff[];
@@ -30,10 +31,13 @@ declare global {
   } | undefined;
 }
 
+export const ANONYMOUS_GENERATION_USER_ID = "anonymous";
+
 function createStore() {
   if (!globalThis.__wildRouteStore__) {
     globalThis.__wildRouteStore__ = {
       generations: new Map<string, TripGeneration>(),
+      generationOwners: new Map<string, string>(),
       savedRoutes: new Map<string, SavedRoute>(),
       sharedRoutes: new Map<string, SharedRoute>(),
       handoffs: [],
@@ -44,13 +48,33 @@ function createStore() {
   return globalThis.__wildRouteStore__;
 }
 
-export function saveGeneration(generation: TripGeneration) {
-  createStore().generations.set(generation.id, generation);
+export function saveGeneration(
+  generation: TripGeneration,
+  userId: string | null | undefined = ANONYMOUS_GENERATION_USER_ID
+) {
+  const store = createStore();
+  store.generations.set(generation.id, generation);
+  store.generationOwners.set(generation.id, userId ?? ANONYMOUS_GENERATION_USER_ID);
   return generation;
 }
 
 export function getGeneration(generationId: string) {
   return createStore().generations.get(generationId) ?? null;
+}
+
+export function getGenerationCountForUser(
+  userId: string | null | undefined = ANONYMOUS_GENERATION_USER_ID
+) {
+  const ownerId = userId ?? ANONYMOUS_GENERATION_USER_ID;
+  let count = 0;
+
+  for (const generationOwnerId of createStore().generationOwners.values()) {
+    if (generationOwnerId === ownerId) {
+      count += 1;
+    }
+  }
+
+  return count;
 }
 
 export function getRoute(routeId: string) {
@@ -183,6 +207,7 @@ export function getNewsletterSubscriber(email: string) {
 export function resetStore() {
   globalThis.__wildRouteStore__ = {
     generations: new Map<string, TripGeneration>(),
+    generationOwners: new Map<string, string>(),
     savedRoutes: new Map<string, SavedRoute>(),
     sharedRoutes: new Map<string, SharedRoute>(),
     handoffs: [],

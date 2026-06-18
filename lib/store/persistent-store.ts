@@ -111,6 +111,28 @@ export async function saveGenerationToDatabase(
   return mapGeneration(data);
 }
 
+export async function getGenerationCountForUserFromDatabase(userId: string) {
+  if (!isPersistentUser(userId)) {
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const { count, error } = await supabase
+    .from("route_generations")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (error) {
+    return null;
+  }
+
+  return count ?? 0;
+}
+
 export async function getGenerationFromDatabase(generationId: string) {
   const supabase = await createSupabaseServerClient();
   if (!supabase) {
