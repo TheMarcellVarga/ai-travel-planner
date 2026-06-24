@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-06-17.
+Last checked: 2026-06-24.
 
 ```bash
 npm run test
@@ -14,7 +14,7 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 4 test files, 11 tests.
+- `npm run test`: passed, 7 test files, 29 tests.
 - `npm run build`: passed with Next.js 15.5.15.
 
 Build routes currently include:
@@ -34,6 +34,8 @@ Build routes currently include:
 - Supabase-backed persistent store exists for signed-in users when configured.
 - Supabase auth helper exists.
 - Stripe checkout, portal, and webhook routes exist.
+- Stripe webhook tests cover unconfigured service failure, invalid signature rejection, and checkout entitlement sync.
+- Health route tests cover boolean service status and secret redaction.
 - Account profile, export, and deletion routes exist.
 - Public share, save, and booking handoff APIs exist.
 - Current visual direction is already specific: Wild Route, jungle/adventure, route globe, editorial travel cards.
@@ -42,15 +44,15 @@ Build routes currently include:
 - Route generation uses local destination data and app-side scoring, not live flights/stays/weather/provider availability.
 - `POST /api/trips/plan` falls back to the in-memory demo store if Supabase persistence is unavailable.
 - Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
-- API route tests are missing.
 - Supabase RLS behavior is documented but not automatically verified.
+- Stripe checkout and portal flows still need live Stripe test-mode verification.
 - Entitlement generation limits are enforced at the planning endpoint for anonymous, demo, and Supabase users.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
 - Broader browser/accessibility QA remains for Phase 7.
 
 ## Current Phase Status
-Last audited: 2026-06-17.
+Last audited: 2026-06-24.
 
 | Phase | Status | Reason |
 | --- | --- | --- |
@@ -59,7 +61,7 @@ Last audited: 2026-06-17.
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
-| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, and Stripe webhook exist; ownership tests, public-share hardening, and live billing verification remain. |
+| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, and Stripe webhook tests exist; live Stripe checkout/portal verification remains. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
 | 7. Security, Observability, QA | Not started | No threat model, rate limits, analytics/log scrubbing implementation, browser QA, accessibility pass, or observability setup. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
@@ -292,9 +294,11 @@ npm run build
 ### T11: Add Health Check Coverage
 Phase: 3. Backend And Data Foundation
 
+Status: complete.
+
 Files:
 - `app/api/health/route.ts`
-- new tests
+- `app/api/health/route.test.ts`
 
 Acceptance criteria:
 - Health route reports Supabase, Stripe, email config status without exposing values.

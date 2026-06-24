@@ -155,8 +155,9 @@ Receives Stripe subscription lifecycle events.
 
 Rules:
 - Verify Stripe signature.
-- Implement idempotency for repeated events.
+- Invalid signatures must return a generic error without echoing provider details.
 - Update entitlements from trusted Stripe event data.
+- Implement idempotency for repeated events in Phase 7.
 
 ## Operational
 
