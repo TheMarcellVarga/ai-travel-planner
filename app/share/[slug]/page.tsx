@@ -4,8 +4,8 @@ import Image from "next/image";
 import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { getDestinationMedia } from "@/lib/media";
-import { getSharedRoute } from "@/lib/store/demo-store";
-import { getSharedRouteFromDatabase } from "@/lib/store/persistent-store";
+import { getPublicSharedRoute } from "@/lib/store/demo-store";
+import { getPublicSharedRouteFromDatabase } from "@/lib/store/persistent-store";
 
 type SharePageProps = {
   params: Promise<{ slug: string }>;
@@ -14,7 +14,7 @@ type SharePageProps = {
 export default async function SharePage({ params }: SharePageProps) {
   const { slug } = await params;
   const sharedRoute =
-    (await getSharedRouteFromDatabase(slug)) ?? getSharedRoute(slug);
+    (await getPublicSharedRouteFromDatabase(slug)) ?? getPublicSharedRoute(slug);
 
   if (!sharedRoute) {
     notFound();
@@ -69,6 +69,13 @@ export default async function SharePage({ params }: SharePageProps) {
             </p>
             <p className="muted-copy share-route-actions__date">
               Published {new Date(sharedRoute.publishedAt).toLocaleString()}.
+            </p>
+            <p className="muted-copy text-small">
+              {sharedRoute.route.disclaimer}
+            </p>
+            <p className="muted-copy text-small">
+              Availability: external provider search required. Freshness:{" "}
+              {sharedRoute.route.dataFreshness}.
             </p>
             <RouteActions routeId={sharedRoute.route.id} />
           </div>

@@ -86,6 +86,7 @@ Rules:
 - Requires auth.
 - Public payload must be a safe route snapshot.
 - Do not expose user email, billing identifiers, private notes, or internal provider payloads.
+- The public `/share/[slug]` page must read through the public-share mapper, which redacts owner IDs, generation IDs, booking links, and any non-whitelisted route JSON fields.
 
 ### `POST /api/routes/[routeId]/handoff`
 Records outbound booking intent and returns external provider URLs.

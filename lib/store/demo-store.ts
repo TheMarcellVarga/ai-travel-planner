@@ -3,11 +3,13 @@ import type {
   BookingLink,
   NewsletterSubscriber,
   NewsletterTopic,
+  PublicSharedRoute,
   RouteOption,
   SavedRoute,
   SharedRoute,
   TripGeneration
 } from "@/lib/types";
+import { createPublicSharedRoute } from "@/lib/store/public-share";
 
 function createId(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -184,6 +186,11 @@ export function publishRouteForUser(userId: string, routeId: string) {
 
 export function getSharedRoute(slug: string) {
   return createStore().sharedRoutes.get(slug) ?? null;
+}
+
+export function getPublicSharedRoute(slug: string): PublicSharedRoute | null {
+  const sharedRoute = getSharedRoute(slug);
+  return sharedRoute ? createPublicSharedRoute(sharedRoute) : null;
 }
 
 export function getSharedRoutesForUser(userId: string) {

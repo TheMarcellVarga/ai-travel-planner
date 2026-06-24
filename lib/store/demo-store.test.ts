@@ -6,6 +6,7 @@ import {
   getSavedRoutesForUser,
   getGenerationCountForUser,
   getRouteForUserOrPublic,
+  getPublicSharedRoute,
   getSharedRoute,
   getNewsletterSubscriber,
   publishRouteForUser,
@@ -116,6 +117,41 @@ describe("demo store", () => {
 
     expect(shared).not.toBeNull();
     expect(getSharedRoute(shared!.slug)?.route.id).toBe(routeId);
+  });
+
+  it("exposes only a whitelisted public shared route snapshot", () => {
+    const generation = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({
+          prompt: "Mountain-heavy route from Lisbon.",
+          origin: "Lisbon",
+          wishTags: ["hiking", "mtb"]
+        })
+      )
+    );
+    const route = generation.routes[0]! as typeof generation.routes[number] & {
+      internalProviderPayload?: { billingId: string };
+    };
+    route.internalProviderPayload = { billingId: "cus_private" };
+    route.bookingLinks[0] = {
+      ...route.bookingLinks[0]!,
+      rawProviderPayload: { token: "secret" }
+    } as typeof route.bookingLinks[number] & { rawProviderPayload: { token: string } };
+    route.stops[1] = {
+      ...route.stops[1]!,
+      privateNote: "traveler@example.com"
+    } as typeof route.stops[number] & { privateNote: string };
+
+    const shared = publishRouteForUser("demo:user", route.id);
+    const publicShare = getPublicSharedRoute(shared!.slug);
+
+    expect(publicShare).not.toBeNull();
+    expect(JSON.stringify(publicShare)).not.toContain("cus_private");
+    expect(JSON.stringify(publicShare)).not.toContain("secret");
+    expect(JSON.stringify(publicShare)).not.toContain("traveler@example.com");
+    expect(publicShare).not.toHaveProperty("userId");
+    expect(publicShare).not.toHaveProperty("generationId");
+    expect(publicShare!.route).not.toHaveProperty("bookingLinks");
   });
 
   it("does not let one demo user publish another user's private generated route", () => {

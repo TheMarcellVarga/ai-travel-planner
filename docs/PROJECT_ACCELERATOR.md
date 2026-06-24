@@ -191,6 +191,8 @@ npm run test
 ### T6: Harden Public Share Payload
 Phase: 5. Save, Share, Account, Billing
 
+Status: complete.
+
 Files:
 - `app/share/[slug]/page.tsx`
 - `lib/store/persistent-store.ts`

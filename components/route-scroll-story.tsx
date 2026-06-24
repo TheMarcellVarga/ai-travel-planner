@@ -28,8 +28,9 @@ export function RouteScrollStory({ cards }: RouteScrollStoryProps) {
     () => {
       const root = rootRef.current;
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const mobileViewport = window.matchMedia("(max-width: 720px)").matches;
 
-      if (!root || reduceMotion) {
+      if (!root || reduceMotion || mobileViewport) {
         return;
       }
 

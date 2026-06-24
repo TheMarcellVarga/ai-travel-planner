@@ -87,6 +87,7 @@ Expected fields:
 Rules:
 - Public reads by slug are allowed.
 - Public payload must not include private profile, billing, or internal provider data.
+- Server-rendered public share pages must select only the slug, public route snapshot, and published timestamp, then pass route JSON through the public-share whitelist before rendering.
 - Owner-only create/update/delete.
 
 ### `booking_handoffs`

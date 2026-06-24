@@ -2,11 +2,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   BookingHandoff,
   BookingLink,
+  PublicSharedRoute,
   RouteOption,
   SavedRoute,
   SharedRoute,
   TripGeneration
 } from "@/lib/types";
+import { createPublicSharedRoute } from "@/lib/store/public-share";
 
 type RouteGenerationRow = {
   id: string;
@@ -28,6 +30,13 @@ type SharedRouteRow = {
   id: string;
   user_id: string;
   generation_id: string;
+  slug: string;
+  route: RouteOption;
+  created_at: string;
+};
+
+type PublicSharedRouteRow = {
+  id: string;
   slug: string;
   route: RouteOption;
   created_at: string;
@@ -313,6 +322,34 @@ export async function getSharedRouteFromDatabase(slug: string) {
     .maybeSingle<SharedRouteRow>();
 
   return data ? mapSharedRoute(data) : null;
+}
+
+export async function getPublicSharedRouteFromDatabase(
+  slug: string
+): Promise<PublicSharedRoute | null> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const { data } = await supabase
+    .from("shared_routes")
+    .select("id, slug, route, created_at")
+    .eq("slug", slug)
+    .maybeSingle<PublicSharedRouteRow>();
+
+  if (!data) {
+    return null;
+  }
+
+  return createPublicSharedRoute({
+    id: data.id,
+    userId: "public-redacted",
+    generationId: "public-redacted",
+    slug: data.slug,
+    route: data.route,
+    publishedAt: data.created_at
+  });
 }
 
 export async function getSharedRoutesForUserFromDatabase(userId: string) {

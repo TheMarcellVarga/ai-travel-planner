@@ -9238,3 +9238,24 @@ body:has(.route-studio) {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 720px) {
+  .atlas-hero__image,
+  .kinetic-story__image,
+  .route-story__visual {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .journey-index {
+    background: linear-gradient(180deg, #080b09 0%, #050706 100%);
+  }
+
+  .atlas-hero__wash {
+    display: none;
+  }
+
+  .route-story__card {
+    will-change: auto;
+  }
+}

@@ -141,6 +141,32 @@ export type SharedRoute = {
   publishedAt: string;
 };
 
+export type PublicRouteSnapshot = Pick<
+  RouteOption,
+  | "id"
+  | "title"
+  | "tagline"
+  | "vibe"
+  | "promotedStopId"
+  | "score"
+  | "confidence"
+  | "estimatedCostUsd"
+  | "estimateStatus"
+  | "availabilityStatus"
+  | "dataFreshness"
+  | "disclaimer"
+  | "reasons"
+  | "wishTags"
+  | "stops"
+>;
+
+export type PublicSharedRoute = {
+  id: string;
+  slug: string;
+  route: PublicRouteSnapshot;
+  publishedAt: string;
+};
+
 export type BookingHandoff = {
   id: string;
   routeId: string;
