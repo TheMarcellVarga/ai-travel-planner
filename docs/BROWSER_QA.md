@@ -69,3 +69,50 @@ Phase 2 decision:
 - Phase 2 is complete for the current MVP app shell/design-system gate.
 - Remaining deeper QA belongs to Phase 7: accessibility pass, broader browser matrix, rate limits/observability, and formal security QA.
 
+## Phase 7 Targeted Pass
+Date: 2026-07-06
+
+Scope:
+- Golden-path browser verification through demo sign-in, planner selection, save, publish, public share, saved routes, and account states.
+- Desktop viewport: `1280x720`.
+- Mobile viewport: `390x844`.
+- Browser surface: Codex in-app browser.
+
+Automated verification:
+
+```bash
+npm run test
+npm run build
+```
+
+Result:
+- Tests passed: 9 files, 40 tests.
+- Production build passed on Next.js 15.5.15.
+
+Flow results:
+
+| Surface | Result | Notes |
+| --- | --- | --- |
+| `/` desktop | Pass | Hero, primary navigation, and route preview render without console errors. |
+| `/planner` demo | Pass after repair | Default generation is now persisted once per user and reused, so route actions resolve a durable route ID. |
+| Save and publish | Pass | Save returned `Saved to your route vault.` and publish returned a working `/share/[slug]` URL. |
+| `/share/[slug]` | Pass after repair | Disclaimer and freshness are visible; no provider booking links appear in the public snapshot; desktop and mobile have no horizontal overflow. |
+| `/saved` demo | Pass | Saved route and public share render at `390x844` without navigation/header overlap. |
+| `/account` demo | Pass | Demo limitations, inactive billing status, and managed-sign-in handoff render without overflow. |
+| `/account` signed out | Pass | Sign-in gate and planner return action render without overflow. |
+
+Issues repaired during this pass:
+- Default planner generations were rendered without persistence, causing Save and Publish to return `Route not found.` The planner now reuses the latest user generation and persists the default only when none exists.
+- Mobile saved/share headers rendered under the fixed navigation. Both shells now reserve enough top space below `720px`.
+
+Accessibility observations:
+- Planner route controls, route choices, Save, Publish, handoff, auth, and account actions use semantic links/buttons.
+- Account and auth inputs have visible labels.
+- A visible 2px focus outline was observed on planner route controls.
+- Reduced-motion safeguards exist in CSS and component logic: animation/transition durations are clamped, homepage scroll effects exit early, the route story disables motion, and the globe uses its fallback path.
+
+Remaining manual checks:
+- Run a complete keyboard-only tab-order pass in a browser that reliably advances synthetic Tab input.
+- Repeat the pass with an OS/browser profile actively advertising `prefers-reduced-motion: reduce`; the in-app browser reported the default preference and does not expose media emulation.
+- Investigate the non-blocking development warning about multiple Three.js instances.
+- Remote Unsplash image optimization intermittently timed out and returned `500` responses in the dev server; route content and actions remained usable, but launch QA needs reliable media delivery or local fallbacks.

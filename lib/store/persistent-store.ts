@@ -142,6 +142,27 @@ export async function getGenerationCountForUserFromDatabase(userId: string) {
   return count ?? 0;
 }
 
+export async function getLatestGenerationForUserFromDatabase(userId: string) {
+  if (!isPersistentUser(userId)) {
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const { data } = await supabase
+    .from("route_generations")
+    .select("id, prompt, trip_intent, routes, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<RouteGenerationRow>();
+
+  return data ? mapGeneration(data) : null;
+}
+
 export async function getGenerationFromDatabase(generationId: string) {
   const supabase = await createSupabaseServerClient();
   if (!supabase) {

@@ -64,6 +64,20 @@ export function getGeneration(generationId: string) {
   return createStore().generations.get(generationId) ?? null;
 }
 
+export function getLatestGenerationForUser(
+  userId: string | null | undefined = ANONYMOUS_GENERATION_USER_ID
+) {
+  const ownerId = userId ?? ANONYMOUS_GENERATION_USER_ID;
+  const store = createStore();
+  const generations = Array.from(store.generations.values()).reverse();
+
+  return (
+    generations.find(
+      (generation) => store.generationOwners.get(generation.id) === ownerId
+    ) ?? null
+  );
+}
+
 export function getGenerationCountForUser(
   userId: string | null | undefined = ANONYMOUS_GENERATION_USER_ID
 ) {

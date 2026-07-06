@@ -9258,4 +9258,9 @@ body:has(.route-studio) {
   .route-story__card {
     will-change: auto;
   }
+
+  .saved-vault-shell,
+  .share-route-shell {
+    padding-top: 8.5rem;
+  }
 }

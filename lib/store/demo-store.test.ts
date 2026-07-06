@@ -5,6 +5,7 @@ import { interpretTripIntent } from "@/lib/planner/intent";
 import {
   getSavedRoutesForUser,
   getGenerationCountForUser,
+  getLatestGenerationForUser,
   getRouteForUserOrPublic,
   getPublicSharedRoute,
   getSharedRoute,
@@ -99,6 +100,32 @@ describe("demo store", () => {
     expect(getGenerationCountForUser("demo:user-a")).toBe(1);
     expect(getGenerationCountForUser("demo:user-b")).toBe(1);
     expect(getGenerationCountForUser("demo:missing")).toBe(0);
+  });
+
+  it("returns the latest generation for the requested owner", () => {
+    const firstGeneration = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({ prompt: "First route from Singapore." })
+      ),
+      "demo:user-a"
+    );
+    const otherGeneration = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({ prompt: "Other user route from Lisbon." })
+      ),
+      "demo:user-b"
+    );
+    const latestGeneration = saveGeneration(
+      createTripGeneration(
+        interpretTripIntent({ prompt: "Latest route from Singapore." })
+      ),
+      "demo:user-a"
+    );
+
+    expect(getLatestGenerationForUser("demo:user-a")?.id).toBe(latestGeneration.id);
+    expect(getLatestGenerationForUser("demo:user-b")?.id).toBe(otherGeneration.id);
+    expect(getLatestGenerationForUser("demo:missing")).toBeNull();
+    expect(getLatestGenerationForUser("demo:user-a")?.id).not.toBe(firstGeneration.id);
   });
 
   it("publishes a stable shared snapshot for a route", () => {

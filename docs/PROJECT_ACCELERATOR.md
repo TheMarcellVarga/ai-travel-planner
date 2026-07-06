@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-06-24.
+Last checked: 2026-07-06.
 
 ```bash
 npm run test
@@ -14,7 +14,7 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 8 test files, 36 tests.
+- `npm run test`: passed, 9 test files, 40 tests.
 - `npm run build`: passed with Next.js 15.5.15.
 
 Build routes currently include:
@@ -39,6 +39,7 @@ Build routes currently include:
 - Health route tests cover boolean service status and secret redaction.
 - Account profile, export, and deletion routes exist.
 - Public share, save, and booking handoff APIs exist.
+- The planner persists or reuses its initial generation so the default demo route can be saved and published.
 - Current visual direction is already specific: Wild Route, jungle/adventure, route globe, editorial travel cards.
 
 ## What Is Still Fallback-Backed Or Thin
@@ -49,11 +50,12 @@ Build routes currently include:
 - Stripe checkout and portal flows still need live Stripe test-mode verification.
 - Entitlement generation limits are enforced at the planning endpoint for anonymous, demo, and Supabase users.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
+- Remote Unsplash media can time out during local image optimization; launch QA still needs reliable media delivery or local fallbacks.
 - There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
-- Broader browser/accessibility QA remains for Phase 7.
+- Full keyboard-order, active reduced-motion, and broader browser/accessibility QA remain for Phase 7.
 
 ## Current Phase Status
-Last audited: 2026-06-24.
+Last audited: 2026-07-06.
 
 | Phase | Status | Reason |
 | --- | --- | --- |
@@ -64,7 +66,7 @@ Last audited: 2026-06-24.
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, and deterministic billing/webhook tests exist; live Stripe checkout/portal verification remains. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
-| 7. Security, Observability, QA | Not started | No threat model, rate limits, analytics/log scrubbing implementation, browser QA, accessibility pass, or observability setup. |
+| 7. Security, Observability, QA | In progress | Targeted desktop/mobile browser QA and focus/reduced-motion source review are recorded; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
 
 ## Active Development Lane
@@ -237,6 +239,8 @@ npm run build
 
 ### T8: Expand Browser QA And Accessibility Pass
 Phase: 7. Security, Observability, QA
+
+Status: in progress. Golden-path desktop/mobile QA is recorded; full synthetic Tab order and active reduced-motion emulation remain manual.
 
 Files:
 - `docs/BROWSER_QA.md`
