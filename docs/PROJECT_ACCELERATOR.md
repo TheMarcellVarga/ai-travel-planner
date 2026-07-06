@@ -14,7 +14,7 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 7 test files, 29 tests.
+- `npm run test`: passed, 8 test files, 36 tests.
 - `npm run build`: passed with Next.js 15.5.15.
 
 Build routes currently include:
@@ -34,6 +34,7 @@ Build routes currently include:
 - Supabase-backed persistent store exists for signed-in users when configured.
 - Supabase auth helper exists.
 - Stripe checkout, portal, and webhook routes exist.
+- Billing route tests cover authentication, missing-service behavior, server-owned pricing, customer persistence, and portal session creation.
 - Stripe webhook tests cover unconfigured service failure, invalid signature rejection, and checkout entitlement sync.
 - Health route tests cover boolean service status and secret redaction.
 - Account profile, export, and deletion routes exist.
@@ -61,7 +62,7 @@ Last audited: 2026-06-24.
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
-| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, and Stripe webhook tests exist; live Stripe checkout/portal verification remains. |
+| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, and deterministic billing/webhook tests exist; live Stripe checkout/portal verification remains. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
 | 7. Security, Observability, QA | Not started | No threat model, rate limits, analytics/log scrubbing implementation, browser QA, accessibility pass, or observability setup. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
