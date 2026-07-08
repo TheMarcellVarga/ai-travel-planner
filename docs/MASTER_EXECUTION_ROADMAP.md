@@ -43,7 +43,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
 
 ## Current Completion Audit
-Last audited: 2026-07-06.
+Last audited: 2026-07-08.
 
 Verification:
 
@@ -63,7 +63,7 @@ Current result:
 | 2. App Shell And Design System | Public/app routes build: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`. Header/footer/global styles and distinctive planner UI exist. `RouteMapFallback` is wired into `RouteGlobe`. Browser QA covers homepage, planner, saved, auth, account, planner interaction, and mobile planner viewport. | Broader accessibility and multi-browser QA remain in Phase 7. | Complete |
 | 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. `npm run verify:migrations` validates migration order, required tables, RLS enablement, owner policies, and public share policy. Generation/save/publish/handoff APIs disclose database vs memory persistence. Health tests verify boolean service status without secret exposure. | Live Supabase application remains environment-dependent. | Complete |
 | 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, planning-estimate metadata, external-search disclaimers, unsupported safety/visa/guarantee caveats, unit tests, and trip API tests exist. | Live provider adapters and provider-confirmed freshness remain Phase 6 hardening work. | Complete |
-| 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, and deterministic checkout, portal, and webhook tests exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
+| 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, deterministic checkout, portal, and webhook tests, and a Stripe test-mode QA checklist exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
 | 6. Real Data And AI Hardening | None beyond deterministic route generation and external booking search links. | No provider adapter boundary, live travel data, freshness metadata, optional AI path, AI schema/evals, or usage/cost tracking. | Not started |
 | 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only clients, webhook signature verification, targeted desktop/mobile browser QA, and focus/reduced-motion source review exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, observability setup, complete keyboard-order pass, or active reduced-motion emulation. | Partial |
 | 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |

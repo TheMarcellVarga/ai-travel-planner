@@ -31,6 +31,7 @@ Future implementation should start from the repo process docs:
 - [docs/SECURITY_PRIVACY_AND_COMPLIANCE.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/SECURITY_PRIVACY_AND_COMPLIANCE.md): auth, privacy, billing, and travel-safety checklist
 - [docs/TESTING_STRATEGY.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/TESTING_STRATEGY.md): unit, API, database, AI/provider, and frontend QA expectations
 - [docs/ENVIRONMENT.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/ENVIRONMENT.md): local setup and environment variables
+- [docs/STRIPE_TEST_MODE_QA.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/STRIPE_TEST_MODE_QA.md): live test-mode checkout, webhook, and billing portal verification gate
 - [docs/IMPLEMENTATION_PROCESS.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/IMPLEMENTATION_PROCESS.md): coding workflow, verification, and definition of done
 - [ai-dev/README.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/ai-dev/README.md): repo-local AI task skills and usage
 

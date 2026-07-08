@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-07-06.
+Last checked: 2026-07-08.
 
 ```bash
 npm run test
@@ -34,8 +34,9 @@ Build routes currently include:
 - Supabase-backed persistent store exists for signed-in users when configured.
 - Supabase auth helper exists.
 - Stripe checkout, portal, and webhook routes exist.
-- Billing route tests cover authentication, missing-service behavior, server-owned pricing, customer persistence, and portal session creation.
+- Billing route tests cover authentication, missing-service behavior, server-owned pricing, subscription metadata, customer persistence, and portal session creation.
 - Stripe webhook tests cover unconfigured service failure, invalid signature rejection, and checkout entitlement sync.
+- Stripe test-mode checkout and portal QA now has a repeatable checklist in `docs/STRIPE_TEST_MODE_QA.md`.
 - Health route tests cover boolean service status and secret redaction.
 - Account profile, export, and deletion routes exist.
 - Public share, save, and booking handoff APIs exist.
@@ -47,7 +48,7 @@ Build routes currently include:
 - `POST /api/trips/plan` falls back to the in-memory demo store if Supabase persistence is unavailable.
 - Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
 - Supabase RLS behavior is documented but not automatically verified.
-- Stripe checkout and portal flows still need live Stripe test-mode verification.
+- Stripe checkout and portal flows still need live Stripe test-mode verification using `docs/STRIPE_TEST_MODE_QA.md`.
 - Entitlement generation limits are enforced at the planning endpoint for anonymous, demo, and Supabase users.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - Remote Unsplash media can time out during local image optimization; launch QA still needs reliable media delivery or local fallbacks.
@@ -55,7 +56,7 @@ Build routes currently include:
 - Full keyboard-order, active reduced-motion, and broader browser/accessibility QA remain for Phase 7.
 
 ## Current Phase Status
-Last audited: 2026-07-06.
+Last audited: 2026-07-08.
 
 | Phase | Status | Reason |
 | --- | --- | --- |
@@ -64,7 +65,7 @@ Last audited: 2026-07-06.
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
-| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, and deterministic billing/webhook tests exist; live Stripe checkout/portal verification remains. |
+| 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
 | 7. Security, Observability, QA | In progress | Targeted desktop/mobile browser QA and focus/reduced-motion source review are recorded; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |

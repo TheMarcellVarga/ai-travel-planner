@@ -131,6 +131,11 @@ describe("billing API routes", () => {
         cancel_url: "https://wildroute.test/account?billing=cancelled",
         metadata: {
           app_user_id: "user_123"
+        },
+        subscription_data: {
+          metadata: {
+            app_user_id: "user_123"
+          }
         }
       });
     });

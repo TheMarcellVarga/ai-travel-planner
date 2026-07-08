@@ -44,6 +44,7 @@ Default:
 Rules:
 - Billing surfaces should degrade clearly if missing.
 - Webhook verification requires `STRIPE_WEBHOOK_SECRET`.
+- Live checkout and portal verification should follow `docs/STRIPE_TEST_MODE_QA.md`.
 
 ## Email
 - `RESEND_API_KEY`

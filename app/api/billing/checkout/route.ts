@@ -74,6 +74,11 @@ export async function POST() {
     cancel_url: `${env.appUrl}/account?billing=cancelled`,
     metadata: {
       app_user_id: user.id
+    },
+    subscription_data: {
+      metadata: {
+        app_user_id: user.id
+      }
     }
   });
 
