@@ -25,10 +25,12 @@ type PlannerApiResponse = {
 export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [isPending, startTransition] = useTransition();
   const [generation, setGeneration] = useState(initialGeneration);
-  const [activeRouteId, setActiveRouteId] = useState<string | null>(null);
+  const [activeRouteId, setActiveRouteId] = useState<string | null>(
+    initialGeneration.routes[0]?.id ?? null,
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
-  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
+  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(true);
 
   const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
   const [secondaryValues, setSecondaryValues] = useState({
@@ -87,7 +89,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         routes: payload.routes,
       });
       setPersistenceStatus(payload.persistence ?? null);
-      setActiveRouteId(null);
+      setActiveRouteId(payload.routes[0]?.id ?? null);
       setIsMissionPanelOpen(false);
     });
   }
@@ -142,6 +144,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 setActiveRouteId(route.id);
                 setIsMissionPanelOpen(false);
               }}
+              aria-pressed={route.id === activeRoute?.id}
             >
               <span className="route-studio__route-index">0{index + 1}</span>
               <strong>{route.title}</strong>
@@ -218,6 +221,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   className="route-studio__inspector-image"
                   src={promotedMedia.src}
                   fill
+                  priority
                   sizes="(max-width: 768px) 100vw, 400px"
                 />
                 <div className="route-studio__inspector-overlay" />
@@ -244,6 +248,15 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               </section>
 
               <section className="route-studio__inspector-section">
+                <p className="route-studio__kicker">Why this ranks</p>
+                <div className="route-studio__reasons">
+                  {activeRoute.reasons.slice(0, 3).map((reason) => (
+                    <p key={reason}>{reason}</p>
+                  ))}
+                </div>
+              </section>
+
+              <section className="route-studio__inspector-section">
                 <p className="route-studio__kicker">Leg order</p>
                 <div className="route-studio__stops">
                   {destinationStops.map((stop) => (
@@ -255,6 +268,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                     </article>
                   ))}
                 </div>
+              </section>
+
+              <section className="route-studio__inspector-section route-studio__estimate-note">
+                <p className="route-studio__kicker">Estimate boundary</p>
+                <p>
+                  Wild Route shows planning estimates and app-side route confidence. External
+                  providers own final price and availability.
+                </p>
               </section>
 
               <RouteActions routeId={activeRoute.id} />
