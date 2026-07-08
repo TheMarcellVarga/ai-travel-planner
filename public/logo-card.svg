@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0B100D"/>
+  <path d="M0 0H1200V630H0V0Z" fill="url(#wash)"/>
+  <g opacity="0.16">
+    <path d="M86 538C255 434 363 503 514 381C651 271 823 289 1096 102" stroke="#F5F3EA" stroke-width="2"/>
+    <path d="M103 579C288 453 393 555 553 412C691 289 846 326 1138 130" stroke="#F5F3EA" stroke-width="2"/>
+  </g>
+  <g transform="translate(126 166)">
+    <rect width="164" height="164" rx="38" fill="#111811"/>
+    <rect x="1.5" y="1.5" width="161" height="161" rx="36.5" stroke="#F5F3EA" stroke-opacity="0.12" stroke-width="3"/>
+    <circle cx="82" cy="82" r="53" stroke="#F5F3EA" stroke-opacity="0.16" stroke-width="4"/>
+    <path d="M40 105C55 72 71 74 83 87C96 104 112 94 125 60" stroke="#D5F45F" stroke-width="8" stroke-linecap="round"/>
+    <path d="M125 60L117 80L106 65Z" fill="#D5F45F"/>
+    <circle cx="40" cy="105" r="5.5" fill="#F0B85A"/>
+    <circle cx="83" cy="87" r="4.5" fill="#F5F3EA"/>
+  </g>
+  <g transform="translate(340 178)">
+    <text x="0" y="74" fill="#F5F3EA" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="700" letter-spacing="8">WILD ROUTE</text>
+    <text x="4" y="132" fill="#BAB7A9" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="500">Prompt-first adventure route planning</text>
+    <text x="4" y="190" fill="#F0B85A" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">plan / score / hand off</text>
+  </g>
+  <defs>
+    <radialGradient id="wash" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(883 86) rotate(135) scale(760 486)">
+      <stop stop-color="#D5F45F" stop-opacity="0.16"/>
+      <stop offset="0.48" stop-color="#20311F" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#050706" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
