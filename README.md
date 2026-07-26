@@ -1,78 +1,181 @@
 # Wild Route
 
-Wild Route is a Next.js travel planner with a production-style backend built on managed services instead of a custom auth or billing stack.
+Wild Route turns a rough adventure idea into ranked, shareable multi-stop
+routes with visible reasoning, planning estimates, and external booking
+handoffs.
+
+It is a responsive product-engineering project built with Next.js, TypeScript,
+Supabase, and Stripe. The core route engine is deterministic today: the
+interface uses AI-assisted product patterns, but it does not pretend that local
+scoring is live model or provider intelligence.
+
+## The Product Problem
+
+Independent travelers often assemble one route across maps, destination lists,
+flight searches, notes, and group chats. Wild Route combines the early
+decision-making loop:
+
+1. Describe the trip and practical constraints.
+2. Compare ranked route options and their trade-offs.
+3. Inspect the itinerary with a globe or accessible map/list fallback.
+4. Save a route, publish a stable public snapshot, and share it.
+5. Continue to external providers for final price and availability.
+
+Wild Route is planning support, not a travel agency or booking engine. It does
+not guarantee price, availability, safety, weather, visa eligibility, or route
+feasibility.
+
+## What The Repository Proves
+
+- A prompt-first planner with structured intent parsing and deterministic route ranking
+- A distinctive responsive interface with loading, error, empty, reduced-motion, and map fallback behavior
+- Same-origin App Router APIs with Zod request validation
+- Server-enforced generation, saved-route, and promoted-stop entitlements
+- Supabase Auth, Postgres migrations, and owner-scoped RLS policies
+- Durable generation, save, publish, public share, handoff, profile, export, and deletion paths when Supabase is configured
+- Stripe checkout, billing portal, signature-verified webhook handling, and entitlement synchronization
+- Safe public route snapshots that omit owner, generation, booking-link, and provider-internal fields
+- Deterministic fallback mode for local product exploration without paid or hosted services
+- Automated coverage for route generation, API validation, ownership, public-share hardening, billing, webhooks, health checks, profiles, and planner persistence
+
+## Real, Fallback, And Unverified Behavior
+
+| Surface | Current state |
+| --- | --- |
+| Route interpretation and ranking | Real deterministic TypeScript logic using local destination fixtures |
+| Price and confidence | Wild Route planning estimates, not provider-confirmed inventory |
+| Booking links | Real external searches; the provider owns final price and availability |
+| Supabase auth and persistence | Implemented and environment-gated; local demo mode uses process memory |
+| Public shares | Durable with Supabase; session-local in demo mode |
+| Stripe billing | Implemented with automated route/webhook tests; live test-mode execution is not yet recorded in this repository |
+| Email | Optional Resend-compatible delivery with graceful fallback |
+| Live travel providers | Not implemented; adapter and freshness hardening are planned |
+| Live AI model | Not implemented; deterministic behavior remains the tested default |
+| Deployment | No verified public deployment is documented yet |
+
+This distinction is intentional. Missing services degrade to explicit fixture
+or memory behavior instead of being presented as production persistence.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Browser["Responsive browser UI"] --> Next["Next.js App Router"]
+  Next --> Planner["Intent and route pipeline"]
+  Next --> Supabase["Supabase Auth and Postgres"]
+  Next --> Stripe["Stripe Billing"]
+  Next --> Email["Email delivery"]
+  Planner --> LocalData["Local destination metadata"]
+  Planner --> Handoff["External provider searches"]
+  Supabase --> RLS["Row Level Security"]
+```
+
+Key boundaries:
+
+- React components own rendering and interaction; domain decisions live in `lib`.
+- Browser clients call same-origin route handlers and never receive service-role,
+  Stripe, webhook, email, or provider secrets.
+- User-owned database rows remain behind RLS and server-side ownership checks.
+- Public shares are read server-side and passed through an explicit whitelist
+  before rendering.
+- Provider-specific data belongs behind adapters rather than UI components.
+- Generated routes expose assumptions, confidence, freshness status, and
+  external-handoff disclaimers.
+
+See [Architecture](docs/ARCHITECTURE.md),
+[API contracts](docs/API_SPEC.md), and
+[Database schema](docs/DATABASE_SCHEMA.md) for the detailed design.
 
 ## Stack
 
-- Next.js App Router for the product UI and server routes
-- Supabase Auth + Postgres + Row Level Security for identity and user data
-- Stripe Billing for subscription checkout, portal access, and webhook-based entitlement sync
-- Resend-compatible email delivery for confirmations and route notifications
+- Next.js 15 App Router, React 19, and TypeScript
+- Supabase Auth, Postgres, and Row Level Security
+- Stripe Checkout, Billing Portal, and webhooks
+- Zod validation
+- Vitest and Testing Library
+- GSAP, Three.js, and `react-globe.gl`
+- Resend-compatible transactional email
 
-## What Is Included
+## Run Locally
 
-- Multi-auth through Supabase: magic link email plus OAuth providers such as Google and GitHub
-- Account management: durable user profile, notification preferences, billing portal, export, and deletion flow
-- User data storage: route generations, saved routes, public shares, booking handoffs, entitlements, and profiles
-- Payment: Stripe checkout, Stripe billing portal, and subscription-to-entitlement syncing
+Requirements:
 
-## Project Process And Guidelines
+- Node.js 20 or newer
+- npm
 
-Future implementation should start from the repo process docs:
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
 
-- [AGENTS.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/AGENTS.md): top-level rules for AI agents and contributors
-- [docs/MASTER_EXECUTION_ROADMAP.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/MASTER_EXECUTION_ROADMAP.md): phase order, gates, skills, and task template
-- [docs/PROJECT_ACCELERATOR.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/PROJECT_ACCELERATOR.md): current build status, real-vs-fallback audit, and next implementation tasks
-- [docs/PRODUCT_SPEC.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/PRODUCT_SPEC.md): product scope, target user, golden path, and non-goals
-- [docs/ARCHITECTURE.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/ARCHITECTURE.md): system components and runtime boundaries
-- [docs/API_SPEC.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/API_SPEC.md): route handler contracts and API rules
-- [docs/DATABASE_SCHEMA.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/DATABASE_SCHEMA.md): Supabase table responsibilities and RLS expectations
-- [docs/AI_AND_ROUTE_GENERATION.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/AI_AND_ROUTE_GENERATION.md): route-generation pipeline, AI rules, provider-data rules, and eval expectations
-- [docs/SECURITY_PRIVACY_AND_COMPLIANCE.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/SECURITY_PRIVACY_AND_COMPLIANCE.md): auth, privacy, billing, and travel-safety checklist
-- [docs/TESTING_STRATEGY.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/TESTING_STRATEGY.md): unit, API, database, AI/provider, and frontend QA expectations
-- [docs/ENVIRONMENT.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/ENVIRONMENT.md): local setup and environment variables
-- [docs/STRIPE_TEST_MODE_QA.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/STRIPE_TEST_MODE_QA.md): live test-mode checkout, webhook, and billing portal verification gate
-- [docs/IMPLEMENTATION_PROCESS.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/docs/IMPLEMENTATION_PROCESS.md): coding workflow, verification, and definition of done
-- [ai-dev/README.md](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/ai-dev/README.md): repo-local AI task skills and usage
+Open `http://localhost:3000`. The product remains explorable without hosted
+services; use demo mode for session-local save and share behavior.
 
-## Data Model
+To exercise managed persistence and billing, configure the relevant values in
+`.env.local`:
 
-Supabase migrations live in [supabase/migrations](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/supabase/migrations).
+```dotenv
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-- `entitlements`: free/pro limits and Stripe identifiers
-- `profiles`: account identity, travel defaults, and notification preferences
-- `route_generations`: generated trip payloads
-- `saved_routes`: private route vault
-- `shared_routes`: public share pages
-- `booking_handoffs`: outbound booking handoff history
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-All user-owned tables use RLS policies keyed on `auth.uid()`.
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
 
-## Local Setup
+RESEND_API_KEY=
+EMAIL_FROM=
+```
 
-1. Copy [.env.example](/Users/marcellvarga/Github%20-%20Personal%20Projects/ai-travel-planner/.env.example) to `.env.local`.
-2. Add Supabase project values and run the SQL migrations in order.
-3. Configure Supabase Auth providers you want enabled, such as Google and GitHub.
-4. Add the Stripe product price ID and point your Stripe webhook to `/api/stripe/webhook`.
-5. Run `npm install` and `npm run dev`.
+Apply the SQL files in [supabase/migrations](supabase/migrations) in
+chronological order. Supabase OAuth providers and Stripe webhook delivery also
+require configuration in their respective dashboards.
 
-## Operational Endpoints
+## Quality Checks
 
-- `/api/health`: config-aware health status for auth/database/billing/email wiring
-- `/api/account/export`: JSON export of account-owned data
-- `/api/account/delete`: permanent account deletion, blocked while an active Stripe subscription exists
-- `/api/stripe/webhook`: Stripe subscription sync
+```bash
+npm run verify:migrations
+npm run lint
+npm run test
+npm run build
+```
 
-## Why Supabase Instead Of Replacing It
+Baseline verified on 2026-07-27:
 
-This repo already used Supabase session cookies, Postgres tables, and RLS policies. Replacing that with Clerk or Better Auth would mean rewriting identity, session handling, and the user-to-data permission model. Keeping Supabase as the auth and data control plane is the lower-risk move here, while still using Stripe as a managed billing system.
+- 9 test files
+- 40 passing tests
+- successful Next.js 15.5.15 production build
 
-## Supabase Env Names
+Live Stripe checkout and portal verification follows the
+[Stripe test-mode QA checklist](docs/STRIPE_TEST_MODE_QA.md).
 
-The app supports Supabase's current publishable-key naming:
+## Repository Guide
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- [Product specification](docs/PRODUCT_SPEC.md)
+- [Master execution roadmap](docs/MASTER_EXECUTION_ROADMAP.md)
+- [Project accelerator](docs/PROJECT_ACCELERATOR.md)
+- [Portfolio upgrade roadmap](docs/PORTFOLIO_UPGRADE_ROADMAP.md)
+- [Design system](docs/DESIGN_SYSTEM.md)
+- [AI and route-generation rules](docs/AI_AND_ROUTE_GENERATION.md)
+- [Security, privacy, and compliance](docs/SECURITY_PRIVACY_AND_COMPLIANCE.md)
+- [Testing strategy](docs/TESTING_STRATEGY.md)
+- [Environment setup](docs/ENVIRONMENT.md)
+- [Implementation process](docs/IMPLEMENTATION_PROCESS.md)
 
-For older projects, `NEXT_PUBLIC_SUPABASE_ANON_KEY` is still accepted as a fallback.
+## Known Limitations
+
+- Destination metadata and route scoring are fixture-backed.
+- There is no provider-confirmed flight, stay, weather, map, or advisory data.
+- Demo accounts and their routes are not durable across server restarts.
+- Stripe test-mode checkout and portal still need recorded live verification.
+- Browser QA is targeted rather than a full automated end-to-end suite.
+- Rate limiting, observability, webhook idempotency, and full accessibility
+  evidence remain roadmap work.
+- Remote editorial media needs a launch-ready reliability pass.
+
+The next work is tracked in the
+[portfolio upgrade roadmap](docs/PORTFOLIO_UPGRADE_ROADMAP.md) and the
+[product roadmap](docs/MASTER_EXECUTION_ROADMAP.md).
