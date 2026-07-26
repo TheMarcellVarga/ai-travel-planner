@@ -64,7 +64,7 @@ execution.
 
 ## Upgrade Phase 1 — Immediate Credibility And Security Fixes
 
-Status: in progress.
+Status: complete.
 
 Primary skill: `travel-product-guardrails`.
 
@@ -96,6 +96,38 @@ already-complete Product And Brand Lock phase in the product roadmap.
   `npm run build` pass.
 - Each deliverable is committed independently, followed by a phase-completion
   documentation commit.
+
+### Completion evidence
+
+Completed: 2026-07-27.
+
+Feature commits:
+
+- `b5585d6` — portfolio upgrade roadmap and evidence-based phase scope
+- `3c4f08c` — sanitized server-only public-share reads and policy revocation
+- `c5d12f3` — recruiter-facing README with honest implementation status
+- `a5f0123` — ESLint CLI migration and generated build-state cleanup
+
+Verification:
+
+```bash
+npm run verify:migrations
+npm run lint
+npm run test
+npm run build
+```
+
+Result:
+
+- 4 ordered Supabase migrations verified
+- direct full-row public reads of `shared_routes` are revoked
+- ESLint passes
+- 9 test files and 40 tests pass
+- Next.js 15.5.15 production build passes
+
+Live managed-service behavior was not claimed or marked verified during this
+phase. Supabase and Stripe environment execution remains part of Upgrade Phase
+2.
 
 ## Upgrade Phase 2 — Flagship Product Proof
 
@@ -155,4 +187,3 @@ For this upgrade:
 - tests and docs that define a change ship in the same commit as that change
 - phase status and verification evidence use a final phase-completion commit
 - no phase is marked complete when a required live-service check could not be performed
-

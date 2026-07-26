@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-07-08.
+Last checked: 2026-07-27.
 
 ```bash
 npm run test
@@ -40,6 +40,7 @@ Build routes currently include:
 - Health route tests cover boolean service status and secret redaction.
 - Account profile, export, and deletion routes exist.
 - Public share, save, and booking handoff APIs exist.
+- Public database clients cannot select full `shared_routes` rows; server-rendered shares use an admin lookup and explicit safe-snapshot mapper.
 - The planner persists or reuses its initial generation so the default demo route can be saved and published.
 - Current visual direction is already specific: Wild Route, jungle/adventure, route globe, editorial travel cards.
 
@@ -63,11 +64,11 @@ Last audited: 2026-07-08.
 | 0. Control Plane | Complete | Roadmap, accelerator, agent rules, docs, and local skills exist. |
 | 1. Product And Brand Lock | Complete | Product spec, target and non-target users, exact demo flow, non-goals, concrete entitlements, copy guardrails, and Wild Route visual direction are defined. |
 | 2. App Shell And Design System | Complete | Routes and UI shell exist, the 2D map fallback is wired, browser QA is recorded, and the mobile planner breakpoint was checked. |
-| 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, and explicit database-vs-memory persistence metadata exist. |
+| 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, explicit database-vs-memory persistence metadata, and the server-only sanitized public-share boundary exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
 | 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
-| 7. Security, Observability, QA | In progress | Targeted desktop/mobile browser QA and focus/reduced-motion source review are recorded; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
+| 7. Security, Observability, QA | In progress | Direct public `shared_routes` table reads are revoked, and targeted desktop/mobile browser QA plus focus/reduced-motion source review are recorded; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
 
 ## Active Development Lane

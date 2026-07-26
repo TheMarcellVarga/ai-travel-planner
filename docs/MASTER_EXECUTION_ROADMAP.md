@@ -43,7 +43,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
 
 ## Current Completion Audit
-Last audited: 2026-07-08.
+Last audited: 2026-07-27.
 
 Verification:
 
@@ -61,11 +61,11 @@ Current result:
 | 0. Control Plane | `AGENTS.md`, `app/AGENTS.md`, `docs/*`, `ai-dev/*`, README map, and `docs/PROJECT_ACCELERATOR.md` exist. | Nothing blocking. | Complete |
 | 1. Product And Brand Lock | Product spec, guardrails, target users, non-target users, exact demo script, MVP golden path, concrete Free/Pro limits, non-goals, copy boundaries, and visual direction are documented. Existing UI reflects the Wild Route brand. | Nothing blocking Phase 2 implementation. Future pricing/product changes should be explicit roadmap changes. | Complete |
 | 2. App Shell And Design System | Public/app routes build: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`. Header/footer/global styles and distinctive planner UI exist. `RouteMapFallback` is wired into `RouteGlobe`. Browser QA covers homepage, planner, saved, auth, account, planner interaction, and mobile planner viewport. | Broader accessibility and multi-browser QA remain in Phase 7. | Complete |
-| 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. `npm run verify:migrations` validates migration order, required tables, RLS enablement, owner policies, and public share policy. Generation/save/publish/handoff APIs disclose database vs memory persistence. Health tests verify boolean service status without secret exposure. | Live Supabase application remains environment-dependent. | Complete |
+| 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. `npm run verify:migrations` validates migration order, required tables, RLS enablement, owner policies, and revocation of direct public `shared_routes` table reads. Public shares use a server-only lookup and safe snapshot mapper. Generation/save/publish/handoff APIs disclose database vs memory persistence. Health tests verify boolean service status without secret exposure. | Live Supabase application remains environment-dependent. | Complete |
 | 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, planning-estimate metadata, external-search disclaimers, unsupported safety/visa/guarantee caveats, unit tests, and trip API tests exist. | Live provider adapters and provider-confirmed freshness remain Phase 6 hardening work. | Complete |
 | 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, deterministic checkout, portal, and webhook tests, and a Stripe test-mode QA checklist exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
 | 6. Real Data And AI Hardening | None beyond deterministic route generation and external booking search links. | No provider adapter boundary, live travel data, freshness metadata, optional AI path, AI schema/evals, or usage/cost tracking. | Not started |
-| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only clients, webhook signature verification, targeted desktop/mobile browser QA, and focus/reduced-motion source review exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, observability setup, complete keyboard-order pass, or active reduced-motion emulation. | Partial |
+| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification, targeted desktop/mobile browser QA, and focus/reduced-motion source review exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, observability setup, complete keyboard-order pass, or active reduced-motion emulation. | Partial |
 | 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |
 
 ## Phase 0: Control Plane
@@ -292,5 +292,18 @@ npm run build
 ```
 
 Notes:
-- `npm run lint` currently maps to `next lint`; verify the installed Next.js version still supports that command before treating it as required.
+- `npm run lint` uses the ESLint CLI and is part of the verified quality gate.
 - Add dedicated migration, API contract, browser, and AI eval scripts as those surfaces mature.
+
+## Portfolio Upgrade Overlay
+
+The product phases above remain the implementation authority. Career-positioning
+and case-study work is sequenced separately in
+`docs/PORTFOLIO_UPGRADE_ROADMAP.md`.
+
+Portfolio Upgrade Phase 1 completed on 2026-07-27 with:
+
+- a recruiter-facing and portable README
+- honest real-versus-fallback implementation claims
+- server-only sanitized public-share reads
+- modern lint tooling and removal of tracked generated build state
