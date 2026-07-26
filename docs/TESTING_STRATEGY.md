@@ -101,8 +101,8 @@ Check:
 
 The automated demo-mode path in `e2e/golden-path.spec.ts` covers sign-in,
 planning, save, publish, public share rendering, external handoff initiation,
-and the saved/shared vault. The external provider page is stubbed; Wild Route's
-handoff API and browser behavior remain real.
+and the saved/shared vault. The outbound window URL is captured instead of
+navigated; Wild Route's handoff API and browser behavior remain real.
 
 ## Acceptance Rule
 No high-risk feature is complete until it has either automated tests or a documented manual verification checklist with exact steps.

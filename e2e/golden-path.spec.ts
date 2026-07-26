@@ -1,15 +1,20 @@
 import { expect, test } from "@playwright/test";
 
 test("demo user can plan, save, publish, share, and hand off a route", async ({
-  context,
   page
 }) => {
-  await context.route("https://www.google.com/travel/flights**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "text/plain",
-      body: "External provider stub for deterministic browser QA."
+  test.setTimeout(60_000);
+
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "__wildRouteOpenedUrls", {
+      configurable: false,
+      value: [] as string[]
     });
+    window.open = ((url?: string | URL) => {
+      (window as typeof window & { __wildRouteOpenedUrls: string[] })
+        .__wildRouteOpenedUrls.push(String(url));
+      return null;
+    }) as typeof window.open;
   });
 
   await page.goto("/auth");
@@ -18,6 +23,11 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
 
   await page.goto("/planner");
   await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
+  const routeControls = page.getByRole("button", { name: "Route controls" });
+  await routeControls.click();
+  await expect(routeControls).toHaveAttribute("aria-expanded", "false");
+  await routeControls.click();
+  await expect(routeControls).toHaveAttribute("aria-expanded", "true");
 
   await page
     .getByPlaceholder(
@@ -31,7 +41,7 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   await page.getByRole("button", { name: "Compose new routes" }).click();
 
   await expect(page.locator("main h1")).toContainText("Breakline");
-  await page.getByRole("button", { name: "Route controls" }).click();
+  await routeControls.click();
   await expect(
     page.getByText(
       "Demo persistence: this route set is kept only for the current local app session."
@@ -60,11 +70,25 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
     })
   ).toBeVisible();
 
-  const popupPromise = page.waitForEvent("popup");
+  const handoffResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/routes/") &&
+      response.url().endsWith("/handoff") &&
+      response.request().method() === "POST"
+  );
   await page.getByRole("button", { name: "Open booking handoff" }).click();
-  const providerPage = await popupPromise;
-  await expect(providerPage).toHaveURL(/google\.com\/travel\/flights/);
-  await providerPage.close();
+  const handoffResponse = await handoffResponsePromise;
+  expect(handoffResponse.ok()).toBe(true);
+  const handoffPayload = (await handoffResponse.json()) as {
+    links: Array<{ url: string }>;
+  };
+  expect(handoffPayload.links[0]?.url).toMatch(/google\.com\/travel\/flights/);
+  const openedUrls = await page.evaluate(
+    () =>
+      (window as typeof window & { __wildRouteOpenedUrls: string[] })
+        .__wildRouteOpenedUrls
+  );
+  expect(openedUrls[0]).toBe(handoffPayload.links[0]?.url);
   await expect(page.getByText("Opened booking handoff.")).toBeVisible();
 
   await page.goto("/saved");

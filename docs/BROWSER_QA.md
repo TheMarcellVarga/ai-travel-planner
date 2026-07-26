@@ -137,5 +137,5 @@ npm run test:e2e
 ```
 
 `e2e/golden-path.spec.ts` runs the same demo-mode product path in Chromium. It
-stubs the outbound Google Flights page only, avoiding external navigation while
-still exercising Wild Route's handoff request and `window.open` behavior.
+captures the outbound `window.open` URL, avoiding external navigation while
+still asserting the real handoff response, provider URL, and browser behavior.
