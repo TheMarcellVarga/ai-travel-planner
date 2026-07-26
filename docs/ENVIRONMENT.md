@@ -13,6 +13,7 @@
 ```bash
 npm install
 npm run verify:migrations
+npm run verify:services
 npm run dev
 ```
 
@@ -64,6 +65,14 @@ Add provider variables only through documented adapter work. Each provider needs
 
 ## Health Checks
 Use `/api/health` to inspect whether auth/database/billing/email wiring is present without exposing secret values.
+
+Use `npm run verify:services` for read-only reachability and mode checks. The
+report exposes booleans and status labels only; it does not print URLs, keys,
+account IDs, or provider error payloads.
+
+Use `npm run verify:services:strict` only when CI or a release environment is
+expected to provide reachable Supabase admin access, a verified public-share
+read boundary, and reachable Stripe test-mode configuration.
 
 ## CI Defaults
 - External paid calls disabled.

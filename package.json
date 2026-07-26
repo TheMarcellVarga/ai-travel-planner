@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:evals": "vitest run lib/planner/evals",
-    "verify:migrations": "node scripts/verify-supabase-migrations.mjs"
+    "verify:migrations": "node scripts/verify-supabase-migrations.mjs",
+    "verify:services": "node scripts/verify-managed-services.mjs",
+    "verify:services:strict": "node scripts/verify-managed-services.mjs --strict"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
