@@ -5,6 +5,7 @@ node_modules
 coverage
 dist
 *.log
+*.tsbuildinfo
 
 *.md
 !README.md
