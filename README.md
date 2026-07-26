@@ -138,16 +138,18 @@ require configuration in their respective dashboards.
 
 ```bash
 npm run verify:migrations
+npm run verify:services
 npm run lint
 npm run test
+npm run test:e2e
 npm run build
 npm audit --omit=dev
 ```
 
 Baseline verified on 2026-07-27:
 
-- 9 test files
-- 40 passing tests
+- 11 Vitest files and 52 passing tests
+- passing Chromium demo golden-path automation
 - successful Next.js 15.5.22 production build
 - zero known production dependency vulnerabilities in `npm audit --omit=dev`
 

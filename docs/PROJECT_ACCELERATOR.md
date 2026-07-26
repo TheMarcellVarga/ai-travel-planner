@@ -14,8 +14,11 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 9 test files, 40 tests.
-- `npm run build`: passed with Next.js 15.5.15.
+- `npm run test`: passed, 11 test files, 52 tests.
+- `npm run test:evals`: passed, 7 fixtures.
+- `npm run test:e2e`: passed in Chromium.
+- `npm run build`: passed with Next.js 15.5.22.
+- `npm audit --omit=dev`: zero known vulnerabilities.
 
 Build routes currently include:
 - public pages: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`
@@ -46,6 +49,7 @@ Build routes currently include:
 
 ## What Is Still Fallback-Backed Or Thin
 - Route generation uses local destination data and app-side scoring, not live flights/stays/weather/provider availability.
+- Route generation now reads through a normalized provider boundary; the active provider remains the local deterministic fixture.
 - `POST /api/trips/plan` falls back to the in-memory demo store if Supabase persistence is unavailable.
 - Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
 - Supabase RLS behavior is documented but not automatically verified.
@@ -67,8 +71,8 @@ Last audited: 2026-07-08.
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, explicit database-vs-memory persistence metadata, and the server-only sanitized public-share boundary exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
-| 6. Real Data And AI Hardening | Not started | No provider adapter boundary, live data/freshness metadata, AI schema/evals, or usage tracking. |
-| 7. Security, Observability, QA | In progress | Direct public `shared_routes` table reads are revoked, and targeted desktop/mobile browser QA plus focus/reduced-motion source review are recorded; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
+| 6. Real Data And AI Hardening | In progress | Provider contract, deterministic fixture, normalized status/freshness/latency/fallback metadata, strict schemas, and seven eval fixtures exist; live data, model usage, and cost tracking remain. |
+| 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked, production dependencies audit cleanly, and targeted plus automated Chromium QA exist; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
 
 ## Active Development Lane

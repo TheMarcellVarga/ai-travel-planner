@@ -131,7 +131,7 @@ phase. Supabase and Stripe environment execution remains part of Upgrade Phase
 
 ## Upgrade Phase 2 — Flagship Product Proof
 
-Status: queued.
+Status: in progress.
 
 Goal: turn existing architecture into demonstrable end-to-end evidence.
 
@@ -144,6 +144,39 @@ Planned outcomes:
 - golden-path browser automation for plan, save, publish, share, and handoff
 
 This phase maps primarily to product roadmap Phases 5 and 6.
+
+### Progress evidence
+
+Implemented and committed:
+
+- `afb07fd` — normalized fixture/live provider contract, freshness, latency, assumptions, and failure fallback
+- `f87fe0c` — strict Zod schemas and seven route-generation eval fixtures
+- `673f709` — Chromium automation for plan, save, publish, share, handoff, and saved vault
+- `06f306b` — isolated browser tests from the Vitest unit/integration suite
+- `8933a4f` — deterministic handoff and hydration-aware browser assertions
+- `1110357` — patched Next.js runtime and transitive production dependencies
+- `d8695f5` — secret-safe Supabase and Stripe readiness command
+
+Verified locally:
+
+- 11 Vitest files and 52 tests pass
+- 7 route eval fixtures pass
+- Chromium golden path passes
+- Next.js 15.5.22 production build passes
+- `npm audit --omit=dev` reports zero known vulnerabilities
+
+External gates still open:
+
+- Supabase variables are present, but the configured project was not reachable
+  through read-only admin queries from this environment. Auth/RLS and the live
+  public-share boundary therefore remain unverified.
+- Stripe is not configured. Checkout, portal, and webhook behavior is covered
+  by deterministic tests, but live Stripe test-mode execution remains
+  unverified.
+
+Run `npm run verify:services:strict` when both managed services are available.
+Do not mark this phase complete until that command passes and the Stripe QA
+checklist records checkout, portal, and webhook delivery.
 
 ## Upgrade Phase 3 — Reliability And Accessible Interaction Evidence
 

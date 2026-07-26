@@ -38,7 +38,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 3. Backend And Data Foundation | Complete | Supabase migrations, auth/RLS, route-generation persistence, profile/entitlement flows, and health checks are reliable. |
 | 4. Route Generation MVP | Complete | Prompt interpretation, destination matching, scoring, free-plan promoted-stop rule, booking handoff links, and tests are stable. |
 | 5. Save, Share, Account, Billing | Partially implemented | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
-| 6. Real Data And AI Hardening | Not started | Provider adapters, freshness metadata, optional live AI path, structured outputs, cost controls, and eval fixtures are added. |
+| 6. Real Data And AI Hardening | Partially implemented | Provider boundary, fixture adapter, normalized freshness/failure metadata, strict schemas, and eval fixtures exist; live providers and model usage remain. |
 | 7. Security, Observability, QA | Partially implemented | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
 | 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
 
@@ -53,8 +53,11 @@ npm run build
 ```
 
 Current result:
-- Tests pass: 9 files, 40 tests.
-- Production build passes on Next.js 15.5.15.
+- Tests pass: 11 files, 52 tests.
+- Route evals pass: 7 fixtures.
+- Chromium golden path passes.
+- Production build passes on Next.js 15.5.22.
+- Production dependency audit reports zero known vulnerabilities.
 
 | Phase | Done Now | Not Done Yet | Status |
 | --- | --- | --- | --- |
@@ -64,8 +67,8 @@ Current result:
 | 3. Backend And Data Foundation | Supabase migrations exist for entitlements, destinations, generation, saved routes, shared routes, booking handoffs, and profiles. RLS policies exist. Server/admin Supabase clients, health endpoint, export/delete flows, and demo fallback exist. `npm run verify:migrations` validates migration order, required tables, RLS enablement, owner policies, and revocation of direct public `shared_routes` table reads. Public shares use a server-only lookup and safe snapshot mapper. Generation/save/publish/handoff APIs disclose database vs memory persistence. Health tests verify boolean service status without secret exposure. | Live Supabase application remains environment-dependent. | Complete |
 | 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, planning-estimate metadata, external-search disclaimers, unsupported safety/visa/guarantee caveats, unit tests, and trip API tests exist. | Live provider adapters and provider-confirmed freshness remain Phase 6 hardening work. | Complete |
 | 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, deterministic checkout, portal, and webhook tests, and a Stripe test-mode QA checklist exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
-| 6. Real Data And AI Hardening | None beyond deterministic route generation and external booking search links. | No provider adapter boundary, live travel data, freshness metadata, optional AI path, AI schema/evals, or usage/cost tracking. | Not started |
-| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification, targeted desktop/mobile browser QA, and focus/reduced-motion source review exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, observability setup, complete keyboard-order pass, or active reduced-motion emulation. | Partial |
+| 6. Real Data And AI Hardening | Normalized provider contract, deterministic fixture adapter, explicit fixture/live mode, freshness, latency, assumptions, unavailable-provider fallback, strict provider/generation schemas, and seven route eval fixtures exist. | No live travel provider, optional model path, provider-confirmed freshness, or usage/cost tracking. | Partial |
+| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification, production dependency audit, targeted desktop/mobile browser QA, and automated Chromium golden path exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, observability setup, complete keyboard-order pass, or active reduced-motion emulation. | Partial |
 | 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |
 
 ## Phase 0: Control Plane
@@ -208,7 +211,7 @@ Acceptance gate:
 - Entitlements are server-enforced, not UI-only.
 
 ## Phase 6: Real Data And AI Hardening
-Status: not started.
+Status: in progress.
 
 Primary skills: `route-generation-ai`, `security-review-travel`.
 
@@ -220,6 +223,13 @@ Deliverables:
 - deterministic fixture mode for tests
 - eval fixtures for unsafe travel, stale data, prompt injection, and schema validity
 - cost/latency/usage tracking
+
+Current progress:
+- provider contract and deterministic fixture adapter implemented
+- provider mode, status, freshness, latency, fallback, and assumptions exposed
+- malformed/unavailable providers degrade to disclosed fixture data
+- provider payloads and trip generations use strict Zod schemas
+- seven executable eval fixtures cover schema, constraints, unsafe/illegal prompts, prompt injection, and stale data
 
 Acceptance gate:
 - Live calls are disabled by default in local tests and CI.
