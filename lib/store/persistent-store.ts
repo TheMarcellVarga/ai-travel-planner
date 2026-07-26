@@ -9,6 +9,7 @@ import type {
   TripGeneration
 } from "@/lib/types";
 import { createPublicSharedRoute } from "@/lib/store/public-share";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type RouteGenerationRow = {
   id: string;
@@ -203,12 +204,12 @@ async function findRouteInOwnGenerations(routeId: string, userId: string) {
 }
 
 async function findRouteInSharedRoutes(routeId: string) {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
     return null;
   }
 
-  const { data } = await supabase
+  const { data } = await admin
     .from("shared_routes")
     .select("id, user_id, generation_id, slug, route, created_at")
     .order("created_at", { ascending: false })
@@ -348,12 +349,12 @@ export async function getSharedRouteFromDatabase(slug: string) {
 export async function getPublicSharedRouteFromDatabase(
   slug: string
 ): Promise<PublicSharedRoute | null> {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
     return null;
   }
 
-  const { data } = await supabase
+  const { data } = await admin
     .from("shared_routes")
     .select("id, slug, route, created_at")
     .eq("slug", slug)

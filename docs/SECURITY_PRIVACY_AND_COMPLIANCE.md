@@ -35,7 +35,8 @@ Public:
 ## Authorization Rules
 - Every user-owned row must have an owner check.
 - RLS must be enabled on protected Supabase tables.
-- Public share reads must return only safe public snapshots.
+- Anonymous Supabase clients must not receive direct `shared_routes` table access.
+- Public share reads must use the server-only lookup and return only safe public snapshots.
 - Service-role code must be isolated to server-only modules.
 
 ## Billing Rules
@@ -69,4 +70,3 @@ Public:
 - Error logs scrub sensitive fields.
 - Public share response excludes private fields.
 - Tests cover owner isolation for high-risk paths.
-

@@ -7,6 +7,7 @@ Supabase Postgres is the relational system of record. SQL migrations live in `su
 - `20260418_initial.sql`
 - `20260420_billing.sql`
 - `20260422_account_profiles.sql`
+- `20260727_public_share_boundary.sql`
 
 ## Core Tables
 
@@ -85,9 +86,9 @@ Expected fields:
 - published timestamp
 
 Rules:
-- Public reads by slug are allowed.
+- Public clients cannot select rows directly from this table.
 - Public payload must not include private profile, billing, or internal provider data.
-- Server-rendered public share pages must select only the slug, public route snapshot, and published timestamp, then pass route JSON through the public-share whitelist before rendering.
+- Server-rendered public share pages must use the server-only admin client to select only the share ID, slug, route snapshot, and published timestamp, then pass route JSON through the public-share whitelist before rendering.
 - Owner-only create/update/delete.
 
 ### `booking_handoffs`
@@ -116,7 +117,7 @@ Rules:
 
 ## RLS Policy Requirements
 - User-owned tables must use `auth.uid()` ownership checks.
-- Public share routes may expose safe public snapshots by slug.
+- Public share routes are read server-side and exposed only as safe snapshots by slug.
 - Service-role operations must remain server-only.
 - Migration reviews must confirm RLS is enabled on protected tables.
 
@@ -145,4 +146,4 @@ The verifier checks:
 - required current tables
 - RLS enablement for protected tables
 - owner policies using `auth.uid() = user_id`
-- public read policy for `shared_routes`
+- revocation of the original full-row public read policy for `shared_routes`

@@ -95,8 +95,12 @@ for (const table of ownershipPolicyTables) {
   }
 }
 
-if (!/create\s+policy\s+["']shared routes are public["']\s+on\s+public\.shared_routes[\s\S]+?for\s+select\s+using\s+\(true\)/.test(sql)) {
-  fail("public select policy for shared_routes is missing");
+if (
+  !/create\s+policy\s+["']shared routes are public["']\s+on\s+public\.shared_routes[\s\S]+?drop\s+policy\s+if\s+exists\s+["']shared routes are public["']\s+on\s+public\.shared_routes/.test(
+    sql
+  )
+) {
+  fail("shared_routes public select policy is not revoked by a later migration");
 }
 
 if (process.exitCode) {
@@ -106,4 +110,4 @@ if (process.exitCode) {
 console.log(`Verified ${files.length} Supabase migration files.`);
 console.log(`Tables: ${requiredTables.join(", ")}`);
 console.log(`RLS tables: ${rlsTables.join(", ")}`);
-
+console.log("Public shares: full-table reads revoked; sanitized server read required.");
