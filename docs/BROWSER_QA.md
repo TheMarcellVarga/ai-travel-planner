@@ -116,3 +116,26 @@ Remaining manual checks:
 - Repeat the pass with an OS/browser profile actively advertising `prefers-reduced-motion: reduce`; the in-app browser reported the default preference and does not expose media emulation.
 - Investigate the non-blocking development warning about multiple Three.js instances.
 - Remote Unsplash image optimization intermittently timed out and returned `500` responses in the dev server; route content and actions remained usable, but launch QA needs reliable media delivery or local fallbacks.
+
+## Portfolio Upgrade Phase 2 Golden Path
+
+Date: 2026-07-27
+
+Manual browser verification:
+
+- demo sign-in redirected to `/saved`
+- planner rendered four ranked routes and the map fallback
+- Save returned `Saved to your route vault.`
+- Publish returned a working `/share/[slug]`
+- public share exposed estimate and provider-freshness boundaries
+- saved vault displayed both the private route and public share link
+
+Repeatable automation:
+
+```bash
+npm run test:e2e
+```
+
+`e2e/golden-path.spec.ts` runs the same demo-mode product path in Chromium. It
+stubs the outbound Google Flights page only, avoiding external navigation while
+still exercising Wild Route's handoff request and `window.open` behavior.

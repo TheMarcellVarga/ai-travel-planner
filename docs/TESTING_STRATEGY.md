@@ -8,6 +8,7 @@ Testing should scale with risk. Route generation, auth, ownership, RLS, billing,
 ```bash
 npm run test
 npm run test:evals
+npm run test:e2e
 ```
 
 ## Unit Tests
@@ -97,6 +98,11 @@ Check:
 8. User records booking handoff.
 9. User visits account page.
 10. User exports account data.
+
+The automated demo-mode path in `e2e/golden-path.spec.ts` covers sign-in,
+planning, save, publish, public share rendering, external handoff initiation,
+and the saved/shared vault. The external provider page is stubbed; Wild Route's
+handoff API and browser behavior remain real.
 
 ## Acceptance Rule
 No high-risk feature is complete until it has either automated tests or a documented manual verification checklist with exact steps.
