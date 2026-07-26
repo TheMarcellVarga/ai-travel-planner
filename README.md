@@ -100,7 +100,7 @@ See [Architecture](docs/ARCHITECTURE.md),
 
 Requirements:
 
-- Node.js 20 or newer
+- Node.js 20.19 or newer (`.nvmrc` selects Node.js 22.13.1)
 - npm
 
 ```bash
@@ -141,13 +141,15 @@ npm run verify:migrations
 npm run lint
 npm run test
 npm run build
+npm audit --omit=dev
 ```
 
 Baseline verified on 2026-07-27:
 
 - 9 test files
 - 40 passing tests
-- successful Next.js 15.5.15 production build
+- successful Next.js 15.5.22 production build
+- zero known production dependency vulnerabilities in `npm audit --omit=dev`
 
 Live Stripe checkout and portal verification follows the
 [Stripe test-mode QA checklist](docs/STRIPE_TEST_MODE_QA.md).

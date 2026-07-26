@@ -70,3 +70,21 @@ Public:
 - Error logs scrub sensitive fields.
 - Public share response excludes private fields.
 - Tests cover owner isolation for high-risk paths.
+
+## Dependency Audit
+
+The runtime dependency gate is:
+
+```bash
+npm audit --omit=dev
+```
+
+Next.js is pinned to a patched 15.5 release line. `postcss` and `sharp` are
+overridden to patched compatible releases because the framework's transitive
+ranges still resolve vulnerable versions without the overrides.
+
+The full development-tree audit can report transitive `minimatch` advisory
+paths through ESLint plugins even when the vulnerable `brace-expansion`
+versions are not installed. Treat production and development reports
+separately, and do not use `npm audit fix --force` when it proposes a framework
+downgrade.
