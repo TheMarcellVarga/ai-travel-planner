@@ -90,7 +90,12 @@ describe("trip planning API", () => {
     expect(payload.routes).toHaveLength(4);
     expect(payload.routes[0]).toMatchObject({
       estimateStatus: "planning_estimate",
-      availabilityStatus: "external_search_required"
+      availabilityStatus: "external_search_required",
+      dataSource: {
+        providerId: "wild-route-destination-fixtures",
+        mode: "fixture",
+        status: "fixture"
+      }
     });
     expect(payload.routes[0].bookingLinks[0]).toMatchObject({
       status: "external_search"

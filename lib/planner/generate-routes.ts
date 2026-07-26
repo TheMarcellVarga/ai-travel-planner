@@ -1,5 +1,6 @@
-import { destinations } from "@/lib/data/destinations";
 import { buildBookingLinks } from "@/lib/planner/provider-links";
+import { createFixtureProviderPayload } from "@/lib/planner/providers/fixture-provider";
+import type { RouteProviderSnapshot } from "@/lib/planner/providers/types";
 import type { DestinationProfile, RouteOption, RouteStop, TripGeneration, TripIntent } from "@/lib/types";
 
 const PLANNING_ESTIMATE_DISCLAIMER =
@@ -91,8 +92,25 @@ function createTitle(stops: DestinationProfile[], intent: TripIntent) {
   return `${first.name} Route Hunt`;
 }
 
-function buildRouteOptions(intent: TripIntent): RouteOption[] {
-  const ranked = [...destinations]
+function describeFreshness(snapshot: RouteProviderSnapshot) {
+  if (snapshot.status === "unavailable") {
+    return "Selected provider unavailable; local destination fixtures were used and external inventory was not queried.";
+  }
+
+  if (snapshot.mode === "fixture") {
+    return `Local destination fixture observed ${snapshot.freshness.observedAt}; external provider inventory was not queried.`;
+  }
+
+  return snapshot.freshness.observedAt
+    ? `Provider data observed ${snapshot.freshness.observedAt}; final price and availability still require provider confirmation.`
+    : "Provider returned no observation timestamp; treat route data as partial and confirm externally.";
+}
+
+function buildRouteOptions(
+  intent: TripIntent,
+  providerSnapshot: RouteProviderSnapshot
+): RouteOption[] {
+  const ranked = [...providerSnapshot.destinations]
     .sort((a, b) => scoreDestination(b, intent) - scoreDestination(a, intent))
     .slice(0, 6);
 
@@ -117,7 +135,17 @@ function buildRouteOptions(intent: TripIntent): RouteOption[] {
       estimatedCostUsd,
       estimateStatus: "planning_estimate",
       availabilityStatus: "external_search_required",
-      dataFreshness: "Local destination dataset; external provider inventory is not queried in this MVP route generation path.",
+      dataFreshness: describeFreshness(providerSnapshot),
+      dataSource: {
+        providerId: providerSnapshot.providerId,
+        fallbackProviderId: providerSnapshot.fallbackProviderId,
+        mode: providerSnapshot.mode,
+        status: providerSnapshot.status,
+        checkedAt: providerSnapshot.checkedAt,
+        latencyMs: providerSnapshot.latencyMs,
+        freshness: providerSnapshot.freshness,
+        assumptions: [...providerSnapshot.assumptions]
+      },
       disclaimer: PLANNING_ESTIMATE_DISCLAIMER,
       reasons: createReasons(routeDestinations, intent),
       wishTags: Array.from(new Set(routeDestinations.flatMap((stop) => stop.tags))).filter((tag) =>
@@ -129,11 +157,21 @@ function buildRouteOptions(intent: TripIntent): RouteOption[] {
   });
 }
 
-export function createTripGeneration(intent: TripIntent): TripGeneration {
+export function createTripGeneration(
+  intent: TripIntent,
+  providerSnapshot: RouteProviderSnapshot = {
+    ...createFixtureProviderPayload(),
+    providerId: "wild-route-destination-fixtures",
+    mode: "fixture",
+    checkedAt: new Date().toISOString(),
+    latencyMs: 0,
+    fallbackProviderId: null
+  }
+): TripGeneration {
   return {
     id: createId("generation"),
     createdAt: new Date().toISOString(),
     tripIntent: intent,
-    routes: buildRouteOptions(intent)
+    routes: buildRouteOptions(intent, providerSnapshot)
   };
 }

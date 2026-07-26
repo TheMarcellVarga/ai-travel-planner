@@ -8,8 +8,8 @@ Wild Route currently uses deterministic TypeScript logic for prompt interpretati
 2. Interpret prompt into `TripIntent`.
 3. Normalize origin.
 4. Collect explicit and inferred wish tags.
-5. Select destination candidates.
-6. Score candidates against intent.
+5. Resolve a normalized route-data provider snapshot.
+6. Select and score destination candidates.
 7. Build route combinations.
 8. Estimate cost with non-guarantee language.
 9. Enforce entitlement limits, including promoted stops.
@@ -23,6 +23,7 @@ Wild Route currently uses deterministic TypeScript logic for prompt interpretati
 - `RouteStop`
 - `BookingLink`
 - `RouteOption`
+- `RouteDataSource`
 - `TripGeneration`
 - `Entitlement`
 
@@ -38,10 +39,13 @@ The canonical definitions currently live in `lib/types.ts`.
 
 ## Provider Data Rules
 - Provider adapters must return normalized data plus freshness metadata.
+- Provider snapshots include provider ID, fixture/live mode, status, observation time, latency, fallback provider, and assumptions.
 - Do not claim confirmed availability or final price unless a provider confirms it.
 - If provider data is stale or unavailable, return partial route output with status.
 - Keep provider-specific payloads out of UI and analytics unless explicitly reviewed.
 - Current MVP route output uses `planning_estimate` and `external_search_required` metadata because no live provider inventory is queried.
+- The default `wild-route-destination-fixtures` adapter is deterministic and requires no API key.
+- Failed adapters degrade to that fixture through `resolveRouteProvider`; raw provider errors are not exposed in route output.
 - Current booking links use `external_search` status and disclaimers to keep the provider-confirmation boundary explicit.
 
 ## Scoring Principles
@@ -83,5 +87,7 @@ Phase 4 is complete without live AI:
 - booking links disclose external-search status
 - unsupported safety, visa, guarantee, and illegal-travel claims are captured as caveats
 - trip API tests cover invalid input, successful planning, persistence metadata, and memory-backed retrieval
+- provider adapter tests cover deterministic fixture metadata and disclosed failure fallback
 
-Live provider adapters, provider-confirmed freshness, and AI schema/evals remain Phase 6 work.
+The provider contract and fixture adapter now exist. Live provider selection,
+provider-confirmed freshness, and AI schema/evals remain Phase 6 work.

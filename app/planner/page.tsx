@@ -1,7 +1,7 @@
 import { PlannerWorkspace } from "@/components/planner/planner-workspace";
 import { getCurrentUser } from "@/lib/auth";
-import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
+import { planTrip } from "@/lib/planner/plan-trip";
 import {
   ANONYMOUS_GENERATION_USER_ID,
   getLatestGenerationForUser,
@@ -24,7 +24,7 @@ export default async function PlannerPage() {
     return <PlannerWorkspace initialGeneration={existingGeneration} />;
   }
 
-  const candidateGeneration = createTripGeneration(
+  const candidateGeneration = await planTrip(
     interpretTripIntent({
       prompt:
         "Find the best one-way adventure from Singapore for 12 days with max 1 stop, jungle energy, crypto-friendly towns, hiking, and one promoted stop on the free plan.",

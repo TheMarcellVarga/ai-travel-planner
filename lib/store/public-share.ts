@@ -13,6 +13,11 @@ export function createPublicRouteSnapshot(route: RouteOption): PublicSharedRoute
     estimateStatus: route.estimateStatus,
     availabilityStatus: route.availabilityStatus,
     dataFreshness: route.dataFreshness,
+    dataSource: {
+      ...route.dataSource,
+      freshness: { ...route.dataSource.freshness },
+      assumptions: [...route.dataSource.assumptions]
+    },
     disclaimer: route.disclaimer,
     reasons: [...route.reasons],
     wishTags: [...route.wishTags],

@@ -26,6 +26,7 @@ Existing examples:
 - `lib/planner/generate-routes.test.ts`
 - `lib/account/profile.test.ts`
 - `lib/store/demo-store.test.ts`
+- `lib/planner/providers/resolve-provider.test.ts`
 
 ## API Tests
 Targets:
@@ -54,7 +55,7 @@ Targets:
 - public shared routes expose only safe fields
 
 ## AI And Provider Evals
-Required when live AI/provider integrations are added:
+Required for provider or AI integration work:
 - schema validity
 - stale data disclosure
 - unsafe travel prompt handling
@@ -94,4 +95,3 @@ Check:
 
 ## Acceptance Rule
 No high-risk feature is complete until it has either automated tests or a documented manual verification checklist with exact steps.
-

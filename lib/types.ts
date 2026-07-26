@@ -65,6 +65,20 @@ export type BookingLink = {
   disclaimer: string;
 };
 
+export type RouteDataSource = {
+  providerId: string;
+  fallbackProviderId: string | null;
+  mode: "fixture" | "live";
+  status: "fixture" | "available" | "partial" | "unavailable";
+  checkedAt: string;
+  latencyMs: number;
+  freshness: {
+    observedAt: string | null;
+    maxAgeMinutes: number | null;
+  };
+  assumptions: string[];
+};
+
 export type RouteOption = {
   id: string;
   title: string;
@@ -77,6 +91,7 @@ export type RouteOption = {
   estimateStatus: "planning_estimate";
   availabilityStatus: "external_search_required";
   dataFreshness: string;
+  dataSource: RouteDataSource;
   disclaimer: string;
   reasons: string[];
   wishTags: WishTag[];
@@ -154,6 +169,7 @@ export type PublicRouteSnapshot = Pick<
   | "estimateStatus"
   | "availabilityStatus"
   | "dataFreshness"
+  | "dataSource"
   | "disclaimer"
   | "reasons"
   | "wishTags"

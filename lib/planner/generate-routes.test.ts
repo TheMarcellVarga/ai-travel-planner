@@ -26,7 +26,14 @@ describe("createTripGeneration", () => {
       expect(route.estimateStatus).toBe("planning_estimate");
       expect(route.availabilityStatus).toBe("external_search_required");
       expect(route.disclaimer).toContain("not confirmed provider price");
-      expect(route.dataFreshness).toContain("Local destination dataset");
+      expect(route.dataFreshness).toContain("Local destination fixture");
+      expect(route.dataSource).toMatchObject({
+        providerId: "wild-route-destination-fixtures",
+        fallbackProviderId: null,
+        mode: "fixture",
+        status: "fixture",
+        latencyMs: 0
+      });
       expect(route.bookingLinks[0]?.status).toBe("external_search");
       expect(route.bookingLinks[0]?.disclaimer).toContain("Final price and availability");
     });

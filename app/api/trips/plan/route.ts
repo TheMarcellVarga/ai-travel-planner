@@ -3,8 +3,8 @@ import { z } from "zod";
 
 import { FREE_ENTITLEMENT, getGenerationLimitStatus } from "@/lib/account/entitlements";
 import { getCurrentUser } from "@/lib/auth";
-import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
+import { planTrip } from "@/lib/planner/plan-trip";
 import {
   ANONYMOUS_GENERATION_USER_ID,
   getGenerationCountForUser,
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const candidateGeneration = createTripGeneration(tripIntent);
+  const candidateGeneration = await planTrip(tripIntent);
   const persistedGeneration = await saveGenerationToDatabase(candidateGeneration, user?.id);
   const generation =
     persistedGeneration ??
