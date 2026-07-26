@@ -2,6 +2,7 @@ import {
   createFixtureProviderPayload,
   fixtureRouteDataProvider
 } from "@/lib/planner/providers/fixture-provider";
+import { routeProviderPayloadSchema } from "@/lib/planner/schema";
 import type {
   RouteDataProvider,
   RouteProviderSnapshot
@@ -15,11 +16,7 @@ export async function resolveRouteProvider(
   const startedAt = Date.now();
 
   try {
-    const payload = await provider.load(intent);
-
-    if (!payload.destinations.length) {
-      throw new Error("Provider returned no normalized destinations.");
-    }
+    const payload = routeProviderPayloadSchema.parse(await provider.load(intent));
 
     return {
       ...payload,

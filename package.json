@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:evals": "vitest run lib/planner/evals",
     "verify:migrations": "node scripts/verify-supabase-migrations.mjs"
   },
   "dependencies": {

@@ -7,6 +7,7 @@ Testing should scale with risk. Route generation, auth, ownership, RLS, billing,
 
 ```bash
 npm run test
+npm run test:evals
 ```
 
 ## Unit Tests
@@ -55,7 +56,7 @@ Targets:
 - public shared routes expose only safe fields
 
 ## AI And Provider Evals
-Required for provider or AI integration work:
+Executable fixtures live in `lib/planner/evals` and currently cover:
 - schema validity
 - stale data disclosure
 - unsafe travel prompt handling
@@ -64,6 +65,10 @@ Required for provider or AI integration work:
 - entitlement enforcement
 - provider failure fallback
 - ownership isolation
+
+The suite validates provider payloads and completed route generations against
+strict Zod schemas. Malformed or unavailable providers must fall back without
+leaking raw error content.
 
 ## Frontend QA
 Check:

@@ -66,7 +66,13 @@ Scoring should not:
 - fabricate provider confirmation
 
 ## Evals And Fixtures
-Required fixture groups when AI is introduced:
+The executable fixture set lives in `lib/planner/evals` and runs with:
+
+```bash
+npm run test:evals
+```
+
+Current fixture groups:
 - schema validity
 - unsafe travel reframe/refusal
 - stale data disclosure
@@ -75,6 +81,10 @@ Required fixture groups when AI is introduced:
 - no guaranteed price/availability claims
 - no hidden direct-booking claims
 - ownership isolation for saved/private route data
+
+Provider payloads and completed trip generations are validated with Zod before
+they cross the orchestration boundary. Invalid provider output degrades to the
+disclosed local fixture rather than reaching scoring or persistence.
 
 ## Acceptance Rule
 No AI-backed route feature is complete until deterministic tests still pass and eval fixtures catch at least schema, unsafe-travel, and stale-data failures.
@@ -88,6 +98,7 @@ Phase 4 is complete without live AI:
 - unsupported safety, visa, guarantee, and illegal-travel claims are captured as caveats
 - trip API tests cover invalid input, successful planning, persistence metadata, and memory-backed retrieval
 - provider adapter tests cover deterministic fixture metadata and disclosed failure fallback
+- route evals cover schema validity, activity/direct constraints, unsafe and illegal requests, prompt injection, and stale-provider disclosure
 
 The provider contract and fixture adapter now exist. Live provider selection,
-provider-confirmed freshness, and AI schema/evals remain Phase 6 work.
+provider-confirmed freshness, and live AI integration remain Phase 6 work.

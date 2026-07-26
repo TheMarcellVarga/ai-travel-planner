@@ -58,4 +58,46 @@ describe("route data providers", () => {
       );
     });
   });
+
+  it("rejects malformed provider output and uses the disclosed fallback", async () => {
+    const malformedProvider: RouteDataProvider = {
+      id: "malformed-provider",
+      mode: "live",
+      async load() {
+        return {
+          status: "available",
+          freshness: {
+            observedAt: null,
+            maxAgeMinutes: null
+          },
+          assumptions: [],
+          destinations: [
+            {
+              id: "invalid",
+              name: "Invalid",
+              code: "X",
+              country: "Nowhere",
+              region: "Test",
+              coordinates: { lat: 999, lng: 999 },
+              tags: [],
+              scene: "Invalid fixture",
+              imageHint: "Invalid fixture",
+              baseCostUsd: -1,
+              comfortCostUsd: -1,
+              cryptoFriendly: false,
+              activityScore: 99
+            }
+          ]
+        };
+      }
+    };
+
+    const generation = await planTrip(intent, malformedProvider);
+
+    expect(generation.routes[0]?.dataSource).toMatchObject({
+      providerId: "malformed-provider",
+      fallbackProviderId: "wild-route-destination-fixtures",
+      status: "unavailable"
+    });
+  });
 });

@@ -101,6 +101,23 @@ function describeFreshness(snapshot: RouteProviderSnapshot) {
     return `Local destination fixture observed ${snapshot.freshness.observedAt}; external provider inventory was not queried.`;
   }
 
+  const observedAt = snapshot.freshness.observedAt
+    ? new Date(snapshot.freshness.observedAt).getTime()
+    : null;
+  const checkedAt = new Date(snapshot.checkedAt).getTime();
+  const maxAgeMs =
+    snapshot.freshness.maxAgeMinutes === null
+      ? null
+      : snapshot.freshness.maxAgeMinutes * 60_000;
+  const isStale =
+    observedAt !== null &&
+    maxAgeMs !== null &&
+    checkedAt - observedAt > maxAgeMs;
+
+  if (isStale) {
+    return `Provider data is stale (observed ${snapshot.freshness.observedAt}); treat this route as partial and confirm externally.`;
+  }
+
   return snapshot.freshness.observedAt
     ? `Provider data observed ${snapshot.freshness.observedAt}; final price and availability still require provider confirmation.`
     : "Provider returned no observation timestamp; treat route data as partial and confirm externally.";

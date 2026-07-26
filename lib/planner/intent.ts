@@ -34,6 +34,14 @@ const unsupportedSafetyPatterns = [
   {
     pattern: /\b(illegal|smuggl|evade|bypass border|fake documents?)\b/i,
     message: "Wild Route will not help plan illegal or unsafe travel activity."
+  },
+  {
+    pattern: /\b(ignore|override|disregard)\b.{0,48}\b(instructions?|rules?|guardrails?)\b/i,
+    message: "Prompt instructions cannot override Wild Route product and safety guardrails."
+  },
+  {
+    pattern: /\b(confirmed availability|provider-confirmed|book directly with wild route)\b/i,
+    message: "Availability and booking remain external-provider responsibilities."
   }
 ];
 
@@ -116,6 +124,10 @@ function collectExclusions(prompt: string) {
   return Array.from(exclusions);
 }
 
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
 export function interpretTripIntent(input: TripIntentInput): TripIntent {
   const prompt = input.prompt.trim();
   const wishTags = collectTags(prompt, input.wishTags);
@@ -123,8 +135,8 @@ export function interpretTripIntent(input: TripIntentInput): TripIntent {
   return {
     prompt,
     origin: inferOrigin(input.origin),
-    tripLengthDays: input.tripLengthDays ?? parseDays(prompt),
-    maxStops: input.maxStops ?? parseStops(prompt),
+    tripLengthDays: clamp(input.tripLengthDays ?? parseDays(prompt), 4, 30),
+    maxStops: clamp(input.maxStops ?? parseStops(prompt), 0, 2),
     wishTags,
     budgetMode: input.budgetMode ?? "balanced",
     vibe: inferVibe(prompt),
