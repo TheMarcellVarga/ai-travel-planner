@@ -1860,6 +1860,14 @@ h3,
   margin-top: 18px;
 }
 
+.auth-form label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .auth-form .button,
 .auth-card > .button {
   width: 100%;

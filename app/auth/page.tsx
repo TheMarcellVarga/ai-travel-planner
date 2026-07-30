@@ -81,7 +81,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               </p>
               <form action="/api/auth/signin" className="auth-form" method="post">
                 <input name="next" type="hidden" value="/saved" />
-                <input name="email" placeholder="traveler@example.com" type="email" />
+                <label htmlFor="auth-email">Email address</label>
+                <input
+                  id="auth-email"
+                  name="email"
+                  placeholder="traveler@example.com"
+                  type="email"
+                />
                 <button className="button" type="submit">
                   Send Magic Link
                 </button>
@@ -122,7 +128,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             </p>
             <form action="/api/auth/demo" className="auth-form" method="post">
               <input name="next" type="hidden" value="/saved" />
-              <input defaultValue="demo@wildroute.local" name="email" type="email" />
+              <label htmlFor="demo-email">Demo email address</label>
+              <input
+                defaultValue="demo@wildroute.local"
+                id="demo-email"
+                name="email"
+                type="email"
+              />
               <button className="button" type="submit">
                 Enter Demo Mode
               </button>

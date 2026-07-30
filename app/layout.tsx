@@ -65,7 +65,9 @@ export default function RootLayout({
         </a>
         <div className="page-noise" aria-hidden="true" />
         <SiteHeader />
-        <div id="content">{children}</div>
+        <div id="content" tabIndex={-1}>
+          {children}
+        </div>
         <AppFooter />
       </body>
     </html>

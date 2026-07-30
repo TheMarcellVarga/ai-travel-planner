@@ -190,7 +190,11 @@ export default function HomePage() {
         <div className="planning-stack__heading">
           <h2>Make fewer choices, with better reasons.</h2>
         </div>
-        <div className="planning-bento" aria-label="Product workflow">
+        <div
+          className="planning-bento"
+          aria-label="Product workflow"
+          role="region"
+        >
           <article className="planning-bento__cell planning-bento__cell--wide">
             <h3>{planningStack[0].title}</h3>
             <p>{planningStack[0].text}</p>
