@@ -72,7 +72,7 @@ Last audited: 2026-07-08.
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
 | 6. Real Data And AI Hardening | In progress | Provider contract, deterministic fixture, normalized status/freshness/latency/fallback metadata, strict schemas, and seven eval fixtures exist; live data, model usage, and cost tracking remain. |
-| 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked, production dependencies audit cleanly, and targeted plus automated Chromium QA exist; threat model, rate limits, observability, full keyboard order, and active reduced-motion emulation remain. |
+| 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked, production dependencies audit cleanly, and targeted plus automated Chromium, axe, skip-link, and reduced-motion QA exist; threat model, rate limits, observability, and full keyboard order remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
 
 ## Active Development Lane
@@ -246,7 +246,9 @@ npm run build
 ### T8: Expand Browser QA And Accessibility Pass
 Phase: 7. Security, Observability, QA
 
-Status: in progress. Golden-path desktop/mobile QA is recorded; full synthetic Tab order and active reduced-motion emulation remain manual.
+Status: in progress. Golden-path desktop/mobile QA is recorded. Automated axe
+checks cover four critical routes, the skip-link keyboard path is verified, and
+active reduced-motion emulation passes. Full keyboard order remains manual.
 
 Files:
 - `docs/BROWSER_QA.md`
@@ -260,6 +262,7 @@ Acceptance criteria:
 Verification:
 
 ```bash
+npm run test:e2e -- e2e/accessibility.spec.ts
 npm run build
 ```
 

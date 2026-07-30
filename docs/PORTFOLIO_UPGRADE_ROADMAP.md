@@ -180,7 +180,7 @@ checklist records checkout, portal, and webhook delivery.
 
 ## Upgrade Phase 3 — Reliability And Accessible Interaction Evidence
 
-Status: queued.
+Status: in progress.
 
 Goal: demonstrate engineering depth beyond visual polish.
 
@@ -194,6 +194,36 @@ Planned outcomes:
 - reliable local media or explicit image degradation behavior
 
 This phase maps primarily to product roadmap Phase 7.
+
+Phase 3 began after a second `npm run verify:services` check confirmed that the
+Phase 2 managed-service gates were still externally blocked: Supabase remained
+unreachable from this environment and Stripe remained unconfigured. The user's
+instruction to continue authorized locally verifiable Phase 3 work without
+closing or bypassing those Phase 2 gates.
+
+### Progress evidence
+
+Implemented and committed:
+
+- `c22f3c3` — axe-powered WCAG checks for `/`, `/planner`, `/auth`, and
+  `/saved`, plus keyboard skip-link and active reduced-motion verification
+- repaired the invalid homepage ARIA region, missing auth-field labels, and
+  unfocusable skip-link target discovered by the new checks
+
+Verified locally:
+
+- 11 Vitest files and 52 tests pass
+- all 7 Chromium tests pass, including 6 focused accessibility checks and the
+  existing golden path
+- Next.js 15.5.22 production build passes
+
+Open Phase 3 outcomes:
+
+- complete keyboard-order coverage beyond the skip-link path
+- rate limiting for abuse-prone endpoints
+- privacy-safe logging and error observability
+- webhook replay/idempotency behavior
+- reliable local media or explicit image degradation behavior
 
 ## Upgrade Phase 4 — Presentation And Case Study
 

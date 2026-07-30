@@ -112,8 +112,7 @@ Accessibility observations:
 - Reduced-motion safeguards exist in CSS and component logic: animation/transition durations are clamped, homepage scroll effects exit early, the route story disables motion, and the globe uses its fallback path.
 
 Remaining manual checks:
-- Run a complete keyboard-only tab-order pass in a browser that reliably advances synthetic Tab input.
-- Repeat the pass with an OS/browser profile actively advertising `prefers-reduced-motion: reduce`; the in-app browser reported the default preference and does not expose media emulation.
+- Run a complete keyboard-only tab-order pass beyond the automated skip-link path.
 - Investigate the non-blocking development warning about multiple Three.js instances.
 - Remote Unsplash image optimization intermittently timed out and returned `500` responses in the dev server; route content and actions remained usable, but launch QA needs reliable media delivery or local fallbacks.
 
@@ -139,3 +138,21 @@ npm run test:e2e
 `e2e/golden-path.spec.ts` runs the same demo-mode product path in Chromium. It
 captures the outbound `window.open` URL, avoiding external navigation while
 still asserting the real handoff response, provider URL, and browser behavior.
+
+## Portfolio Upgrade Phase 3 Accessibility Automation
+
+Date: 2026-07-30
+
+`e2e/accessibility.spec.ts` adds repeatable Chromium checks for:
+
+- serious or critical axe violations across `/`, `/planner`, `/auth`, and
+  `/saved`, using WCAG 2.0, 2.1, and 2.2 A/AA tags
+- the first keyboard focus landing on the visible skip link and activation
+  moving focus to the main content container
+- active `prefers-reduced-motion: reduce` emulation with visible animation and
+  transition durations clamped to one millisecond
+
+The first run found and the implementation repaired an invalid homepage ARIA
+label, unlabeled auth email input, and skip-link target that could not receive
+focus. All six accessibility tests now pass. Automated scanning complements
+rather than replaces a complete manual keyboard-order and screen-reader pass.
