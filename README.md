@@ -93,7 +93,12 @@ See [Architecture](docs/ARCHITECTURE.md),
 - [Architecture and trust boundaries](docs/ARCHITECTURE.md#trust-boundaries)
 - [Unfinished surfaces audit](docs/UNFINISHED_SURFACES_AUDIT.md)
 - [Deployment and known-limitations record](docs/DEPLOYMENT.md)
+- [Current desktop and mobile screenshots](docs/SCREENSHOTS.md)
 - [Browser QA evidence](docs/BROWSER_QA.md)
+
+![Wild Route planner workspace](public/portfolio/wild-route-planner-desktop.png)
+
+![Wild Route public share on mobile](public/portfolio/wild-route-share-mobile.png)
 
 ## Stack
 
