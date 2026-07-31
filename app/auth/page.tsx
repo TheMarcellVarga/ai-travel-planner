@@ -18,7 +18,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   const params = await searchParams;
   const errorMessage =
     params.error === "supabase-not-configured"
-      ? "Supabase auth is not configured in this local environment yet. Use demo mode or add the Supabase env vars."
+      ? "Supabase auth is not configured in this environment. Use demo mode or add the Supabase environment variables."
       : params.error === "supabase-unavailable"
         ? "Supabase auth client could not be created. Check the project URL and public key."
         : params.error === "missing-email"
@@ -110,7 +110,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           ) : (
             <article className="auth-card auth-card-inactive">
               <p className="eyebrow">Managed auth</p>
-              <h2>Supabase is not wired on this machine yet.</h2>
+              <h2>Supabase is not wired in this environment.</h2>
               <p className="muted-copy">
                 Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> to enable magic link and OAuth sign-in here.
               </p>

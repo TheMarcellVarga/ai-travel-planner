@@ -240,7 +240,12 @@ Phase 3 acceptance result:
 
 ## Upgrade Phase 4 — Presentation And Case Study
 
-Status: queued.
+Status: in progress.
+
+Execution exception: Upgrade Phase 2 remains open only for its live
+Supabase/Stripe verification gate. The user explicitly advanced local portfolio
+work while those managed services are unavailable; Phase 4 artifacts must not
+claim that the Phase 2 live-service gate passed.
 
 Goal: package the verified product as concise portfolio evidence.
 

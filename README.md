@@ -51,7 +51,7 @@ feasibility.
 | Email | Optional Resend-compatible delivery with graceful fallback |
 | Live travel providers | Not implemented; adapter and freshness hardening are planned |
 | Live AI model | Not implemented; deterministic behavior remains the tested default |
-| Deployment | No verified public deployment is documented yet |
+| Deployment | Phase 4 deployment evidence is tracked in `docs/DEPLOYMENT.md` |
 
 This distinction is intentional. Missing services degrade to explicit fixture
 or memory behavior instead of being presented as production persistence.
@@ -175,11 +175,15 @@ Live Stripe checkout and portal verification follows the
 - Destination metadata and route scoring are fixture-backed.
 - There is no provider-confirmed flight, stay, weather, map, or advisory data.
 - Demo accounts and their routes are not durable across server restarts.
+- Newsletter signup preferences use demo memory; email delivery is optional and
+  does not make the subscriber list durable.
 - Stripe test-mode checkout and portal still need recorded live verification.
-- Browser QA is targeted rather than a full automated end-to-end suite.
-- Rate limiting, observability, webhook idempotency, and full accessibility
-  evidence remain roadmap work.
-- Remote editorial media needs a launch-ready reliability pass.
+- Browser automation currently targets Chromium; manual screen-reader and
+  broader browser coverage remain launch checks.
+- Abuse limiting is per application instance until a distributed adapter or
+  edge control is configured.
+- Operational events are privacy-safe structured logs, but a production sink
+  and alert policy are not configured in this repository.
 
 The next work is tracked in the
 [portfolio upgrade roadmap](docs/PORTFOLIO_UPGRADE_ROADMAP.md) and the

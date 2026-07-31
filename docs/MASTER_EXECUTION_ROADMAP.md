@@ -40,7 +40,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 5. Save, Share, Account, Billing | Partially implemented | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
 | 6. Real Data And AI Hardening | Partially implemented | Provider boundary, fixture adapter, normalized freshness/failure metadata, strict schemas, and eval fixtures exist; live providers and model usage remain. |
 | 7. Security, Observability, QA | Partially implemented | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
-| 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
+| 8. Polish And Launch Prep | In progress | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
 
 ## Current Completion Audit
 Last audited: 2026-08-01.
@@ -260,7 +260,7 @@ Acceptance gate:
 - Critical flows have tests or documented manual verification.
 
 ## Phase 8: Polish And Launch Prep
-Status: not started.
+Status: in progress.
 
 Primary skills: `nextjs-travel-ui`, `travel-product-guardrails`.
 

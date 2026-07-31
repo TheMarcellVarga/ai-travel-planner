@@ -6,6 +6,14 @@ type NewsletterSignupProps = {
   defaultEmail?: string;
 };
 
+type NewsletterResponse = {
+  error?: string;
+  persistence?: {
+    durable: boolean;
+    detail: string;
+  };
+};
+
 export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
   const [email, setEmail] = useState(defaultEmail);
   const [name, setName] = useState("");
@@ -35,17 +43,20 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
         })
       });
 
-      const payload = await response.json();
+      const payload = (await response.json()) as NewsletterResponse;
 
       if (!response.ok) {
         setStatus(payload.error ?? "Subscription failed.");
         return;
       }
 
+      const confirmation = routeNotifications
+        ? "Preferences accepted. Route alerts can be sent for signed-in trips when email delivery is configured."
+        : "Newsletter preference accepted.";
       setStatus(
-        routeNotifications
-          ? "Subscribed. Route alerts will arrive for signed-in trips when available."
-          : "Subscribed to the newsletter."
+        payload.persistence?.durable
+          ? confirmation
+          : `${confirmation} ${payload.persistence?.detail ?? "This preview does not persist the subscription."}`
       );
       setName("");
     });
@@ -58,7 +69,8 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
         <h2>A short letter for the next departure.</h2>
         <p className="muted-copy">
           New route studies, selected destinations, and account alerts for the
-          journeys you keep.
+          journeys you keep. Preview signups are held only in demo memory unless
+          durable subscriber storage is configured.
         </p>
       </div>
 

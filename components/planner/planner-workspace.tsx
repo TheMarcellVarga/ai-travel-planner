@@ -199,7 +199,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 ) : null}
                 {persistenceStatus && !persistenceStatus.durable ? (
                   <p className="route-studio__notice">
-                    Demo persistence: this route set is kept only for the current local app session.
+                    Demo persistence: this route set is kept only for the current app instance and is not durable.
                   </p>
                 ) : null}
               </div>

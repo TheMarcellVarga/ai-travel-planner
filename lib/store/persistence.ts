@@ -15,6 +15,5 @@ export const DATABASE_PERSISTENCE: PersistenceStatus = {
 export const MEMORY_PERSISTENCE: PersistenceStatus = {
   mode: "memory",
   durable: false,
-  detail: "Stored in the local demo memory store for this running app session."
+  detail: "Stored in demo memory for this running app instance; it is not durable."
 };
-

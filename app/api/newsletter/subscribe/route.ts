@@ -7,6 +7,7 @@ import {
   createRateLimitResponse,
   RATE_LIMIT_POLICIES
 } from "@/lib/security/rate-limit";
+import { MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import { subscribeNewsletter } from "@/lib/store/demo-store";
 
 const requestSchema = z.object({
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     email: subscription.subscriber.email,
-    topics: subscription.subscriber.topics
+    topics: subscription.subscriber.topics,
+    persistence: MEMORY_PERSISTENCE
   });
 }
