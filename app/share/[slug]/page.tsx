@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 
-import Image from "next/image";
 import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
+import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia } from "@/lib/media";
 import { getPublicSharedRoute } from "@/lib/store/demo-store";
 import { getPublicSharedRouteFromDatabase } from "@/lib/store/persistent-store";
@@ -25,7 +25,7 @@ export default async function SharePage({ params }: SharePageProps) {
   return (
     <main className="planner-command-shell share-route-shell">
       <div className="planner-stage-globe share-route-media">
-        <Image
+        <ResilientImage
           alt={shareMedia.alt}
           className="share-route-media__image"
           fill
@@ -101,7 +101,7 @@ export default async function SharePage({ params }: SharePageProps) {
                     <strong className="card-title text-small">{stop.name} ({stop.code})</strong>
                   </div>
                   {stop.kind === "destination" && (
-                    <Image
+                    <ResilientImage
                       alt=""
                       src={getDestinationMedia(stop.id).src}
                       className="card-image-xs"

@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import { ResilientImage } from "@/components/resilient-image";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -120,7 +121,7 @@ export function RouteScrollStory({ cards }: RouteScrollStoryProps) {
               <p>{card.text}</p>
             </div>
             <div className="route-story__media">
-              <Image
+              <ResilientImage
                 alt={card.image.alt}
                 className="route-story__visual"
                 src={card.image.src}

@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
+import { ResilientImage } from "@/components/resilient-image";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { getDestinationMedia } from "@/lib/media";
@@ -216,7 +216,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           {activeRoute ? (
             <>
               <div className="route-studio__inspector-media">
-                <Image
+                <ResilientImage
                   alt={promotedMedia.alt}
                   className="route-studio__inspector-image"
                   src={promotedMedia.src}

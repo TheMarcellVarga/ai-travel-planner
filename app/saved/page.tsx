@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 
+import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia, heroMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -19,7 +19,7 @@ export default async function SavedPage() {
     return (
       <main className="planner-command-shell saved-vault-shell saved-vault-shell-empty">
         <div className="planner-stage-globe saved-vault-media">
-          <Image
+          <ResilientImage
             alt={heroMedia.alt}
             className="saved-vault-media__image"
             fill
@@ -69,7 +69,7 @@ export default async function SavedPage() {
   return (
     <main className="planner-command-shell saved-vault-shell">
       <div className="planner-stage-globe saved-vault-media">
-        <Image
+        <ResilientImage
           alt={heroMedia.alt}
           className="saved-vault-media__image"
           fill
@@ -111,7 +111,7 @@ export default async function SavedPage() {
                       <strong className="card-title">{item.route.title}</strong>
                       <span className="card-price">${item.route.estimatedCostUsd}</span>
                     </div>
-                    <Image
+                    <ResilientImage
                       alt=""
                       src={getDestinationMedia(item.route.promotedStopId).src}
                       className="card-image-sm"
@@ -150,7 +150,7 @@ export default async function SavedPage() {
                     <div>
                       <strong className="card-title">{item.route.title}</strong>
                     </div>
-                    <Image
+                    <ResilientImage
                       alt=""
                       src={getDestinationMedia(item.route.promotedStopId).src}
                       className="card-image-sm"

@@ -4,6 +4,7 @@ import { ArrowRight, ArrowUpRight, PlaneTakeoff } from "lucide-react";
 
 import { HomeGsapEffects } from "@/components/home-gsap-effects";
 import { MediaCredit } from "@/components/media-credit";
+import { ResilientImage } from "@/components/resilient-image";
 import { RouteScrollStory } from "@/components/route-scroll-story";
 import { destinations } from "@/lib/data/destinations";
 import {
@@ -228,7 +229,7 @@ export default function HomePage() {
         <div className="atlas-grid">
           {leadDestination ? (
             <article className="atlas-feature">
-              <Image
+              <ResilientImage
                 alt={leadDestination.media.alt}
                 className="atlas-feature__image"
                 src={leadDestination.media.src}
@@ -248,7 +249,7 @@ export default function HomePage() {
             {atlasDestinations.map(({ destination, media }) => (
               <article className="atlas-row" key={destination.id}>
                 <div className="atlas-row__image-wrap">
-                  <Image
+                  <ResilientImage
                     alt={media.alt}
                     className="atlas-row__image"
                     src={media.src}
@@ -284,7 +285,7 @@ export default function HomePage() {
               <source src={kineticMedia.src} type="video/webm" />
             </video>
           ) : (
-            <Image
+            <ResilientImage
               alt=""
               className="kinetic-story__image"
               src={kineticMedia.src}
