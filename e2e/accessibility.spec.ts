@@ -8,6 +8,15 @@ const criticalRoutes = [
   { path: "/saved", name: "saved routes" }
 ] as const;
 
+const keyboardFocusableSelector = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])"
+].join(",");
+
 async function expectNoSeriousAccessibilityViolations(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
@@ -18,6 +27,61 @@ async function expectNoSeriousAccessibilityViolations(page: Page) {
   );
 
   expect(seriousViolations).toEqual([]);
+}
+
+async function expectSequentialKeyboardOrder(page: Page) {
+  const expectedOrder = await page
+    .locator(keyboardFocusableSelector)
+    .evaluateAll((elements) =>
+      elements.flatMap((element, index) => {
+        const htmlElement = element as HTMLElement;
+        const styles = window.getComputedStyle(htmlElement);
+        const isVisible =
+          htmlElement.getRootNode() === document &&
+          htmlElement.getClientRects().length > 0 &&
+          styles.display !== "none" &&
+          styles.visibility !== "hidden" &&
+          !htmlElement.closest("[hidden], [inert]");
+
+        if (!isVisible) {
+          return [];
+        }
+
+        const keyboardOrderId = `keyboard-order-${index}`;
+        htmlElement.dataset.keyboardOrderId = keyboardOrderId;
+
+        return [
+          {
+            id: keyboardOrderId,
+            description:
+              htmlElement.getAttribute("aria-label") ||
+              htmlElement.textContent?.trim().replace(/\s+/g, " ").slice(0, 80) ||
+              htmlElement.getAttribute("name") ||
+              htmlElement.tagName.toLowerCase()
+          }
+        ];
+      })
+    );
+
+  expect(expectedOrder.length).toBeGreaterThan(0);
+
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+
+  for (const expectedElement of expectedOrder) {
+    await page.keyboard.press("Tab");
+    const focusedElementId = await page.evaluate(
+      () => (document.activeElement as HTMLElement | null)?.dataset.keyboardOrderId
+    );
+
+    expect(
+      focusedElementId,
+      `Expected keyboard focus to reach “${expectedElement.description}” in DOM order.`
+    ).toBe(expectedElement.id);
+  }
 }
 
 for (const route of criticalRoutes) {
@@ -40,6 +104,16 @@ test("keyboard users can skip directly to the main content", async ({ page }) =>
   await page.keyboard.press("Enter");
   await expect(page.locator("#content")).toBeFocused();
 });
+
+for (const route of criticalRoutes) {
+  test(`${route.name} exposes every visible control in sequential keyboard order`, async ({
+    page
+  }) => {
+    await page.goto(route.path);
+    await expect(page.locator("main")).toBeVisible();
+    await expectSequentialKeyboardOrder(page);
+  });
+}
 
 test("reduced motion disables meaningful animation and transition durations", async ({
   page
