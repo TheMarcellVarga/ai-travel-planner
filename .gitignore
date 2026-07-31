@@ -20,3 +20,4 @@ supabase/.temp/
 !ai-dev/skills/*/SKILL.md
 
 .history
+.vercel

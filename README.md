@@ -51,7 +51,7 @@ feasibility.
 | Email | Optional Resend-compatible delivery with graceful fallback |
 | Live travel providers | Not implemented; adapter and freshness hardening are planned |
 | Live AI model | Not implemented; deterministic behavior remains the tested default |
-| Deployment | Phase 4 deployment evidence is tracked in `docs/DEPLOYMENT.md` |
+| Deployment | [Live transparent demo](https://ai-travel-planner-psi-five.vercel.app); managed services are disabled and unverified |
 
 This distinction is intentional. Missing services degrade to explicit fixture
 or memory behavior instead of being presented as production persistence.
