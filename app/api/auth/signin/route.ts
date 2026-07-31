@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 
 import { isOAuthProvider } from "@/lib/auth-providers";
 import { env, hasSupabaseEnv } from "@/lib/env";
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  RATE_LIMIT_POLICIES
+} from "@/lib/security/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
+  const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.authInitiation);
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit);
+  }
+
   const formData = await request.formData();
   const email = String(formData.get("email") ?? "").trim();
   const provider = String(formData.get("provider") ?? "").trim();

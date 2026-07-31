@@ -4,6 +4,7 @@ import { FREE_ENTITLEMENT } from "@/lib/account/entitlements";
 import { getCurrentUser } from "@/lib/auth";
 import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
+import { resetRateLimitsForTests } from "@/lib/security/rate-limit";
 import { resetStore, saveGeneration } from "@/lib/store/demo-store";
 import {
   getGenerationCountForUserFromDatabase,
@@ -30,6 +31,7 @@ vi.mock("@/lib/store/persistent-store", async () => {
 describe("trip planning API", () => {
   beforeEach(() => {
     resetStore();
+    resetRateLimitsForTests();
     vi.clearAllMocks();
     vi.mocked(getCurrentUser).mockResolvedValue(null);
     vi.mocked(getGenerationCountForUserFromDatabase).mockResolvedValue(null);
@@ -50,6 +52,29 @@ describe("trip planning API", () => {
 
     expect(response.status).toBe(400);
     expect(payload.error).toBe("Invalid trip planning request.");
+  });
+
+  it("rejects requests that exceed the planning rate limit", async () => {
+    const { POST } = await import("@/app/api/trips/plan/route");
+    const makeRequest = () =>
+      new Request("http://localhost/api/trips/plan", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "" }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-forwarded-for": "203.0.113.50"
+        }
+      });
+
+    for (let requestIndex = 0; requestIndex < 10; requestIndex += 1) {
+      expect((await POST(makeRequest())).status).toBe(400);
+    }
+
+    const response = await POST(makeRequest());
+
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBeTruthy();
+    expect(await response.json()).toMatchObject({ code: "RATE_LIMITED" });
   });
 
   it("returns routes with estimate, persistence, and external-search metadata", async () => {

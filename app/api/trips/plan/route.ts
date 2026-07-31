@@ -6,6 +6,11 @@ import { getCurrentUser } from "@/lib/auth";
 import { interpretTripIntent } from "@/lib/planner/intent";
 import { planTrip } from "@/lib/planner/plan-trip";
 import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  RATE_LIMIT_POLICIES
+} from "@/lib/security/rate-limit";
+import {
   ANONYMOUS_GENERATION_USER_ID,
   getGenerationCountForUser,
   saveGeneration
@@ -38,6 +43,11 @@ async function getUsedGenerationCount(user: Awaited<ReturnType<typeof getCurrent
 }
 
 export async function POST(request: Request) {
+  const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.tripPlanning);
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit);
+  }
+
   const body = await request.json();
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {

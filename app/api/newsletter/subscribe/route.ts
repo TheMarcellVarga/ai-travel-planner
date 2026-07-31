@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendNewsletterConfirmationEmail } from "@/lib/notifications";
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  RATE_LIMIT_POLICIES
+} from "@/lib/security/rate-limit";
 import { subscribeNewsletter } from "@/lib/store/demo-store";
 
 const requestSchema = z.object({
@@ -16,6 +21,11 @@ const requestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.newsletterSignup);
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit);
+  }
+
   let body: unknown;
 
   try {

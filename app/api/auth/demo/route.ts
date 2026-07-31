@@ -2,8 +2,18 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { DEMO_USER_COOKIE } from "@/lib/auth";
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  RATE_LIMIT_POLICIES
+} from "@/lib/security/rate-limit";
 
 export async function POST(request: Request) {
+  const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.authInitiation);
+  if (!rateLimit.allowed) {
+    return createRateLimitResponse(rateLimit);
+  }
+
   const formData = await request.formData();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const nextPath = String(formData.get("next") ?? "/planner");
@@ -22,4 +32,3 @@ export async function POST(request: Request) {
 
   return NextResponse.redirect(new URL(nextPath, request.url));
 }
-
