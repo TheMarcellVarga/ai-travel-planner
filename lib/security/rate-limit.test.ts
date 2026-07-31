@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   consumeRateLimit,
@@ -22,6 +22,7 @@ function requestFor(address: string) {
 describe("rate limiting", () => {
   afterEach(() => {
     resetRateLimitsForTests();
+    vi.restoreAllMocks();
   });
 
   it("allows requests up to the policy limit and returns retry metadata", () => {
@@ -75,7 +76,11 @@ describe("rate limiting", () => {
       remaining: 0,
       resetAt: now + 60_000
     };
-    const response = createRateLimitResponse(decision, now);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const response = createRateLimitResponse(decision, {
+      now,
+      route: "/api/trips/plan"
+    });
 
     expect(response.status).toBe(429);
     expect(response.headers.get("Retry-After")).toBe("60");
@@ -83,5 +88,6 @@ describe("rate limiting", () => {
       error: "Too many requests. Try again after the current limit window resets.",
       code: "RATE_LIMITED"
     });
+    expect(warn).toHaveBeenCalledOnce();
   });
 });

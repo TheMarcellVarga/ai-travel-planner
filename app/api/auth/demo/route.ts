@@ -11,7 +11,7 @@ import {
 export async function POST(request: Request) {
   const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.authInitiation);
   if (!rateLimit.allowed) {
-    return createRateLimitResponse(rateLimit);
+    return createRateLimitResponse(rateLimit, { route: "/api/auth/demo" });
   }
 
   const formData = await request.formData();

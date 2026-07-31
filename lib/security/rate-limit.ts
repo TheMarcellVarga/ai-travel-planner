@@ -2,6 +2,11 @@ import { createHmac, randomBytes } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
+import {
+  emitOperationalEvent,
+  type ObservedRoute
+} from "@/lib/observability/operational-events";
+
 type RateLimitPolicy = {
   name: string;
   limit: number;
@@ -117,8 +122,15 @@ export function getRateLimitHeaders(
 
 export function createRateLimitResponse(
   decision: RateLimitDecision,
-  now = Date.now()
+  options: { now?: number; route: ObservedRoute }
 ) {
+  const now = options.now ?? Date.now();
+  emitOperationalEvent("warn", "request.rate_limited", {
+    route: options.route,
+    status: 429,
+    code: "RATE_LIMITED"
+  });
+
   return NextResponse.json(
     {
       error: "Too many requests. Try again after the current limit window resets.",

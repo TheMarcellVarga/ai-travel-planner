@@ -23,7 +23,9 @@ const requestSchema = z.object({
 export async function POST(request: Request) {
   const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.newsletterSignup);
   if (!rateLimit.allowed) {
-    return createRateLimitResponse(rateLimit);
+    return createRateLimitResponse(rateLimit, {
+      route: "/api/newsletter/subscribe"
+    });
   }
 
   let body: unknown;

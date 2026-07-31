@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FREE_ENTITLEMENT } from "@/lib/account/entitlements";
 import { getCurrentUser } from "@/lib/auth";
@@ -38,6 +38,10 @@ describe("trip planning API", () => {
     vi.mocked(saveGenerationToDatabase).mockResolvedValue(null);
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("returns a controlled validation error for invalid planning input", async () => {
     const { POST } = await import("@/app/api/trips/plan/route");
     const response = await POST(
@@ -55,6 +59,7 @@ describe("trip planning API", () => {
   });
 
   it("rejects requests that exceed the planning rate limit", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const { POST } = await import("@/app/api/trips/plan/route");
     const makeRequest = () =>
       new Request("http://localhost/api/trips/plan", {
@@ -75,6 +80,7 @@ describe("trip planning API", () => {
     expect(response.status).toBe(429);
     expect(response.headers.get("Retry-After")).toBeTruthy();
     expect(await response.json()).toMatchObject({ code: "RATE_LIMITED" });
+    expect(warn).toHaveBeenCalledOnce();
   });
 
   it("returns routes with estimate, persistence, and external-search metadata", async () => {

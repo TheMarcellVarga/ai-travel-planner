@@ -52,6 +52,10 @@ Public:
 - Account export should be complete enough to satisfy user expectations.
 - Account deletion should delete or anonymize user-owned data according to documented product policy.
 
+The implemented operational event boundary and retention/alerting rules are
+documented in `docs/OBSERVABILITY.md`. Application code must use that allowlist
+instead of logging request bodies, raw errors, or provider payloads.
+
 ## Travel Safety Rules
 - Do not present route generation as safety, legal, visa, health, or emergency advice.
 - Avoid encouraging illegal, unsafe, or environmentally harmful travel behavior.

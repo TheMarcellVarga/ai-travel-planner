@@ -45,7 +45,7 @@ async function getUsedGenerationCount(user: Awaited<ReturnType<typeof getCurrent
 export async function POST(request: Request) {
   const rateLimit = consumeRateLimit(request, RATE_LIMIT_POLICIES.tripPlanning);
   if (!rateLimit.allowed) {
-    return createRateLimitResponse(rateLimit);
+    return createRateLimitResponse(rateLimit, { route: "/api/trips/plan" });
   }
 
   const body = await request.json();
