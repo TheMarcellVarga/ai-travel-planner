@@ -104,10 +104,11 @@ planning, save, publish, public share rendering, external handoff initiation,
 and the saved/shared vault. The outbound window URL is captured instead of
 navigated; Wild Route's handoff API and browser behavior remain real.
 
-`e2e/accessibility.spec.ts` checks four critical routes for serious and critical
-axe findings, verifies the skip-link keyboard path, and actively emulates
-reduced motion. These checks are a regression gate, not a substitute for manual
-screen-reader and complete keyboard-order verification.
+`e2e/accessibility.spec.ts` checks five critical routes for serious and critical
+axe findings, verifies the skip-link path and sequential focus across every
+visible application control, covers demo-authenticated saved/account states,
+and actively emulates reduced motion. These checks are a regression gate, not
+a substitute for manual screen-reader verification.
 
 ## Acceptance Rule
 No high-risk feature is complete until it has either automated tests or a documented manual verification checklist with exact steps.

@@ -112,7 +112,8 @@ Accessibility observations:
 - Reduced-motion safeguards exist in CSS and component logic: animation/transition durations are clamped, homepage scroll effects exit early, the route story disables motion, and the globe uses its fallback path.
 
 Remaining manual checks:
-- Run a complete keyboard-only tab-order pass beyond the automated skip-link path.
+- Run a manual screen-reader pass to complement the automated semantic and
+  keyboard checks.
 - Investigate the non-blocking development warning about multiple Three.js instances.
 - Remote Unsplash image optimization intermittently timed out and returned `500` responses in the dev server; route content and actions remained usable, but launch QA needs reliable media delivery or local fallbacks.
 
@@ -145,14 +146,16 @@ Date: 2026-07-30
 
 `e2e/accessibility.spec.ts` adds repeatable Chromium checks for:
 
-- serious or critical axe violations across `/`, `/planner`, `/auth`, and
-  `/saved`, using WCAG 2.0, 2.1, and 2.2 A/AA tags
+- serious or critical axe violations across `/`, `/planner`, `/auth`, `/saved`,
+  and `/account`, using WCAG 2.0, 2.1, and 2.2 A/AA tags
 - the first keyboard focus landing on the visible skip link and activation
   moving focus to the main content container
+- every visible application control receiving focus in DOM order across all
+  five critical routes, including demo-authenticated saved/account states
 - active `prefers-reduced-motion: reduce` emulation with visible animation and
   transition durations clamped to one millisecond
 
 The first run found and the implementation repaired an invalid homepage ARIA
 label, unlabeled auth email input, and skip-link target that could not receive
-focus. All six accessibility tests now pass. Automated scanning complements
-rather than replaces a complete manual keyboard-order and screen-reader pass.
+focus. All thirteen accessibility tests now pass. Automated scanning
+complements rather than replaces a manual screen-reader pass.

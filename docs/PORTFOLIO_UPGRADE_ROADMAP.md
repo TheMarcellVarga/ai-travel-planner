@@ -207,19 +207,22 @@ Implemented and committed:
 
 - `c22f3c3` — axe-powered WCAG checks for `/`, `/planner`, `/auth`, and
   `/saved`, plus keyboard skip-link and active reduced-motion verification
+- `0be905e` — sequential keyboard-order coverage for every visible control on
+  the homepage, planner, authentication, and saved-route surfaces
+- `b25bcda` — account axe coverage and demo-authenticated keyboard checks for
+  saved routes and account controls
 - repaired the invalid homepage ARIA region, missing auth-field labels, and
   unfocusable skip-link target discovered by the new checks
 
 Verified locally:
 
 - 11 Vitest files and 52 tests pass
-- all 7 Chromium tests pass, including 6 focused accessibility checks and the
-  existing golden path
+- all 14 Chromium tests pass, including 13 focused accessibility checks and
+  the existing golden path
 - Next.js 15.5.22 production build passes
 
 Open Phase 3 outcomes:
 
-- complete keyboard-order coverage beyond the skip-link path
 - rate limiting for abuse-prone endpoints
 - privacy-safe logging and error observability
 - webhook replay/idempotency behavior
