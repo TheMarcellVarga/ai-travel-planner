@@ -86,7 +86,7 @@ const bookingLinkSchema = z
   })
   .strict();
 
-const routeOptionSchema = z
+export const routeOptionSchema = z
   .object({
     id: z.string().min(1),
     title: z.string().min(1),
@@ -108,29 +108,31 @@ const routeOptionSchema = z
   })
   .strict();
 
+export const tripIntentSchema = z
+  .object({
+    prompt: z.string().min(1),
+    origin: z
+      .object({
+        label: z.string().min(1),
+        code: z.string().min(2).max(4),
+        coordinates: coordinatesSchema,
+        country: z.string().min(1)
+      })
+      .strict(),
+    tripLengthDays: z.number().int().min(4).max(30),
+    maxStops: z.number().int().min(0).max(2),
+    wishTags: z.array(wishTagSchema),
+    budgetMode: z.enum(["value", "balanced", "comfort"]),
+    vibe: z.string().min(1),
+    exclusions: z.array(z.string().min(1))
+  })
+  .strict();
+
 export const tripGenerationSchema = z
   .object({
     id: z.string().min(1),
     createdAt: z.string().datetime(),
-    tripIntent: z
-      .object({
-        prompt: z.string().min(1),
-        origin: z
-          .object({
-            label: z.string().min(1),
-            code: z.string().min(2).max(4),
-            coordinates: coordinatesSchema,
-            country: z.string().min(1)
-          })
-          .strict(),
-        tripLengthDays: z.number().int().min(4).max(30),
-        maxStops: z.number().int().min(0).max(2),
-        wishTags: z.array(wishTagSchema),
-        budgetMode: z.enum(["value", "balanced", "comfort"]),
-        vibe: z.string().min(1),
-        exclusions: z.array(z.string().min(1))
-      })
-      .strict(),
+    tripIntent: tripIntentSchema,
     routes: z.array(routeOptionSchema).min(1).max(5)
   })
   .strict();

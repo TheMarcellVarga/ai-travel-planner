@@ -2,22 +2,41 @@
 
 import { useState, useTransition } from "react";
 
+import {
+  saveDemoRouteToBrowser,
+  saveDemoShareToBrowser
+} from "@/lib/store/demo-browser-vault";
+import type { RouteOption, TripIntent } from "@/lib/types";
+
 type RouteActionsProps = {
   routeId: string;
+  route?: RouteOption;
+  tripIntent?: TripIntent;
 };
 
 type HandoffResponse = {
   links: Array<{ url: string }>;
 };
 
-export function RouteActions({ routeId }: RouteActionsProps) {
+export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) {
   const [message, setMessage] = useState<string | null>(null);
+  const [actionHref, setActionHref] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function runAction(path: string, successMessage: (payload: any) => string, openFirstLink = false) {
+  function runAction(
+    path: string,
+    successMessage: (payload: any) => string,
+    openFirstLink = false,
+    saveInBrowser = false
+  ) {
     startTransition(async () => {
       setMessage(null);
-      const response = await fetch(path, { method: "POST" });
+      setActionHref(null);
+      const response = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ route, tripIntent })
+      });
       const payload = await response.json();
 
       if (!response.ok) {
@@ -31,6 +50,15 @@ export function RouteActions({ routeId }: RouteActionsProps) {
         if (firstLink) {
           window.open(firstLink, "_blank", "noopener,noreferrer");
         }
+      }
+
+      if (saveInBrowser && route) {
+        saveDemoRouteToBrowser(window.localStorage, route);
+      }
+
+      if (path.endsWith("/publish") && route && payload.shareUrl) {
+        saveDemoShareToBrowser(window.localStorage, route, payload.shareUrl);
+        setActionHref(payload.shareUrl);
       }
 
       setMessage(successMessage(payload));
@@ -48,7 +76,12 @@ export function RouteActions({ routeId }: RouteActionsProps) {
           className="route-studio-actions__secondary-button"
           disabled={isPending}
           onClick={() =>
-            runAction(`/api/routes/${routeId}/save`, () => "Saved to your route vault.")
+            runAction(
+              `/api/routes/${routeId}/save`,
+              () => "Saved in this browser's demo vault.",
+              false,
+              true
+            )
           }
           type="button"
         >
@@ -58,7 +91,10 @@ export function RouteActions({ routeId }: RouteActionsProps) {
           className="route-studio-actions__secondary-button"
           disabled={isPending}
           onClick={() =>
-            runAction(`/api/routes/${routeId}/publish`, (payload) => `Published at /share/${payload.slug}`)
+            runAction(
+              `/api/routes/${routeId}/publish`,
+              (payload) => `Published preview at ${payload.shareUrl}`
+            )
           }
           type="button"
         >
@@ -75,7 +111,12 @@ export function RouteActions({ routeId }: RouteActionsProps) {
       >
         Open booking handoff
       </button>
-      {message ? <p className="route-studio-actions__message">{message}</p> : null}
+      {message ? (
+        <p className="route-studio-actions__message">
+          {message}{" "}
+          {actionHref ? <a href={actionHref}>Open share</a> : null}
+        </p>
+      ) : null}
     </div>
   );
 }

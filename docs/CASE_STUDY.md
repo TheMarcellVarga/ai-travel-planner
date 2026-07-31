@@ -68,8 +68,9 @@ public shares pass through an explicit safe-snapshot mapper.
 ### 4. Degrade visibly instead of simulating production
 
 When managed services are missing, the app can still demonstrate the product
-flow through a secure demo cookie and per-instance memory. Responses and UI copy
-identify that data as non-durable. Provider failures disclose fixture fallback,
+flow through a secure demo cookie, browser-local saved routes, and validated
+stateless public-preview recipes that omit the original prompt. Responses and UI
+copy identify those boundaries. Provider failures disclose fixture fallback,
 remote media swaps to bundled artwork, and billing/auth surfaces explain when
 configuration is absent.
 
@@ -80,7 +81,7 @@ configuration is absent.
 | Deterministic route engine before live AI | Repeatable behavior, low cost, strong tests, honest claims | Less natural interpretation; model-backed parsing remains future work |
 | Fixture destination data | Reliable offline demo and CI | No confirmed availability, weather, advisories, or provider freshness |
 | Next.js BFF rather than a separate API | Small deployment surface and clear secret boundary | Long-running provider work will eventually need queues or workers |
-| Per-instance demo store | Golden path works without hosted accounts | Data disappears on restart and cannot support production usage |
+| Browser-local demo vault and stateless preview links | Golden path works across serverless instances without hosted accounts | Saves are device-specific and cannot support production account usage |
 | 3D globe plus fallback | Memorable interface without excluding constrained devices | More implementation and QA complexity than a list-only planner |
 | App-instance rate limiting | Immediate bounded abuse control | Multi-instance launch requires shared storage or edge enforcement |
 
@@ -92,6 +93,10 @@ The strongest engineering evidence came from issues found during verification:
   rendered route objects before persisting a generation, so actions could not
   resolve the route ID. The page now reuses the latest generation or persists
   the default once before actions become available.
+- **The hosted demo failed across serverless instances.** Process memory from
+  page rendering was not available to the next API invocation. Demo saves now
+  use a labeled browser vault; publish creates a validated stateless recipe that
+  reconstructs only public route data and excludes the original prompt.
 - **The first public-share boundary was too broad.** Anonymous database reads
   could select whole share rows. Direct public table reads were revoked;
   server-only lookup plus a whitelist mapper now defines the public payload.
@@ -144,7 +149,8 @@ model integrations later.
 - Destination data and route ranking remain fixture-backed.
 - Supabase auth/RLS and Stripe test-mode execution have not passed the live
   Phase 2 gate in the currently available environment.
-- Demo persistence and newsletter preferences are per-instance and non-durable.
+- Demo saves are browser-local, preview shares are stateless, and newsletter
+  preferences remain per-instance; none are managed-account persistence.
 - Rate limiting is not distributed, and operational events have no production
   sink or alerts configured here.
 - Automated accessibility coverage targets Chromium and does not replace a

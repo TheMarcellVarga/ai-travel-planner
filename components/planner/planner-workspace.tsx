@@ -278,7 +278,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </p>
               </section>
 
-              <RouteActions routeId={activeRoute.id} />
+              <RouteActions
+                routeId={activeRoute.id}
+                route={activeRoute}
+                tripIntent={generation.tripIntent}
+              />
             </>
           ) : (
             <div className="route-studio__inspector-empty">

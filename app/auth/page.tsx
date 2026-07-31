@@ -40,7 +40,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           <p className="eyebrow">Account access</p>
           <h1>Access your route vault without fighting broken auth controls.</h1>
           <p className="muted-copy">
-            Use Supabase auth when backend credentials are configured. Otherwise, enter demo mode and keep the product flow moving locally.
+            Use Supabase auth when backend credentials are configured. Otherwise, enter demo mode and keep the product flow moving in this preview.
           </p>
         </div>
 
@@ -115,16 +115,16 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> to enable magic link and OAuth sign-in here.
               </p>
               <p className="muted-copy">
-                Until then, use demo mode on the right. The route save, publish, and handoff flows still work locally.
+                Until then, use demo mode on the right. The route save, publish, and handoff flows still work in the preview.
               </p>
             </article>
           )}
 
           <article className="auth-card">
             <p className="eyebrow">Demo mode</p>
-            <h2>Enter locally and keep testing.</h2>
+            <h2>Enter the preview and keep testing.</h2>
             <p className="muted-copy">
-              Demo auth uses a secure cookie so save, publish, and handoff flows work locally.
+              Demo auth uses a secure cookie. Saves stay in this browser and published previews are stateless share links.
             </p>
             <form action="/api/auth/demo" className="auth-form" method="post">
               <input name="next" type="hidden" value="/saved" />

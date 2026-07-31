@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DemoBrowserRoutes, DemoBrowserShares } from "@/components/demo-browser-vault";
 import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia, heroMedia } from "@/lib/media";
 import { getCurrentUser } from "@/lib/auth";
@@ -84,13 +85,14 @@ export default async function SavedPage() {
         <div className="planner-stage-title">
           <p className="eyebrow">Saved route vault</p>
           <h1>
-            {savedRoutes.length} route files in the vault.
+            {user.authMode === "demo"
+              ? "Browser-local demo vault."
+              : `${savedRoutes.length} route files in the vault.`}
           </h1>
         </div>
         <div className="planner-stage-badges">
           <span className="status-pill">
-            Plan: {user.entitlement.routeSaveLimit} routes,{" "}
-            {user.entitlement.promotedStopLimit} promoted
+            {user.authMode === "demo" ? "This device only" : `Plan: ${user.entitlement.routeSaveLimit} routes, ${user.entitlement.promotedStopLimit} promoted`}
           </span>
         </div>
       </div>
@@ -103,7 +105,9 @@ export default async function SavedPage() {
           </div>
 
           <div className="stop-stack vault-card-stack">
-            {savedRoutes.length ? (
+            {user.authMode === "demo" ? (
+              <DemoBrowserRoutes />
+            ) : savedRoutes.length ? (
               savedRoutes.map((item) => (
                 <article className="stop-card vault-route-card" key={item.id}>
                   <div className="card-header">
@@ -143,7 +147,9 @@ export default async function SavedPage() {
           </div>
 
           <div className="stop-stack vault-card-stack">
-            {sharedRoutes.length ? (
+            {user.authMode === "demo" ? (
+              <DemoBrowserShares />
+            ) : sharedRoutes.length ? (
               sharedRoutes.map((item) => (
                 <article className="stop-card vault-route-card" key={item.id}>
                   <div className="card-header">

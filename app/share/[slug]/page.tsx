@@ -4,6 +4,7 @@ import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia } from "@/lib/media";
+import { resolveDemoShare } from "@/lib/store/demo-preview";
 import { getPublicSharedRoute } from "@/lib/store/demo-store";
 import { getPublicSharedRouteFromDatabase } from "@/lib/store/persistent-store";
 
@@ -13,8 +14,10 @@ type SharePageProps = {
 
 export default async function SharePage({ params }: SharePageProps) {
   const { slug } = await params;
-  const sharedRoute =
+  const persistedSharedRoute =
     (await getPublicSharedRouteFromDatabase(slug)) ?? getPublicSharedRoute(slug);
+  const demoShare = persistedSharedRoute ? null : await resolveDemoShare(slug);
+  const sharedRoute = persistedSharedRoute ?? demoShare?.publicRoute;
 
   if (!sharedRoute) {
     notFound();
@@ -77,7 +80,7 @@ export default async function SharePage({ params }: SharePageProps) {
               Availability: external provider search required. Freshness:{" "}
               {sharedRoute.route.dataFreshness}.
             </p>
-            <RouteActions routeId={sharedRoute.route.id} />
+            <RouteActions routeId={sharedRoute.route.id} route={demoShare?.route} />
           </div>
 
           <div className="margin-top-auto">

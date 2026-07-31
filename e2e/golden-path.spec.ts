@@ -44,20 +44,21 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   await routeControls.click();
   await expect(
     page.getByText(
-      "Demo persistence: this route set is kept only for the current local app session."
+      "Demo persistence: this route set is kept only for the current app instance and is not durable."
     )
   ).toBeVisible();
   const routeTitle = await page.locator("main h1").innerText();
 
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Saved to your route vault.")).toBeVisible();
+  await expect(page.getByText("Saved in this browser's demo vault.")).toBeVisible();
 
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   const publishMessage = page.locator(".route-studio-actions__message");
-  await expect(publishMessage).toContainText("Published at /share/");
-  const sharePath = (await publishMessage.innerText()).replace("Published at ", "");
+  await expect(publishMessage).toContainText("Published preview at /share/");
+  const sharePath = await publishMessage.locator("a").getAttribute("href");
+  expect(sharePath).toMatch(/^\/share\/preview-/);
 
-  await page.goto(sharePath);
+  await page.goto(sharePath!);
   await expect(page.getByRole("heading", { level: 1, name: routeTitle })).toBeVisible();
   await expect(
     page.getByText("Availability: external provider search required.", {
@@ -93,5 +94,5 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
 
   await page.goto("/saved");
   await expect(page.getByText(routeTitle, { exact: true })).toHaveCount(2);
-  await expect(page.getByRole("link", { name: new RegExp(`Open ${sharePath}`) })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open preview share" })).toBeVisible();
 });

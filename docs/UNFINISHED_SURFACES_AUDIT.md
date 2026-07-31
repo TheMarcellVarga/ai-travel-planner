@@ -28,7 +28,7 @@ The remaining incomplete surfaces are intentional service or data boundaries:
 | Route destination data | Deterministic local destination fixture drives ranking. | Label | Planner output exposes fixture mode, observation time, assumptions, and external-inventory disclaimer. Finish only after a selected provider passes freshness, failure, privacy, and cost gates. |
 | Cost and confidence | App-generated planning estimate and app-defined route fit. | Label | Planner and public share use “est.”, “app confidence”, and provider-ownership language. Never relabel as confirmed without provider evidence. |
 | Booking | Opens external provider searches; Wild Route does not transact. | Label | Handoff API and UI preserve the external-booking boundary. This is the intended v1 endpoint, not scaffolding. |
-| Demo auth and route storage | Secure demo cookie plus per-instance memory. | Label | Auth, planner, saved, and account surfaces state that demo data is not durable. Managed durability requires live Supabase verification. |
+| Demo auth and route storage | Secure demo cookie, browser-local saved routes, and validated stateless preview shares. | Label | Auth, planner, saved, and account surfaces state the device/preview boundary. Managed account durability requires live Supabase verification. |
 | Newsletter signup | Preferences are held in per-instance memory; optional email may send a confirmation. | Label | Signup now returns and renders explicit non-durable persistence metadata. Finish with durable consent storage and unsubscribe handling before production marketing use. |
 | Managed auth and persistence | Code and migrations exist; live environment remains unverified. | Label | Auth switches to an inactive explanatory state when variables are absent. Upgrade Phase 2 remains open until strict service verification passes. |
 | Stripe billing | Checkout, portal, webhook signature, replay ledger, and tests exist; live test mode is unverified. | Label | Account explains unavailable billing when configuration is absent. Do not show or claim live billing evidence until the test-mode checklist passes. |
@@ -42,6 +42,10 @@ The remaining incomplete surfaces are intentional service or data boundaries:
 
 - Replaced “local machine/session” wording with deployment-safe “environment”
   and “app instance” language.
+- Repaired serverless demo actions after hosted verification found that
+  process-memory generations could not be resolved across function instances.
+  Demo saves now stay in the browser and share links reconstruct an allowlisted
+  route from a validated recipe that omits the original prompt.
 - Added explicit newsletter persistence metadata to the API response and
   confirmation UI.
 - Updated README limitations so completed rate-limit, observability, webhook

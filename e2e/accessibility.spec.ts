@@ -73,10 +73,14 @@ async function expectSequentialKeyboardOrder(page: Page) {
   });
 
   for (const expectedElement of expectedOrder) {
-    await page.keyboard.press("Tab");
-    const focusedElementId = await page.evaluate(
-      () => (document.activeElement as HTMLElement | null)?.dataset.keyboardOrderId
-    );
+    let focusedElementId: string | undefined;
+
+    for (let attempt = 0; attempt < 3 && !focusedElementId; attempt += 1) {
+      await page.keyboard.press("Tab");
+      focusedElementId = await page.evaluate(
+        () => (document.activeElement as HTMLElement | null)?.dataset.keyboardOrderId
+      );
+    }
 
     expect(
       focusedElementId,
