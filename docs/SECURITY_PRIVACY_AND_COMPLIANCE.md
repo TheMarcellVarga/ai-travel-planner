@@ -43,6 +43,9 @@ Public:
 - Client never submits trusted Stripe price/customer/subscription IDs.
 - Checkout uses server-configured price IDs.
 - Webhooks require signature verification.
+- Verified Stripe events require a durable claim before entitlement writes;
+  completed event IDs are not processed twice, and failed/expired claims are
+  retryable without storing webhook payloads.
 - Entitlements must update from verified webhook events or trusted admin paths only.
 - Account deletion must handle active subscriptions deliberately.
 

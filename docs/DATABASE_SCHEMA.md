@@ -8,6 +8,7 @@ Supabase Postgres is the relational system of record. SQL migrations live in `su
 - `20260420_billing.sql`
 - `20260422_account_profiles.sql`
 - `20260727_public_share_boundary.sql`
+- `20260731161920_stripe_webhook_idempotency.sql`
 
 ## Core Tables
 
@@ -105,6 +106,25 @@ Rules:
 - Store only what is needed for product analytics and support.
 - Do not store sensitive payment details.
 
+### `stripe_webhook_events`
+Purpose: durable Stripe delivery ledger for duplicate suppression and retry-safe
+entitlement synchronization.
+
+Expected fields:
+- Stripe event ID primary key
+- event type and processing status
+- attempt count and processing lease expiry
+- received, updated, and processed timestamps
+- normalized last error class only
+
+Rules:
+- Service-role access only; `anon` and `authenticated` receive no table grants.
+- RLS remains enabled with no public/user policies.
+- Never persist webhook payloads, billing emails, customer IDs, subscription
+  IDs, error messages, or stack traces in this ledger.
+- Completed event IDs are acknowledged without repeating entitlement writes.
+- Failed or expired processing leases may be reclaimed by a later Stripe retry.
+
 ### Newsletter subscribers
 Current state: newsletter subscriptions are handled by the local demo store and optional email delivery path. There is no persistent `newsletter_subscribers` table in the current Supabase migrations.
 
@@ -147,3 +167,4 @@ The verifier checks:
 - RLS enablement for protected tables
 - owner policies using `auth.uid() = user_id`
 - revocation of the original full-row public read policy for `shared_routes`
+- service-role-only protection for the Stripe webhook event ledger

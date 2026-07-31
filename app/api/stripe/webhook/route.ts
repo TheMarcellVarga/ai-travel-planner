@@ -3,7 +3,17 @@ import Stripe from "stripe";
 
 import { getEntitlementShape } from "@/lib/account/entitlements";
 import { getStripe, isActiveSubscription } from "@/lib/billing/stripe";
+import {
+  claimWebhookEvent,
+  completeWebhookEvent,
+  failWebhookEvent
+} from "@/lib/billing/webhook-events";
 import { env } from "@/lib/env";
+import {
+  emitOperationalEvent,
+  getSafeErrorKind,
+  hashOperationalIdentifier
+} from "@/lib/observability/operational-events";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function getPlanFromSubscription(subscription: Stripe.Subscription) {
@@ -17,7 +27,7 @@ function getPlanFromSubscription(subscription: Stripe.Subscription) {
 async function syncEntitlementForCheckoutSession(session: Stripe.Checkout.Session) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
-    return;
+    throw new Error("Entitlement persistence is unavailable.");
   }
 
   const userId = session.metadata?.app_user_id;
@@ -29,7 +39,7 @@ async function syncEntitlementForCheckoutSession(session: Stripe.Checkout.Sessio
 
   const entitlementShape = getEntitlementShape("free");
 
-  await admin.from("entitlements").upsert(
+  const { error } = await admin.from("entitlements").upsert(
     {
       user_id: userId,
       plan: "free",
@@ -41,23 +51,31 @@ async function syncEntitlementForCheckoutSession(session: Stripe.Checkout.Sessio
     },
     { onConflict: "user_id" }
   );
+
+  if (error) {
+    throw error;
+  }
 }
 
 async function syncEntitlementForSubscription(subscription: Stripe.Subscription) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
-    return;
+    throw new Error("Entitlement persistence is unavailable.");
   }
 
   const customerId = String(subscription.customer);
   let userId = subscription.metadata.app_user_id || null;
 
   if (!userId) {
-    const { data } = await admin
+    const { data, error } = await admin
       .from("entitlements")
       .select("user_id")
       .eq("stripe_customer_id", customerId)
       .maybeSingle<{ user_id: string }>();
+
+    if (error) {
+      throw error;
+    }
 
     userId = data?.user_id ?? null;
   }
@@ -72,7 +90,7 @@ async function syncEntitlementForSubscription(subscription: Stripe.Subscription)
     current_period_end?: number;
   };
 
-  await admin.from("entitlements").upsert(
+  const { error } = await admin.from("entitlements").upsert(
     {
       user_id: userId,
       plan,
@@ -88,6 +106,10 @@ async function syncEntitlementForSubscription(subscription: Stripe.Subscription)
     },
     { onConflict: "user_id" }
   );
+
+  if (error) {
+    throw error;
+  }
 }
 
 export async function POST(request: Request) {
@@ -105,24 +127,90 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, env.stripeWebhookSecret);
   } catch {
+    emitOperationalEvent("warn", "stripe.webhook.invalid_signature", {
+      route: "/api/stripe/webhook",
+      status: 400,
+      code: "INVALID_SIGNATURE"
+    });
     return NextResponse.json(
       { error: "Invalid Stripe webhook signature." },
       { status: 400 }
     );
   }
 
-  switch (event.type) {
-    case "checkout.session.completed":
-      await syncEntitlementForCheckoutSession(event.data.object as Stripe.Checkout.Session);
-      break;
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-    case "customer.subscription.deleted":
-      await syncEntitlementForSubscription(event.data.object as Stripe.Subscription);
-      break;
-    default:
-      break;
+  const subjectHash = hashOperationalIdentifier(event.id);
+  const claim = await claimWebhookEvent({
+    eventId: event.id,
+    eventType: event.type
+  });
+
+  if (claim.status === "unavailable") {
+    emitOperationalEvent("error", "stripe.webhook.failed", {
+      route: "/api/stripe/webhook",
+      status: 503,
+      code: "LEDGER_UNAVAILABLE",
+      eventType: event.type,
+      subjectHash
+    });
+    return NextResponse.json(
+      { error: "Stripe webhook processing is temporarily unavailable." },
+      { status: 503 }
+    );
   }
 
-  return NextResponse.json({ received: true });
+  if (claim.status === "duplicate") {
+    emitOperationalEvent("info", "stripe.webhook.duplicate", {
+      route: "/api/stripe/webhook",
+      status: 200,
+      eventType: event.type,
+      subjectHash
+    });
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
+  try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        await syncEntitlementForCheckoutSession(
+          event.data.object as Stripe.Checkout.Session
+        );
+        break;
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted":
+        await syncEntitlementForSubscription(
+          event.data.object as Stripe.Subscription
+        );
+        break;
+      default:
+        break;
+    }
+
+    if (!(await completeWebhookEvent(event.id))) {
+      throw new Error("Webhook event completion could not be persisted.");
+    }
+
+    emitOperationalEvent("info", "stripe.webhook.processed", {
+      route: "/api/stripe/webhook",
+      status: 200,
+      eventType: event.type,
+      subjectHash
+    });
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    const errorKind = getSafeErrorKind(error);
+    await failWebhookEvent(event.id, errorKind);
+    emitOperationalEvent("error", "stripe.webhook.failed", {
+      route: "/api/stripe/webhook",
+      status: 500,
+      code: "PROCESSING_FAILED",
+      eventType: event.type,
+      subjectHash,
+      errorKind
+    });
+    return NextResponse.json(
+      { error: "Stripe webhook processing failed." },
+      { status: 500 }
+    );
+  }
 }

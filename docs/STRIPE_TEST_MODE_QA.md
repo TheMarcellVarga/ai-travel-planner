@@ -71,10 +71,19 @@ npm run dev
 13. Confirm the portal opens for the same Stripe customer and returns to `/account`.
 14. Cancel the subscription in the portal.
 15. Confirm a subscription update or delete webhook returns the entitlement to Free limits.
+16. Resend one successfully processed Stripe event and confirm:
+    - the endpoint returns `200` with `duplicate: true`
+    - the entitlement row is unchanged
+    - the matching `stripe_webhook_events` row remains `completed`
+17. Confirm the ledger row contains only the event ID/type, processing state,
+    attempt/lease metadata, timestamps, and normalized error kind—never the raw
+    payload, email, customer/subscription ID, or error message.
 
 ## Negative Checks
 - Remove `STRIPE_SECRET_KEY` or `STRIPE_PRO_PRICE_ID`, restart, and confirm checkout returns a clear unavailable state.
 - Send a webhook request without the Stripe signature and confirm it returns an error without provider details.
+- Temporarily make the webhook ledger unavailable and confirm the endpoint
+  returns `503`, allowing Stripe to retry instead of applying an untracked write.
 - Confirm no Stripe secret, webhook secret, service-role key, customer ID, or subscription ID appears in browser-rendered source or client bundles.
 
 ## Acceptance Evidence

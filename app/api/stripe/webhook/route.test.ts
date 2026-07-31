@@ -3,13 +3,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 function mockWebhookEnvironment({
   stripeClient,
   adminClient,
-  webhookSecret = "whsec_test_secret"
+  webhookSecret = "whsec_test_secret",
+  claimStatus = "claimed"
 }: {
   stripeClient: unknown;
   adminClient?: unknown;
   webhookSecret?: string | undefined;
+  claimStatus?: "claimed" | "duplicate" | "unavailable";
 }) {
   vi.resetModules();
+  const claimWebhookEvent = vi.fn(async () => ({ status: claimStatus }));
+  const completeWebhookEvent = vi.fn(async () => true);
+  const failWebhookEvent = vi.fn(async () => true);
+  const emitOperationalEvent = vi.fn();
   vi.doMock("@/lib/env", () => ({
     env: {
       stripeWebhookSecret: webhookSecret,
@@ -24,6 +30,23 @@ function mockWebhookEnvironment({
   vi.doMock("@/lib/supabase/admin", () => ({
     createSupabaseAdminClient: vi.fn(() => adminClient ?? null)
   }));
+  vi.doMock("@/lib/billing/webhook-events", () => ({
+    claimWebhookEvent,
+    completeWebhookEvent,
+    failWebhookEvent
+  }));
+  vi.doMock("@/lib/observability/operational-events", () => ({
+    emitOperationalEvent,
+    getSafeErrorKind: () => "unknown_error",
+    hashOperationalIdentifier: () => "subject_hash"
+  }));
+
+  return {
+    claimWebhookEvent,
+    completeWebhookEvent,
+    failWebhookEvent,
+    emitOperationalEvent
+  };
 }
 
 describe("Stripe webhook API", () => {
@@ -31,6 +54,8 @@ describe("Stripe webhook API", () => {
     vi.doUnmock("@/lib/env");
     vi.doUnmock("@/lib/billing/stripe");
     vi.doUnmock("@/lib/supabase/admin");
+    vi.doUnmock("@/lib/billing/webhook-events");
+    vi.doUnmock("@/lib/observability/operational-events");
     vi.resetModules();
   });
 
@@ -88,6 +113,7 @@ describe("Stripe webhook API", () => {
     const upsert = vi.fn(async () => ({ data: null, error: null }));
     const from = vi.fn(() => ({ upsert }));
     const constructEvent = vi.fn(() => ({
+      id: "evt_checkout",
       type: "checkout.session.completed",
       data: {
         object: {
@@ -97,7 +123,7 @@ describe("Stripe webhook API", () => {
         }
       }
     }));
-    mockWebhookEnvironment({
+    const ledger = mockWebhookEnvironment({
       stripeClient: {
         webhooks: { constructEvent }
       },
@@ -116,6 +142,11 @@ describe("Stripe webhook API", () => {
 
     expect(response.status).toBe(200);
     expect(payload).toEqual({ received: true });
+    expect(ledger.claimWebhookEvent).toHaveBeenCalledWith({
+      eventId: "evt_checkout",
+      eventType: "checkout.session.completed"
+    });
+    expect(ledger.completeWebhookEvent).toHaveBeenCalledWith("evt_checkout");
     expect(from).toHaveBeenCalledWith("entitlements");
     expect(upsert).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -126,5 +157,107 @@ describe("Stripe webhook API", () => {
       }),
       { onConflict: "user_id" }
     );
+  });
+
+  it("acknowledges duplicate events without repeating entitlement writes", async () => {
+    const upsert = vi.fn(async () => ({ data: null, error: null }));
+    const from = vi.fn(() => ({ upsert }));
+    const constructEvent = vi.fn(() => ({
+      id: "evt_duplicate",
+      type: "checkout.session.completed",
+      data: { object: {} }
+    }));
+    const ledger = mockWebhookEnvironment({
+      stripeClient: { webhooks: { constructEvent } },
+      adminClient: { from },
+      claimStatus: "duplicate"
+    });
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const response = await POST(
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        body: "{\"id\":\"evt_duplicate\"}",
+        headers: { "stripe-signature": "sig_valid" }
+      })
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ received: true, duplicate: true });
+    expect(from).not.toHaveBeenCalled();
+    expect(ledger.completeWebhookEvent).not.toHaveBeenCalled();
+    expect(ledger.emitOperationalEvent).toHaveBeenCalledWith(
+      "info",
+      "stripe.webhook.duplicate",
+      expect.objectContaining({ subjectHash: "subject_hash" })
+    );
+  });
+
+  it("fails closed when the durable event ledger is unavailable", async () => {
+    const constructEvent = vi.fn(() => ({
+      id: "evt_unavailable",
+      type: "customer.subscription.updated",
+      data: { object: {} }
+    }));
+    const ledger = mockWebhookEnvironment({
+      stripeClient: { webhooks: { constructEvent } },
+      claimStatus: "unavailable"
+    });
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const response = await POST(
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        body: "{\"id\":\"evt_unavailable\"}",
+        headers: { "stripe-signature": "sig_valid" }
+      })
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: "Stripe webhook processing is temporarily unavailable."
+    });
+    expect(ledger.completeWebhookEvent).not.toHaveBeenCalled();
+  });
+
+  it("marks failed entitlement writes for safe retry", async () => {
+    const upsert = vi.fn(async () => ({
+      data: null,
+      error: { code: "DATABASE_WRITE_FAILED", message: "private billing details" }
+    }));
+    const from = vi.fn(() => ({ upsert }));
+    const constructEvent = vi.fn(() => ({
+      id: "evt_failed",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          metadata: { app_user_id: "user_123" },
+          customer: "cus_private"
+        }
+      }
+    }));
+    const ledger = mockWebhookEnvironment({
+      stripeClient: { webhooks: { constructEvent } },
+      adminClient: { from }
+    });
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const response = await POST(
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        body: "{\"id\":\"evt_failed\"}",
+        headers: { "stripe-signature": "sig_valid" }
+      })
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload).toEqual({ error: "Stripe webhook processing failed." });
+    expect(JSON.stringify(payload)).not.toContain("private billing details");
+    expect(ledger.failWebhookEvent).toHaveBeenCalledWith(
+      "evt_failed",
+      "unknown_error"
+    );
+    expect(ledger.completeWebhookEvent).not.toHaveBeenCalled();
   });
 });
