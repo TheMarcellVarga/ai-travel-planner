@@ -16,6 +16,60 @@ Wild Route is a travel route discovery and planning application. It separates UI
 | Provider adapters | Booking links, future flights/stays/maps/weather/advisory data |
 | Route generation pipeline | Intent parsing, candidate expansion, scoring, entitlement enforcement, snapshot persistence |
 
+## Trust Boundaries
+
+```mermaid
+flowchart LR
+  subgraph Public["Public / untrusted"]
+    Browser["Browser UI"]
+    Provider["External booking provider"]
+  end
+
+  subgraph App["Wild Route application boundary"]
+    UI["Next.js rendering"]
+    API["Same-origin route handlers"]
+    Planner["Validated route pipeline"]
+    Mapper["Public snapshot allowlist"]
+    Events["Privacy-safe operational events"]
+  end
+
+  subgraph Managed["Managed secret-bearing services"]
+    Auth["Supabase Auth"]
+    DB["Postgres + RLS"]
+    Stripe["Stripe + signed webhooks"]
+    Email["Email provider"]
+  end
+
+  Browser -->|"validated requests; session cookie"| API
+  Browser --> UI
+  API --> Planner
+  API -->|"server credentials only"| Auth
+  API -->|"owner checks + RLS"| DB
+  API -->|"server secret"| Stripe
+  Stripe -->|"signature verified + event claimed"| API
+  API -->|"allowlisted messages"| Email
+  API --> Events
+  DB --> Mapper
+  Mapper -->|"safe route fields only"| UI
+  API -->|"handoff URL; no booking transaction"| Provider
+```
+
+Boundary rules:
+
+- The browser is untrusted. It never receives a Supabase service-role key,
+  Stripe secret, webhook secret, email key, or future provider credential.
+- Every API input is parsed before domain or persistence work. Authenticated
+  identity comes from the session, never a client-submitted owner ID.
+- RLS and server-side ownership checks protect user data. Public share pages
+  receive only an explicit safe snapshot, not a database row.
+- Stripe event signatures are verified before a service-only replay ledger
+  claims the event and permits entitlement work.
+- Operational events accept an allowlist of low-cardinality fields and
+  pseudonymous identifiers; prompts, emails, route details, billing IDs, raw
+  errors, and provider payloads stay out.
+- External links are booking handoffs. Wild Route does not accept travel
+  payment or assert final price and availability.
+
 ## System Diagram
 
 ```mermaid
@@ -75,4 +129,3 @@ ai-dev/skills/          Repo-local AI work-routing skills
 - Client-side direct database writes for protected resources.
 - Long-running route jobs without a queue strategy.
 - Model calls directly reading private database data.
-

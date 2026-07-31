@@ -86,6 +86,15 @@ See [Architecture](docs/ARCHITECTURE.md),
 [API contracts](docs/API_SPEC.md), and
 [Database schema](docs/DATABASE_SCHEMA.md) for the detailed design.
 
+## Portfolio Evidence
+
+- [Product engineering case study](docs/CASE_STUDY.md)
+- [Five-minute demo walkthrough](docs/DEMO_WALKTHROUGH.md)
+- [Architecture and trust boundaries](docs/ARCHITECTURE.md#trust-boundaries)
+- [Unfinished surfaces audit](docs/UNFINISHED_SURFACES_AUDIT.md)
+- [Deployment and known-limitations record](docs/DEPLOYMENT.md)
+- [Browser QA evidence](docs/BROWSER_QA.md)
+
 ## Stack
 
 - Next.js 15 App Router, React 19, and TypeScript
