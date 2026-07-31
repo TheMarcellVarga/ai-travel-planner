@@ -5,7 +5,8 @@ const criticalRoutes = [
   { path: "/", name: "homepage" },
   { path: "/planner", name: "planner" },
   { path: "/auth", name: "authentication" },
-  { path: "/saved", name: "saved routes" }
+  { path: "/saved", name: "saved routes" },
+  { path: "/account", name: "account" }
 ] as const;
 
 const keyboardFocusableSelector = [
@@ -114,6 +115,19 @@ for (const route of criticalRoutes) {
     await expectSequentialKeyboardOrder(page);
   });
 }
+
+test("demo account and saved-route controls remain sequentially keyboard accessible", async ({
+  page
+}) => {
+  await page.goto("/auth");
+  await page.getByRole("button", { name: "Enter Demo Mode" }).click();
+  await expect(page).toHaveURL(/\/saved$/);
+  await expectSequentialKeyboardOrder(page);
+
+  await page.goto("/account");
+  await expect(page.locator("main")).toBeVisible();
+  await expectSequentialKeyboardOrder(page);
+});
 
 test("reduced motion disables meaningful animation and transition durations", async ({
   page
