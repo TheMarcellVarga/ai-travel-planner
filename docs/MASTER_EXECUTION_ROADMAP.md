@@ -43,7 +43,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 8. Polish And Launch Prep | Not started | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
 
 ## Current Completion Audit
-Last audited: 2026-07-27.
+Last audited: 2026-08-01.
 
 Verification:
 
@@ -53,9 +53,10 @@ npm run build
 ```
 
 Current result:
-- Tests pass: 11 files, 52 tests.
+- Tests pass: 15 files, 71 tests.
 - Route evals pass: 7 fixtures.
-- Chromium golden path passes.
+- 15 Chromium accessibility, golden-path, and media-degradation tests pass.
+- 5 Supabase migrations pass static schema, RLS, and service-role checks.
 - Production build passes on Next.js 15.5.22.
 - Production dependency audit reports zero known vulnerabilities.
 
@@ -68,7 +69,7 @@ Current result:
 | 4. Route Generation MVP | Deterministic prompt interpretation, destination matching, scoring, 3-4 route options, confidence, reasons, promoted stop, booking links, planning-estimate metadata, external-search disclaimers, unsupported safety/visa/guarantee caveats, unit tests, and trip API tests exist. | Live provider adapters and provider-confirmed freshness remain Phase 6 hardening work. | Complete |
 | 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, deterministic checkout, portal, and webhook tests, and a Stripe test-mode QA checklist exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
 | 6. Real Data And AI Hardening | Normalized provider contract, deterministic fixture adapter, explicit fixture/live mode, freshness, latency, assumptions, unavailable-provider fallback, strict provider/generation schemas, and seven route eval fixtures exist. | No live travel provider, optional model path, provider-confirmed freshness, or usage/cost tracking. | Partial |
-| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification, production dependency audit, targeted desktop/mobile browser QA, automated Chromium golden path, axe checks on five critical routes, sequential keyboard verification including demo-authenticated account states, and active reduced-motion emulation exist. | No threat model, rate-limit strategy, analytics/log scrubbing implementation, or observability setup. | Partial |
+| 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification and replay ledger, bounded abuse-rate controls, privacy-safe structured operational events, retention/alert guidance, production dependency audit, targeted desktop/mobile browser QA, automated Chromium golden path, axe checks on five critical routes, sequential keyboard verification including demo-authenticated account states, active reduced-motion emulation, and deterministic media degradation exist. | A formal threat model, distributed multi-instance rate-limit adapter, production observability sink/alerts, and broader multi-browser/screen-reader verification remain launch work. | Partial |
 | 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |
 
 ## Phase 0: Control Plane

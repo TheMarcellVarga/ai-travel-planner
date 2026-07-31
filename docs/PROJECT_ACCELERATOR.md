@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-07-27.
+Last checked: 2026-08-01.
 
 ```bash
 npm run test
@@ -14,9 +14,10 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 11 test files, 52 tests.
+- `npm run test`: passed, 15 test files, 71 tests.
 - `npm run test:evals`: passed, 7 fixtures.
-- `npm run test:e2e`: passed in Chromium.
+- `npm run test:e2e`: passed, 15 tests in Chromium.
+- `npm run verify:migrations`: passed, 5 migration files.
 - `npm run build`: passed with Next.js 15.5.22.
 - `npm audit --omit=dev`: zero known vulnerabilities.
 
@@ -52,16 +53,20 @@ Build routes currently include:
 - Route generation now reads through a normalized provider boundary; the active provider remains the local deterministic fixture.
 - `POST /api/trips/plan` falls back to the in-memory demo store if Supabase persistence is unavailable.
 - Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
-- Supabase RLS behavior is documented but not automatically verified.
+- Supabase migrations, required tables, RLS enablement, owner policies, public
+  share revocation, and the service-role-only Stripe ledger are statically
+  verified; live managed-project behavior remains environment-dependent.
 - Stripe checkout and portal flows still need live Stripe test-mode verification using `docs/STRIPE_TEST_MODE_QA.md`.
 - Entitlement generation limits are enforced at the planning endpoint for anonymous, demo, and Supabase users.
 - Booking handoff links are external deep links, not provider-confirmed inventory.
-- Remote Unsplash media can time out during local image optimization; launch QA still needs reliable media delivery or local fallbacks.
+- Remote Unsplash media now degrades once to bundled Wild Route artwork and the
+  failure path is covered in Chromium.
 - There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
-- Full keyboard-order, active reduced-motion, and broader browser/accessibility QA remain for Phase 7.
+- Automated keyboard order, active reduced motion, axe scans, and media failure
+  behavior are covered; manual screen-reader and broader multi-browser QA remain.
 
 ## Current Phase Status
-Last audited: 2026-07-08.
+Last audited: 2026-08-01.
 
 | Phase | Status | Reason |
 | --- | --- | --- |
@@ -72,7 +77,7 @@ Last audited: 2026-07-08.
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
 | 6. Real Data And AI Hardening | In progress | Provider contract, deterministic fixture, normalized status/freshness/latency/fallback metadata, strict schemas, and seven eval fixtures exist; live data, model usage, and cost tracking remain. |
-| 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked, production dependencies audit cleanly, and targeted plus automated Chromium, axe, sequential-keyboard, and reduced-motion QA exist; threat model, rate limits, and observability remain. |
+| 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked; bounded rate limits, privacy-safe operational events, Stripe replay protection, dependency audit, and Chromium axe/keyboard/reduced-motion/media QA exist. A formal threat model, distributed limiter, production alert sink, and broader browser/screen-reader QA remain. |
 | 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
 
 ## Active Development Lane

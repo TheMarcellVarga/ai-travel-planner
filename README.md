@@ -146,10 +146,11 @@ npm run build
 npm audit --omit=dev
 ```
 
-Baseline verified on 2026-07-27:
+Baseline verified on 2026-08-01:
 
-- 11 Vitest files and 52 passing tests
-- passing Chromium demo golden-path automation
+- 15 Vitest files and 71 passing tests
+- 15 passing Chromium accessibility, golden-path, and media-failure tests
+- 5 statically verified Supabase migration files
 - successful Next.js 15.5.22 production build
 - zero known production dependency vulnerabilities in `npm audit --omit=dev`
 

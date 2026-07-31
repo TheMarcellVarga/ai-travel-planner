@@ -55,6 +55,17 @@ Rules:
 - Email should be optional for local non-email work.
 - Missing email config must not crash unrelated pages.
 
+## Operational Privacy Salts
+- `RATE_LIMIT_HASH_SECRET`
+- `OBSERVABILITY_HASH_SECRET`
+
+Rules:
+- Server-only, random, and independent from provider/auth secrets.
+- Recommended in production so pseudonymous rate-limit and operational keys
+  remain stable across process restarts.
+- When absent, each process creates an ephemeral random salt so builds and local
+  development remain functional without retaining raw identifiers.
+
 ## Future Provider Variables
 Add provider variables only through documented adapter work. Each provider needs:
 - server-only API key

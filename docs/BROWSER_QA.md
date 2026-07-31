@@ -115,7 +115,7 @@ Remaining manual checks:
 - Run a manual screen-reader pass to complement the automated semantic and
   keyboard checks.
 - Investigate the non-blocking development warning about multiple Three.js instances.
-- Remote Unsplash image optimization intermittently timed out and returned `500` responses in the dev server; route content and actions remained usable, but launch QA needs reliable media delivery or local fallbacks.
+- Broader browser and manual screen-reader coverage remain launch checks.
 
 ## Portfolio Upgrade Phase 2 Golden Path
 
@@ -159,3 +159,14 @@ The first run found and the implementation repaired an invalid homepage ARIA
 label, unlabeled auth email input, and skip-link target that could not receive
 focus. All thirteen accessibility tests now pass. Automated scanning
 complements rather than replaces a manual screen-reader pass.
+
+## Portfolio Upgrade Phase 3 Media Degradation
+
+Date: 2026-08-01
+
+`e2e/media-resilience.spec.ts` aborts remote Unsplash optimization requests and
+verifies that the homepage destination image swaps to bundled Wild Route
+artwork, exposes `data-media-state="degraded"`, and updates meaningful alt text.
+The fallback is applied across homepage editorial media, planner inspection,
+saved routes, public shares, and route-story cards. Decorative images retain an
+empty alt value after degradation.

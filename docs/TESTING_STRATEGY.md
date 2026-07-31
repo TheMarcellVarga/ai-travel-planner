@@ -42,11 +42,13 @@ Targets:
 - billing portal
 - Stripe webhook
 - health endpoint
+- rate-limit rejection and retry metadata
 
 Rules:
 - Auth-required endpoints must reject anonymous requests.
 - Owner-only endpoints must reject cross-user access.
-- Webhooks must reject invalid signatures.
+- Webhooks must reject invalid signatures, suppress completed duplicates, fail
+  closed when the ledger is unavailable, and leave failed processing retryable.
 
 ## Database Tests
 Targets:
@@ -55,6 +57,7 @@ Targets:
 - owner can read/write own rows
 - other users cannot read/write protected rows
 - public shared routes expose only safe fields
+- Stripe event ledger is RLS-enabled and inaccessible to public/authenticated roles
 
 ## AI And Provider Evals
 Executable fixtures live in `lib/planner/evals` and currently cover:
@@ -109,6 +112,10 @@ axe findings, verifies the skip-link path and sequential focus across every
 visible application control, covers demo-authenticated saved/account states,
 and actively emulates reduced motion. These checks are a regression gate, not
 a substitute for manual screen-reader verification.
+
+`e2e/media-resilience.spec.ts` blocks remote optimized images and verifies the
+bundled accessible fallback. Unit coverage also verifies meaningful and
+decorative alt behavior after degradation.
 
 ## Acceptance Rule
 No high-risk feature is complete until it has either automated tests or a documented manual verification checklist with exact steps.

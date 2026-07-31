@@ -180,7 +180,7 @@ checklist records checkout, portal, and webhook delivery.
 
 ## Upgrade Phase 3 — Reliability And Accessible Interaction Evidence
 
-Status: in progress.
+Status: complete.
 
 Goal: demonstrate engineering depth beyond visual polish.
 
@@ -211,22 +211,32 @@ Implemented and committed:
   the homepage, planner, authentication, and saved-route surfaces
 - `b25bcda` — account axe coverage and demo-authenticated keyboard checks for
   saved routes and account controls
+- `361d41e` — bounded privacy-preserving rate limits for route planning,
+  authentication initiation, and newsletter signup
+- `85c4549` — allowlisted structured operational events, pseudonymized
+  identifiers, safe error classification, retention, and alert guidance
+- `23d3406` — service-role-only Stripe event ledger with duplicate suppression,
+  retry leases, failure recovery, and replay tests
+- `b75291a` — deterministic local-artwork degradation for remote media with
+  component and Chromium failure-path tests
 - repaired the invalid homepage ARIA region, missing auth-field labels, and
   unfocusable skip-link target discovered by the new checks
 
 Verified locally:
 
-- 11 Vitest files and 52 tests pass
-- all 14 Chromium tests pass, including 13 focused accessibility checks and
-  the existing golden path
+- 15 Vitest files and 71 tests pass
+- all 15 Chromium tests pass, including accessibility, the golden path, and
+  remote-media failure behavior
+- 5 ordered Supabase migrations pass static table/RLS/service-role verification
 - Next.js 15.5.22 production build passes
+- `npm audit --omit=dev` reports zero known vulnerabilities
 
-Open Phase 3 outcomes:
+Phase 3 acceptance result:
 
-- rate limiting for abuse-prone endpoints
-- privacy-safe logging and error observability
-- webhook replay/idempotency behavior
-- reliable local media or explicit image degradation behavior
+- all planned outcomes are implemented, tested, documented, and committed
+- the live Supabase/Stripe checks remain the separately tracked Upgrade Phase 2
+  gate: Supabase was still unreachable and Stripe still unconfigured during
+  closure, so no live managed-service execution is claimed here
 
 ## Upgrade Phase 4 — Presentation And Case Study
 
