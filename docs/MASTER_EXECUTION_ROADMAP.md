@@ -40,7 +40,7 @@ Assume a focused solo/AI-assisted build. Compress or expand based on available t
 | 5. Save, Share, Account, Billing | Partially implemented | Saved routes, public shares, account export/delete, Stripe checkout/portal/webhook, and entitlement enforcement are production-style. |
 | 6. Real Data And AI Hardening | Partially implemented | Provider boundary, fixture adapter, normalized freshness/failure metadata, strict schemas, and eval fixtures exist; live providers and model usage remain. |
 | 7. Security, Observability, QA | Partially implemented | Abuse controls, webhook validation, privacy review, logging plan, visual QA, and browser verification are complete. |
-| 8. Polish And Launch Prep | In progress | No-placeholder pass, README/case study, screenshots, deployment checklist, and demo walkthrough are ready. |
+| 8. Polish And Launch Prep | Complete | No-placeholder pass, README/case study, screenshots, verified demo deployment, deployment checklist, and demo walkthrough are ready. |
 
 ## Current Completion Audit
 Last audited: 2026-08-01.
@@ -53,7 +53,7 @@ npm run build
 ```
 
 Current result:
-- Tests pass: 15 files, 71 tests.
+- Tests pass: 16 files, 74 tests.
 - Route evals pass: 7 fixtures.
 - 15 Chromium accessibility, golden-path, and media-degradation tests pass.
 - 5 Supabase migrations pass static schema, RLS, and service-role checks.
@@ -70,7 +70,7 @@ Current result:
 | 5. Save, Share, Account, Billing | Save, publish, handoff, account profile, export, delete, checkout, portal, and Stripe webhook routes exist. Save and generation limits are enforced. Webhook signature verification exists. Route ownership tests, public-share payload hardening, deterministic checkout, portal, and webhook tests, and a Stripe test-mode QA checklist exist. | Stripe checkout and portal flows are not live-verified here. | Partial |
 | 6. Real Data And AI Hardening | Normalized provider contract, deterministic fixture adapter, explicit fixture/live mode, freshness, latency, assumptions, unavailable-provider fallback, strict provider/generation schemas, and seven route eval fixtures exist. | No live travel provider, optional model path, provider-confirmed freshness, or usage/cost tracking. | Partial |
 | 7. Security, Observability, QA | Basic auth checks, RLS policies, server-only public-share sanitization, webhook signature verification and replay ledger, bounded abuse-rate controls, privacy-safe structured operational events, retention/alert guidance, production dependency audit, targeted desktop/mobile browser QA, automated Chromium golden path, axe checks on five critical routes, sequential keyboard verification including demo-authenticated account states, active reduced-motion emulation, and deterministic media degradation exist. | A formal threat model, distributed multi-instance rate-limit adapter, production observability sink/alerts, and broader multi-browser/screen-reader verification remain launch work. | Partial |
-| 8. Polish And Launch Prep | README and process docs exist; app builds. | No no-placeholder audit, screenshots, deployment checklist, demo walkthrough, or final launch/case-study package. | Not started |
+| 8. Polish And Launch Prep | Transparent Vercel demo, serverless-safe golden path, no-placeholder audit, current desktop/mobile screenshots, deployment checklist, environment/limitations record, demo walkthrough, trust-boundary diagram, and product-engineering case study exist. | Managed-service and production-launch conditions remain explicitly listed; they do not block the honest portfolio demo. | Complete |
 
 ## Phase 0: Control Plane
 Status: complete.
@@ -239,7 +239,7 @@ Acceptance gate:
 - Provider failures degrade to partial route results with visible status.
 
 ## Phase 7: Security, Observability, QA
-Status: not started.
+Status: partially implemented.
 
 Primary skills: `security-review-travel`.
 
@@ -260,7 +260,7 @@ Acceptance gate:
 - Critical flows have tests or documented manual verification.
 
 ## Phase 8: Polish And Launch Prep
-Status: in progress.
+Status: complete.
 
 Primary skills: `nextjs-travel-ui`, `travel-product-guardrails`.
 

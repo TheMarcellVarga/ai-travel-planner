@@ -14,7 +14,7 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 15 test files, 71 tests.
+- `npm run test`: passed, 16 test files, 74 tests.
 - `npm run test:evals`: passed, 7 fixtures.
 - `npm run test:e2e`: passed, 15 tests in Chromium.
 - `npm run verify:migrations`: passed, 5 migration files.
@@ -34,7 +34,8 @@ Build routes currently include:
 - Planner route generation exists with deterministic logic.
 - Prompt interpretation has unit tests.
 - Route generation has unit tests.
-- Demo in-memory store exists for local anonymous/demo behavior.
+- Demo mode uses a secure cookie, browser-local saved-route vault, and validated
+  stateless preview shares so the golden path works across serverless instances.
 - Supabase-backed persistent store exists for signed-in users when configured.
 - Supabase auth helper exists.
 - Stripe checkout, portal, and webhook routes exist.
@@ -51,8 +52,10 @@ Build routes currently include:
 ## What Is Still Fallback-Backed Or Thin
 - Route generation uses local destination data and app-side scoring, not live flights/stays/weather/provider availability.
 - Route generation now reads through a normalized provider boundary; the active provider remains the local deterministic fixture.
-- `POST /api/trips/plan` falls back to the in-memory demo store if Supabase persistence is unavailable.
-- Save/publish/handoff routes fall back to the demo store when database writes are unavailable.
+- `POST /api/trips/plan` can use the in-memory demo store when Supabase
+  persistence is unavailable; route responses label that state non-durable.
+- Demo saves use browser storage, demo publishing uses a bounded validated route
+  recipe that omits the prompt, and handoff links are rebuilt server-side.
 - Supabase migrations, required tables, RLS enablement, owner policies, public
   share revocation, and the service-role-only Stripe ledger are statically
   verified; live managed-project behavior remains environment-dependent.
@@ -78,7 +81,7 @@ Last audited: 2026-08-01.
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
 | 6. Real Data And AI Hardening | In progress | Provider contract, deterministic fixture, normalized status/freshness/latency/fallback metadata, strict schemas, and seven eval fixtures exist; live data, model usage, and cost tracking remain. |
 | 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked; bounded rate limits, privacy-safe operational events, Stripe replay protection, dependency audit, and Chromium axe/keyboard/reduced-motion/media QA exist. A formal threat model, distributed limiter, production alert sink, and broader browser/screen-reader QA remain. |
-| 8. Polish And Launch Prep | Not started | No no-placeholder audit, screenshots, deployment checklist, or demo walkthrough. |
+| 8. Polish And Launch Prep | Complete | The verified Vercel demo, serverless-safe golden path, no-placeholder audit, screenshots, deployment/environment checklist, demo walkthrough, trust-boundary diagram, and case study are committed. |
 
 ## Active Development Lane
 The fastest useful lane is not adding live AI. It is hardening the existing product loop:

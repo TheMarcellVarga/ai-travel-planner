@@ -104,8 +104,9 @@ Check:
 
 The automated demo-mode path in `e2e/golden-path.spec.ts` covers sign-in,
 planning, save, publish, public share rendering, external handoff initiation,
-and the saved/shared vault. The outbound window URL is captured instead of
-navigated; Wild Route's handoff API and browser behavior remain real.
+and the browser-local saved/shared vault. It also verifies that stateless demo
+preview links reconstruct across requests. The outbound window URL is captured
+instead of navigated; Wild Route's handoff API and browser behavior remain real.
 
 `e2e/accessibility.spec.ts` checks five critical routes for serious and critical
 axe findings, verifies the skip-link path and sequential focus across every

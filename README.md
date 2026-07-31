@@ -162,7 +162,7 @@ npm audit --omit=dev
 
 Baseline verified on 2026-08-01:
 
-- 15 Vitest files and 71 passing tests
+- 16 Vitest files and 74 passing tests
 - 15 passing Chromium accessibility, golden-path, and media-failure tests
 - 5 statically verified Supabase migration files
 - successful Next.js 15.5.22 production build
@@ -188,7 +188,8 @@ Live Stripe checkout and portal verification follows the
 
 - Destination metadata and route scoring are fixture-backed.
 - There is no provider-confirmed flight, stay, weather, map, or advisory data.
-- Demo accounts and their routes are not durable across server restarts.
+- Demo authentication is not a managed account; saved routes are browser-local
+  and preview shares are stateless rather than owner-managed records.
 - Newsletter signup preferences use demo memory; email delivery is optional and
   does not make the subscriber list durable.
 - Stripe test-mode checkout and portal still need recorded live verification.
@@ -199,6 +200,7 @@ Live Stripe checkout and portal verification follows the
 - Operational events are privacy-safe structured logs, but a production sink
   and alert policy are not configured in this repository.
 
-The next work is tracked in the
+The portfolio presentation upgrade is complete. Remaining managed-service and
+production launch work is tracked in the
 [portfolio upgrade roadmap](docs/PORTFOLIO_UPGRADE_ROADMAP.md) and the
 [product roadmap](docs/MASTER_EXECUTION_ROADMAP.md).

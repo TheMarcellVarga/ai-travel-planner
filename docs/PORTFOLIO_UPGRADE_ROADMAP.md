@@ -240,7 +240,7 @@ Phase 3 acceptance result:
 
 ## Upgrade Phase 4 — Presentation And Case Study
 
-Status: in progress.
+Status: complete.
 
 Execution exception: Upgrade Phase 2 remains open only for its live
 Supabase/Stripe verification gate. The user explicitly advanced local portfolio
@@ -259,6 +259,58 @@ Planned outcomes:
 - final audit that removes or labels all placeholder and fixture-backed surfaces
 
 This phase maps primarily to product roadmap Phase 8.
+
+### Completion Evidence
+
+Completed: 2026-08-01.
+
+Feature commits:
+
+- `a9be719` — unfinished-surface audit and deployment-safe fallback labels
+- `3486658` — recruiter-facing case study, demo walkthrough, and trust-boundary diagram
+- `e83adab` — serverless-safe browser vault and validated stateless preview shares
+- `65e19c3` — verified Vercel deployment, environment state, and launch checklist
+- `9961c09` — current desktop and mobile production screenshots
+
+Deployment:
+
+- canonical URL: https://ai-travel-planner-psi-five.vercel.app
+- production build: ready
+- hosted routes `/`, `/planner`, `/auth`, `/saved`, `/account`, `/privacy`,
+  `/terms`, and `/api/health`: `200`
+- hosted demo sign-in, save, publish, public preview, handoff, and browser-vault
+  flow: verified
+- production environment intentionally has no Supabase, Stripe, email, provider,
+  or model variables; `/api/health` reports the service booleans as disabled
+
+Verification:
+
+```bash
+npm run verify:migrations
+npm run verify:services
+npm run lint
+npm run test
+npm run test:e2e
+npm run build
+npm audit --omit=dev
+```
+
+Results:
+
+- 16 Vitest files and 74 tests pass
+- 15 Chromium accessibility, golden-path, and media-degradation tests pass
+- 5 Supabase migration files pass static RLS/public-read/service-role checks
+- Next.js 15.5.22 production build passes locally and on Vercel
+- production dependency audit reports zero known vulnerabilities
+- local managed-service verification still reports Supabase admin unreachable
+  and Stripe unconfigured
+
+Phase 4 acceptance result:
+
+- all presentation outcomes are implemented, verified, documented, and committed
+- hosted verification found and repaired the process-memory/serverless boundary
+- Upgrade Phase 2 remains open for live Supabase and Stripe execution; this
+  transparent demo deployment does not claim that gate passed
 
 ## Commit Policy
 

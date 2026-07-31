@@ -170,3 +170,38 @@ artwork, exposes `data-media-state="degraded"`, and updates meaningful alt text.
 The fallback is applied across homepage editorial media, planner inspection,
 saved routes, public shares, and route-story cards. Decorative images retain an
 empty alt value after degradation.
+
+## Portfolio Upgrade Phase 4 Hosted Golden Path
+
+Date: 2026-08-01
+
+Target: https://ai-travel-planner-psi-five.vercel.app
+
+The first production pass exposed a serverless-specific failure: the planner
+page and Save API could run in different Vercel function instances, so the API
+could not resolve a route held only in process memory. Save returned `Route not
+found.`
+
+The demo boundary was repaired and redeployed:
+
+- saved demo routes use the current browser's local vault
+- preview shares use a bounded schema-validated stateless recipe
+- the recipe excludes the original prompt and reconstructs public route data
+- handoff booking links are rebuilt server-side instead of trusted from input
+- Supabase account/database behavior remains separate and unchanged
+
+Verified after redeployment:
+
+| Surface | Result |
+| --- | --- |
+| Homepage and public routes | Pass; all documented routes returned `200` |
+| Demo sign-in | Pass; secure session redirected to `/saved` |
+| Planner | Pass; four ranked routes, estimate boundary, and map fallback rendered |
+| Save | Pass; confirmation stated browser-local demo storage |
+| Publish | Pass; returned a working `/share/preview-*` link |
+| Public preview | Pass across a new serverless request; title, freshness, and estimate boundaries rendered |
+| Handoff | Pass; API returned provider search and UI confirmed the external handoff |
+| Saved vault | Pass after hydration; route and preview link rendered from browser storage |
+
+Current production screenshots are recorded in `docs/SCREENSHOTS.md` at desktop
+and 390 × 844 mobile sizes.
