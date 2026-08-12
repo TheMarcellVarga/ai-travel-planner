@@ -12,6 +12,7 @@ supabase/.temp/
 
 *.md
 !README.md
+!SECURITY.md
 !AI-TRAVEL-PLANNER-PLAN.md
 !AGENTS.md
 !app/AGENTS.md
@@ -20,4 +21,5 @@ supabase/.temp/
 !ai-dev/skills/*/SKILL.md
 
 .history
+.agents/
 .vercel

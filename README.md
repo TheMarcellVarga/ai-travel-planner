@@ -204,3 +204,9 @@ The portfolio presentation upgrade is complete. Remaining managed-service and
 production launch work is tracked in the
 [portfolio upgrade roadmap](docs/PORTFOLIO_UPGRADE_ROADMAP.md) and the
 [product roadmap](docs/MASTER_EXECUTION_ROADMAP.md).
+
+## License
+
+No license file is included. The source is available for portfolio review, but
+reuse, redistribution, and derivative works are not granted unless a license is
+added later.
