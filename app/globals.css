@@ -7814,12 +7814,7 @@ body {
 }
 
 .page-noise {
-  z-index: 80;
-  opacity: 0.11;
-  background-image:
-    linear-gradient(rgba(245, 243, 234, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245, 243, 234, 0.04) 1px, transparent 1px);
-  background-size: 38px 38px;
+  display: none;
 }
 
 .site-command {
@@ -9575,4 +9570,37 @@ body:has(.route-studio) {
   .route-studio-form__wishes {
     grid-template-columns: 1fr;
   }
+}
+
+/* Impeccable refinement: keep the field-instrument identity without decorative glass. */
+.page-noise {
+  display: none;
+}
+
+.route-studio__controls,
+.route-studio__dock,
+.route-studio__inspector,
+.route-console,
+.site-corner-brand {
+  background: rgba(18, 24, 19, 0.97);
+  box-shadow: 0 18px 48px rgba(1, 4, 2, 0.24);
+  backdrop-filter: none;
+}
+
+.route-studio__kicker,
+.route-studio__section-heading p,
+.route-studio__inspector-copy p,
+.route-studio-actions__header span,
+.eyebrow {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.route-studio__route,
+.route-studio-form__segment,
+.route-studio-form__wish {
+  box-shadow: none;
 }
