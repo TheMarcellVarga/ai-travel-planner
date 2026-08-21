@@ -73,27 +73,39 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   return (
     <div className="route-studio-form">
       <div className="route-studio-form__grid">
-        <label className="route-studio-form__field route-studio-form__field--wide">
+        <label className="route-studio-form__field route-studio-form__field--wide" htmlFor="planner-origin">
           <span>Origin</span>
-          <input value={origin} onChange={(event) => setOrigin(event.target.value)} />
+          <input
+            id="planner-origin"
+            value={origin}
+            maxLength={80}
+            onChange={(event) => setOrigin(event.target.value)}
+          />
         </label>
 
-        <label className="route-studio-form__field">
+        <label className="route-studio-form__field" htmlFor="planner-trip-length">
           <span>Trip length</span>
           <div className="route-studio-form__number">
             <input
+              id="planner-trip-length"
               min={4}
               max={30}
+              required
               type="number"
               value={tripLengthDays}
-              onChange={(event) => setTripLengthDays(Number(event.target.value))}
+              onChange={(event) => {
+                const nextValue = event.target.valueAsNumber;
+                if (Number.isFinite(nextValue)) {
+                  setTripLengthDays(Math.min(30, Math.max(4, nextValue)));
+                }
+              }}
             />
             <small>days</small>
           </div>
         </label>
 
-        <div className="route-studio-form__field">
-          <span>Max stops</span>
+        <fieldset className="route-studio-form__field route-studio-form__fieldset">
+          <legend>Max stops</legend>
           <div className="route-studio-form__segments route-studio-form__segments--stops">
             {maxStopOptions.map((option) => (
               <button
@@ -111,10 +123,10 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div className="route-studio-form__field route-studio-form__field--wide">
-          <span>Budget posture</span>
+        <fieldset className="route-studio-form__field route-studio-form__field--wide route-studio-form__fieldset">
+          <legend>Budget posture</legend>
           <div className="route-studio-form__segments route-studio-form__segments--budget">
             {budgetModeOptions.map((option) => (
               <button
@@ -132,11 +144,11 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
       </div>
 
-      <div className="route-studio-form__field">
-        <span>Trip wishes</span>
+      <fieldset className="route-studio-form__field route-studio-form__fieldset">
+        <legend>Trip wishes</legend>
         <div className="route-studio-form__wishes">
           {wishTags.map((tag) => (
             <button
@@ -153,7 +165,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
     </div>
   );
 }

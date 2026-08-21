@@ -1,4 +1,5 @@
 :root {
+  --font-body: var(--font-display);
   --bg: #06120c;
   --bg-deep: #030a06;
   --panel: rgba(13, 31, 22, 0.88);
@@ -16,6 +17,139 @@
   --shadow-card: 0 20px 52px rgba(0, 10, 6, 0.3);
   --shadow-deep: 0 30px 96px rgba(0, 10, 6, 0.42);
   --panel-strong: rgba(9, 22, 16, 0.92);
+}
+
+/* Production readiness pass: keep the planner's final layer predictable when
+   older visual experiments remain in this stylesheet. */
+body:has(.route-studio) .app-footer {
+  display: none;
+}
+
+.route-studio__controls,
+.route-studio__inspector {
+  min-height: 0;
+}
+
+.route-studio__controls {
+  overflow: hidden;
+}
+
+.route-studio__controls-body,
+.route-studio__inspector {
+  scrollbar-gutter: stable;
+}
+
+.route-studio__status {
+  min-height: 1.1em;
+  margin: 0;
+  color: var(--route-muted);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.route-studio__error {
+  padding: 0.62rem 0.7rem;
+  border: 1px solid rgba(240, 200, 135, 0.26);
+  border-radius: 0.55rem;
+  background: rgba(123, 68, 22, 0.18);
+}
+
+.route-studio-form__fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.route-studio-form__fieldset legend {
+  margin-bottom: 0.32rem;
+  padding: 0;
+  color: var(--route-muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.route-studio__primary-action,
+.route-studio-actions__primary-button,
+.route-studio-actions__secondary-button {
+  min-height: 2.75rem;
+}
+
+.route-studio__route {
+  min-width: 0;
+}
+
+.route-studio__route small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-studio__globe .orbital-globe-fallback:not(.orbital-globe-fallback--visible) {
+  visibility: hidden;
+}
+
+@media (max-width: 760px) {
+  body:has(.route-studio) .site-header {
+    position: absolute;
+  }
+
+  .route-studio__summary h1 {
+    max-width: 10ch;
+    font-size: clamp(2.5rem, 12.5vw, 3.45rem);
+  }
+
+  .route-studio__prompt,
+  .route-studio-form input {
+    font-size: 1rem;
+  }
+
+  .route-studio-form__fieldset {
+    margin: 0;
+  }
+
+  .route-studio__dock {
+    scrollbar-width: none;
+  }
+
+  .route-studio__dock::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The signed-out vault is an empty state, not a full-bleed media page. Keep
+     the image atmospheric so the actions stay in the first scroll. */
+  .saved-vault-shell-empty {
+    position: relative;
+    display: grid;
+    min-height: 100dvh;
+    height: auto;
+    grid-template-rows: auto auto;
+    gap: 1rem;
+    padding: 8.5rem 0.75rem 1.25rem;
+  }
+
+  .saved-vault-shell-empty .saved-vault-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    height: 100%;
+    min-height: 100%;
+  }
+
+  .saved-vault-shell-empty .saved-vault-media__image {
+    opacity: 0.3;
+  }
+
+  .saved-vault-shell-empty .planner-stage-header,
+  .saved-vault-shell-empty .floating-sidebar {
+    position: relative;
+    z-index: 1;
+    inset: auto;
+    order: initial;
+    width: auto;
+    margin: 0;
+  }
 }
 
 /* Component-wide redesign overrides */
@@ -7817,9 +7951,9 @@ body {
   z-index: 80;
   opacity: 0.11;
   background-image:
-    linear-gradient(rgba(245, 243, 234, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245, 243, 234, 0.04) 1px, transparent 1px);
-  background-size: 38px 38px;
+    radial-gradient(circle at 1px 1px, rgba(245, 243, 234, 0.055) 1px, transparent 0),
+    radial-gradient(circle at 3px 3px, rgba(121, 255, 161, 0.04) 1px, transparent 0);
+  background-size: 20px 20px, 28px 28px;
 }
 
 .site-command {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
@@ -29,6 +29,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     initialGeneration.routes[0]?.id ?? null,
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
   const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(true);
 
@@ -61,36 +62,60 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     generation.routes.length === 1
       ? "1 route ready"
       : `${generation.routes.length} routes ready`;
+
+  useEffect(() => {
+    // On a narrow screen the route result is the primary task. Keep the
+    // long-form controls available without making them occupy the first scroll.
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsMissionPanelOpen(false);
+    }
+  }, []);
+
   function handlePlan() {
     startTransition(async () => {
       setErrorMessage(null);
+      setStatusMessage("Composing a fresh route set…");
 
-      const response = await fetch("/api/trips/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          ...secondaryValues,
-        }),
-      });
+      try {
+        const response = await fetch("/api/trips/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            ...secondaryValues,
+          }),
+        });
 
-      if (!response.ok) {
-        setErrorMessage(
-          "Route generation failed. Try adjusting the prompt or selected wishes.",
+        if (!response.ok) {
+          setErrorMessage(
+            response.status === 429
+              ? "You have reached the planning limit for this preview. Try again later or sign in for a larger allowance."
+              : "Route generation failed. Check the route brief and try again.",
+          );
+          setStatusMessage(null);
+          return;
+        }
+
+        const payload = (await response.json()) as PlannerApiResponse;
+        setGeneration({
+          id: payload.generationId,
+          createdAt: new Date().toISOString(),
+          tripIntent: payload.tripIntent,
+          routes: payload.routes,
+        });
+        setPersistenceStatus(payload.persistence ?? null);
+        setActiveRouteId(payload.routes[0]?.id ?? null);
+        setIsMissionPanelOpen(false);
+        setStatusMessage(
+          `${payload.routes.length} ${payload.routes.length === 1 ? "route" : "routes"} ready to inspect.`,
         );
-        return;
+      } catch {
+        setErrorMessage(
+          "We could not reach the route planner. Check your connection and try again.",
+        );
+        setStatusMessage(null);
       }
-
-      const payload = (await response.json()) as PlannerApiResponse;
-      setGeneration({
-        id: payload.generationId,
-        createdAt: new Date().toISOString(),
-        tripIntent: payload.tripIntent,
-        routes: payload.routes,
-      });
-      setPersistenceStatus(payload.persistence ?? null);
-      setActiveRouteId(payload.routes[0]?.id ?? null);
-      setIsMissionPanelOpen(false);
     });
   }
 
@@ -191,11 +216,15 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   className="route-studio__primary-action"
                   onClick={handlePlan}
                   disabled={isPending}
+                  aria-busy={isPending}
                 >
                   {isPending ? "Composing..." : "Compose new routes"}
                 </button>
+                <p className="route-studio__status" role="status" aria-live="polite">
+                  {isPending ? "Scoring route options…" : statusMessage}
+                </p>
                 {errorMessage ? (
-                  <p className="route-studio__error">{errorMessage}</p>
+                  <p className="route-studio__error" role="alert">{errorMessage}</p>
                 ) : null}
                 {persistenceStatus && !persistenceStatus.durable ? (
                   <p className="route-studio__notice">

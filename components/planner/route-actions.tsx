@@ -18,6 +18,11 @@ type HandoffResponse = {
   links: Array<{ url: string }>;
 };
 
+type ActionResponse = HandoffResponse & {
+  error?: string;
+  shareUrl?: string;
+};
+
 export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [actionHref, setActionHref] = useState<string | null>(null);
@@ -32,36 +37,39 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
     startTransition(async () => {
       setMessage(null);
       setActionHref(null);
-      const response = await fetch(path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ route, tripIntent })
-      });
-      const payload = await response.json();
+      try {
+        const response = await fetch(path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ route, tripIntent })
+        });
+        const payload = (await response.json().catch(() => ({}))) as ActionResponse;
 
-      if (!response.ok) {
-        setMessage(payload.error ?? "This action failed.");
-        return;
-      }
-
-      if (openFirstLink) {
-        const handoffPayload = payload as HandoffResponse;
-        const firstLink = handoffPayload.links[0]?.url;
-        if (firstLink) {
-          window.open(firstLink, "_blank", "noopener,noreferrer");
+        if (!response.ok) {
+          setMessage(payload.error ?? "This action failed. Try again.");
+          return;
         }
-      }
 
-      if (saveInBrowser && route) {
-        saveDemoRouteToBrowser(window.localStorage, route);
-      }
+        if (openFirstLink) {
+          const firstLink = payload.links?.[0]?.url;
+          if (firstLink) {
+            window.open(firstLink, "_blank", "noopener,noreferrer");
+          }
+        }
 
-      if (path.endsWith("/publish") && route && payload.shareUrl) {
-        saveDemoShareToBrowser(window.localStorage, route, payload.shareUrl);
-        setActionHref(payload.shareUrl);
-      }
+        if (saveInBrowser && route) {
+          saveDemoRouteToBrowser(window.localStorage, route);
+        }
 
-      setMessage(successMessage(payload));
+        if (path.endsWith("/publish") && route && payload.shareUrl) {
+          saveDemoShareToBrowser(window.localStorage, route, payload.shareUrl);
+          setActionHref(payload.shareUrl);
+        }
+
+        setMessage(successMessage(payload));
+      } catch {
+        setMessage("The connection dropped before this action finished. Try again.");
+      }
     });
   }
 
@@ -112,7 +120,7 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
         Open booking handoff
       </button>
       {message ? (
-        <p className="route-studio-actions__message">
+        <p className="route-studio-actions__message" role="status" aria-live="polite">
           {message}{" "}
           {actionHref ? <a href={actionHref}>Open share</a> : null}
         </p>
