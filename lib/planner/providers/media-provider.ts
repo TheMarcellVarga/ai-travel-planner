@@ -45,6 +45,18 @@ type MediaDestinationContext = {
   imageHint?: string;
 };
 
+function mediaSearchQueries(destination: MediaDestinationContext) {
+  return Array.from(
+    new Set(
+      [
+        destination.name,
+        `${destination.name} ${destination.country}`,
+        `${destination.name} ${destination.imageHint ?? ""}`
+      ].map((query) => query.trim()).filter(Boolean)
+    )
+  );
+}
+
 function createLocalFallbackMedia(destination: Pick<DestinationProfile, "name">): RouteMediaAsset {
   return {
     provider: "local-fallback",
@@ -57,6 +69,29 @@ function createLocalFallbackMedia(destination: Pick<DestinationProfile, "name">)
     attributionText: `Wild Route local artwork for ${destination.name}`,
     fetchedAt: new Date().toISOString()
   };
+}
+
+const CURATED_OPEN_MEDIA: Record<string, Omit<RouteMediaAsset, "fetchedAt">> = {
+  "cape-town": {
+    provider: "wikimedia-commons",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Cape_Town_%28ZA%29%2C_Table_Mountain%2C_Blick_auf_Camps_Bay_--_2024_--_2750.jpg/1920px-Cape_Town_%28ZA%29%2C_Table_Mountain%2C_Blick_auf_Camps_Bay_--_2024_--_2750.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    sourceUrl:
+      "https://commons.wikimedia.org/wiki/File:Cape_Town_(ZA),_Table_Mountain,_Blick_auf_Camps_Bay_--_2024_--_2750.jpg",
+    title: "Cape Town, Table Mountain, view of Camps Bay",
+    creator: "Dietmar Rabich",
+    licenseLabel: "CC BY-SA 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+    attributionText:
+      "Cape Town, Table Mountain, view of Camps Bay — Dietmar Rabich / CC BY-SA 4.0 / Wikimedia Commons"
+  }
+};
+
+function getCuratedOpenMedia(destination: DestinationProfile) {
+  const asset = CURATED_OPEN_MEDIA[destination.id];
+  return asset
+    ? { ...asset, fetchedAt: new Date().toISOString() }
+    : null;
 }
 
 function stripHtml(value: unknown) {
@@ -193,125 +228,133 @@ function buildAttribution(title: string, creator: string, licenseLabel: string, 
 }
 
 async function fetchJson(url: string) {
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "WildRoute/0.1 (+https://github.com/TheMarcellVarga/ai-travel-planner)"
-    },
-    signal: AbortSignal.timeout(1800)
-  });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "WildRoute/0.1 (+https://github.com/TheMarcellVarga/ai-travel-planner)"
+      },
+      signal: AbortSignal.timeout(3500)
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    return response.json() as Promise<Record<string, unknown>>;
+  } catch {
     return null;
   }
-
-  return response.json() as Promise<Record<string, unknown>>;
 }
 
 async function searchWikimediaCommons(destination: DestinationProfile) {
-  const query = encodeURIComponent(`${destination.name} ${destination.region} ${destination.imageHint}`);
-  const url =
-    `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${query}` +
-    "&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1400&format=json";
-  const payload = await fetchJson(url);
-  const pages = Object.values(
-    (payload?.query as { pages?: Record<string, unknown> } | undefined)?.pages ?? {}
-  ) as Array<Record<string, unknown>>;
+  for (const searchQuery of mediaSearchQueries(destination)) {
+    const query = encodeURIComponent(searchQuery);
+    const url =
+      `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${query}` +
+      "&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1400&format=json";
+    const payload = await fetchJson(url);
+    const pages = Object.values(
+      (payload?.query as { pages?: Record<string, unknown> } | undefined)?.pages ?? {}
+    ) as Array<Record<string, unknown>>;
 
-  for (const page of pages) {
-    const imageInfo = (page.imageinfo as Array<Record<string, unknown>> | undefined)?.[0];
-    const metadata = (imageInfo?.extmetadata as Record<string, { value?: unknown }> | undefined) ?? {};
-    const licenseLabel = stripHtml(metadata.LicenseShortName?.value ?? metadata.License?.value);
-    const imageUrl = String(imageInfo?.thumburl ?? imageInfo?.url ?? "");
-    const sourceUrl = String(imageInfo?.descriptionurl ?? "");
-    const mime = String(imageInfo?.mime ?? "");
-    const title = stripHtml(page.title).replace(/^File:\s*/i, "") || `${destination.name} image`;
-    const metadataText = [
-      metadata.ImageDescription?.value,
-      metadata.ObjectName?.value,
-      metadata.Categories?.value,
-      metadata.Caption?.value
-    ]
-      .map(searchableText)
-      .join(" ");
+    for (const page of pages) {
+      const imageInfo = (page.imageinfo as Array<Record<string, unknown>> | undefined)?.[0];
+      const metadata = (imageInfo?.extmetadata as Record<string, { value?: unknown }> | undefined) ?? {};
+      const licenseLabel = stripHtml(metadata.LicenseShortName?.value ?? metadata.License?.value);
+      const imageUrl = String(imageInfo?.thumburl ?? imageInfo?.url ?? "");
+      const sourceUrl = String(imageInfo?.descriptionurl ?? "");
+      const mime = String(imageInfo?.mime ?? "");
+      const title = stripHtml(page.title).replace(/^File:\s*/i, "") || `${destination.name} image`;
+      const metadataText = [
+        metadata.ImageDescription?.value,
+        metadata.ObjectName?.value,
+        metadata.Categories?.value,
+        metadata.Caption?.value
+      ]
+        .map(searchableText)
+        .join(" ");
 
-    if (
-      !isHttpUrl(imageUrl) ||
-      !isHttpUrl(sourceUrl) ||
-      (mime && !mime.startsWith("image/")) ||
-      !isAllowedLicense(licenseLabel) ||
-      !isRelevantMediaCandidate(destination, title, metadataText)
-    ) {
-      continue;
+      if (
+        !isHttpUrl(imageUrl) ||
+        !isHttpUrl(sourceUrl) ||
+        (mime && !mime.startsWith("image/")) ||
+        !isAllowedLicense(licenseLabel) ||
+        !isRelevantMediaCandidate(destination, title, metadataText)
+      ) {
+        continue;
+      }
+
+      const creator =
+        stripHtml(metadata.Artist?.value ?? metadata.Credit?.value) ||
+        "Wikimedia Commons contributor";
+
+      return {
+        provider: "wikimedia-commons" as const,
+        imageUrl,
+        sourceUrl,
+        title,
+        creator,
+        licenseLabel,
+        licenseUrl: licenseUrlFor(licenseLabel, stripHtml(metadata.LicenseUrl?.value)),
+        attributionText: buildAttribution(title, creator, licenseLabel, "Wikimedia Commons"),
+        fetchedAt: new Date().toISOString()
+      } satisfies RouteMediaAsset;
     }
-
-    const creator =
-      stripHtml(metadata.Artist?.value ?? metadata.Credit?.value) ||
-      "Wikimedia Commons contributor";
-
-    return {
-      provider: "wikimedia-commons" as const,
-      imageUrl,
-      sourceUrl,
-      title,
-      creator,
-      licenseLabel,
-      licenseUrl: licenseUrlFor(licenseLabel, stripHtml(metadata.LicenseUrl?.value)),
-      attributionText: buildAttribution(title, creator, licenseLabel, "Wikimedia Commons"),
-      fetchedAt: new Date().toISOString()
-    } satisfies RouteMediaAsset;
   }
 
   return null;
 }
 
 async function searchOpenverse(destination: DestinationProfile) {
-  const query = encodeURIComponent(`${destination.name} ${destination.region} ${destination.imageHint}`);
-  const payload = await fetchJson(`https://api.openverse.org/v1/images/?q=${query}&page_size=8`);
-  const results = (payload?.results as Array<Record<string, unknown>> | undefined) ?? [];
+  for (const searchQuery of mediaSearchQueries(destination)) {
+    const query = encodeURIComponent(searchQuery);
+    const payload = await fetchJson(`https://api.openverse.org/v1/images/?q=${query}&page_size=8`);
+    const results = (payload?.results as Array<Record<string, unknown>> | undefined) ?? [];
 
-  for (const result of results) {
-    const license = String(result.license ?? "");
-    const imageUrl = String(result.thumbnail ?? result.url ?? "");
-    const sourceUrl = String(result.foreign_landing_url ?? "");
-    const mediaType = String(result.mediatype ?? "");
+    for (const result of results) {
+      const license = String(result.license ?? "");
+      const imageUrl = String(result.thumbnail ?? result.url ?? "");
+      const sourceUrl = String(result.foreign_landing_url ?? "");
+      const mediaType = String(result.mediatype ?? "");
 
-    if (
-      !isHttpUrl(imageUrl) ||
-      !isHttpUrl(sourceUrl) ||
-      (mediaType && mediaType !== "image") ||
-      !isAllowedLicense(license)
-    ) {
-      continue;
+      if (
+        !isHttpUrl(imageUrl) ||
+        !isHttpUrl(sourceUrl) ||
+        (mediaType && mediaType !== "image") ||
+        !isAllowedLicense(license)
+      ) {
+        continue;
+      }
+
+      const title = String(result.title ?? `${destination.name} image`).trim();
+      const creator = String(result.creator ?? "Openverse contributor").trim();
+      const licenseLabel = String(result.license_version ? `${license} ${result.license_version}` : license).trim();
+      const resultContext = [result.description, result.tags, result.category]
+        .map(searchableText)
+        .join(" ");
+
+      const licenseUrl = String(result.license_url ?? licenseUrlFor(license));
+      if (!isHttpUrl(licenseUrl)) {
+        continue;
+      }
+
+      if (!isRelevantMediaCandidate(destination, title, resultContext)) {
+        continue;
+      }
+
+      return {
+        provider: "openverse" as const,
+        imageUrl,
+        sourceUrl,
+        title,
+        creator,
+        licenseLabel: licenseLabel || "Open license",
+        licenseUrl,
+        attributionText: buildAttribution(title, creator, licenseLabel || "Open license", "Openverse"),
+        fetchedAt: new Date().toISOString()
+      } satisfies RouteMediaAsset;
     }
-
-    const title = String(result.title ?? `${destination.name} image`).trim();
-    const creator = String(result.creator ?? "Openverse contributor").trim();
-    const licenseLabel = String(result.license_version ? `${license} ${result.license_version}` : license).trim();
-    const resultContext = [result.description, result.tags, result.category]
-      .map(searchableText)
-      .join(" ");
-
-    const licenseUrl = String(result.license_url ?? licenseUrlFor(license));
-    if (!isHttpUrl(licenseUrl)) {
-      continue;
-    }
-
-    if (!isRelevantMediaCandidate(destination, title, resultContext)) {
-      continue;
-    }
-
-    return {
-      provider: "openverse" as const,
-      imageUrl,
-      sourceUrl,
-      title,
-      creator,
-      licenseLabel: licenseLabel || "Open license",
-      licenseUrl,
-      attributionText: buildAttribution(title, creator, licenseLabel || "Open license", "Openverse"),
-      fetchedAt: new Date().toISOString()
-    } satisfies RouteMediaAsset;
   }
 
   return null;
@@ -327,6 +370,11 @@ export const fixtureRouteMediaProvider: RouteMediaProvider = {
 export const openRouteMediaProvider: RouteMediaProvider = {
   id: "wikimedia-commons",
   async getMedia(destination) {
+    const curatedMedia = getCuratedOpenMedia(destination);
+    if (curatedMedia) {
+      return curatedMedia;
+    }
+
     try {
       const commonsMedia = await searchWikimediaCommons(destination);
       if (commonsMedia) {
@@ -341,17 +389,26 @@ export const openRouteMediaProvider: RouteMediaProvider = {
       // Media is enrichment. A provider failure must never block route generation.
     }
 
-    return createLocalFallbackMedia(destination);
+    return getCuratedOpenMedia(destination) ?? createLocalFallbackMedia(destination);
   }
 };
 
 export const commonsRouteMediaProvider: RouteMediaProvider = {
   id: "wikimedia-commons",
   async getMedia(destination) {
+    const curatedMedia = getCuratedOpenMedia(destination);
+    if (curatedMedia) {
+      return curatedMedia;
+    }
+
     try {
-      return (await searchWikimediaCommons(destination)) ?? createLocalFallbackMedia(destination);
+      return (
+        (await searchWikimediaCommons(destination)) ??
+        getCuratedOpenMedia(destination) ??
+        createLocalFallbackMedia(destination)
+      );
     } catch {
-      return createLocalFallbackMedia(destination);
+      return getCuratedOpenMedia(destination) ?? createLocalFallbackMedia(destination);
     }
   }
 };
@@ -359,10 +416,19 @@ export const commonsRouteMediaProvider: RouteMediaProvider = {
 export const openverseRouteMediaProvider: RouteMediaProvider = {
   id: "openverse",
   async getMedia(destination) {
+    const curatedMedia = getCuratedOpenMedia(destination);
+    if (curatedMedia) {
+      return curatedMedia;
+    }
+
     try {
-      return (await searchOpenverse(destination)) ?? createLocalFallbackMedia(destination);
+      return (
+        (await searchOpenverse(destination)) ??
+        getCuratedOpenMedia(destination) ??
+        createLocalFallbackMedia(destination)
+      );
     } catch {
-      return createLocalFallbackMedia(destination);
+      return getCuratedOpenMedia(destination) ?? createLocalFallbackMedia(destination);
     }
   }
 };
@@ -410,7 +476,9 @@ export async function enrichRoutesWithMedia(
               new Promise<null>((resolve) => setTimeout(() => resolve(null), 350))
             ]);
       const cachedAsset =
-        cachedCandidate && isUsableMediaAsset(cachedCandidate, destination)
+        cachedCandidate &&
+        cachedCandidate.provider !== "local-fallback" &&
+        isUsableMediaAsset(cachedCandidate, destination)
           ? cachedCandidate
           : null;
       const asset =

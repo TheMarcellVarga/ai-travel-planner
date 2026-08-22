@@ -22,6 +22,43 @@ describe("open route media provider", () => {
     vi.unstubAllGlobals();
   });
 
+  it("starts with a place-name search before trying scene-specific queries", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(mockJsonResponse({ query: { pages: {} } }))
+      .mockResolvedValueOnce(
+        mockJsonResponse({
+          query: {
+            pages: {
+              "1": {
+                title: "File:Bali rice terraces.jpg",
+                imageinfo: [
+                  {
+                    thumburl: "https://upload.wikimedia.org/bali-terraces.jpg",
+                    descriptionurl: "https://commons.wikimedia.org/wiki/File:Bali_rice_terraces.jpg",
+                    extmetadata: {
+                      LicenseShortName: { value: "CC BY 4.0" },
+                      ImageDescription: { value: "Rice terraces in Bali" }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        })
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const asset = await openRouteMediaProvider.getMedia(destination);
+    const firstQuery = new URL(fetchMock.mock.calls[0]?.[0] as string).searchParams.get("gsrsearch");
+    const secondQuery = new URL(fetchMock.mock.calls[1]?.[0] as string).searchParams.get("gsrsearch");
+
+    expect(firstQuery).toBe("Bali");
+    expect(secondQuery).toBe("Bali Indonesia");
+    expect(asset.provider).toBe("wikimedia-commons");
+    expect(asset.title).toBe("Bali rice terraces.jpg");
+  });
+
   it("keeps Commons credit and license metadata", async () => {
     vi.stubGlobal(
       "fetch",
@@ -102,8 +139,8 @@ describe("open route media provider", () => {
   });
 
   it("rejects irrelevant document-like Commons results before accepting a place image", async () => {
-    const capeTown = destinations.find((item) => item.id === "cape-town");
-    expect(capeTown).toBeDefined();
+    const chiangMai = destinations.find((item) => item.id === "chiang-mai");
+    expect(chiangMai).toBeDefined();
 
     vi.stubGlobal(
       "fetch",
@@ -124,14 +161,14 @@ describe("open route media provider", () => {
                 ]
               },
               "2": {
-                title: "File:Cape Town Table Mountain.jpg",
+                title: "File:Chiang Mai mountain.jpg",
                 imageinfo: [
                   {
-                    thumburl: "https://upload.wikimedia.org/cape-town.jpg",
-                    descriptionurl: "https://commons.wikimedia.org/wiki/File:Cape_Town_Table_Mountain.jpg",
+                    thumburl: "https://upload.wikimedia.org/chiang-mai.jpg",
+                    descriptionurl: "https://commons.wikimedia.org/wiki/File:Chiang_Mai_mountain.jpg",
                     extmetadata: {
                       LicenseShortName: { value: "CC BY 4.0" },
-                      ImageDescription: { value: "Table Mountain in Cape Town" }
+                      ImageDescription: { value: "Mountain in Chiang Mai" }
                     }
                   }
                 ]
@@ -142,15 +179,15 @@ describe("open route media provider", () => {
       )
     );
 
-    const asset = await openRouteMediaProvider.getMedia(capeTown!);
+    const asset = await openRouteMediaProvider.getMedia(chiangMai!);
 
     expect(asset).toMatchObject({
       provider: "wikimedia-commons",
-      title: "Cape Town Table Mountain.jpg"
+      title: "Chiang Mai mountain.jpg"
     });
   });
 
-  it("revalidates cached media and falls back when the cached asset is unrelated", async () => {
+  it("refreshes cached local artwork when an open media provider is available", async () => {
     const intent = interpretTripIntent({
       prompt: "Find a 12 day hiking route from Singapore with one stop.",
       origin: "Singapore",
@@ -179,9 +216,15 @@ describe("open route media provider", () => {
     };
     const cache = {
       get: vi.fn().mockResolvedValue({
-        ...validAsset,
-        title: "Report upon the Colorado River.pdf",
-        attributionText: "Report upon the Colorado River.pdf — Public domain / Wikimedia Commons"
+        provider: "local-fallback" as const,
+        imageUrl: "/editorial/route-ribbon-hero.png",
+        sourceUrl: "https://github.com/TheMarcellVarga/ai-travel-planner",
+        title: "Chiang Mai route study",
+        creator: "Wild Route",
+        licenseLabel: "Wild Route local artwork",
+        licenseUrl: "https://github.com/TheMarcellVarga/ai-travel-planner",
+        attributionText: "Wild Route local artwork for Chiang Mai",
+        fetchedAt: new Date().toISOString()
       }),
       set: vi.fn().mockResolvedValue(undefined)
     };
@@ -205,5 +248,44 @@ describe("open route media provider", () => {
       imageUrl: "/editorial/route-ribbon-hero.png"
     });
     expect(asset.attributionText).toContain("Wild Route local artwork");
+  });
+
+  it("uses a curated openly licensed place image before local artwork", async () => {
+    const capeTown = destinations.find((item) => item.id === "cape-town");
+    expect(capeTown).toBeDefined();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockJsonResponse({}, false)));
+
+    const asset = await openRouteMediaProvider.getMedia(capeTown!);
+
+    expect(asset).toMatchObject({
+      provider: "wikimedia-commons",
+      title: "Cape Town, Table Mountain, view of Camps Bay",
+      licenseLabel: "CC BY-SA 4.0"
+    });
+    expect(asset.imageUrl).toContain("Cape_Town_%28ZA%29%2C_Table_Mountain");
+  });
+
+  it("keeps curated open media when enriching a route snapshot", async () => {
+    const intent = interpretTripIntent({
+      prompt: "Find a 12 day hiking and mtb route from Singapore with two stops.",
+      origin: "Singapore",
+      tripLengthDays: 12,
+      maxStops: 2,
+      wishTags: ["hiking", "mtb"],
+      budgetMode: "balanced"
+    });
+    const route = createTripGeneration(intent).routes.find((candidate) =>
+      candidate.stops.some((stop) => stop.id === "cape-town")
+    );
+    expect(route).toBeDefined();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockJsonResponse({}, false)));
+
+    const [enrichedRoute] = await enrichRoutesWithMedia([route!], openRouteMediaProvider);
+    const capeTownMedia = enrichedRoute?.stops.find((stop) => stop.id === "cape-town")?.media;
+
+    expect(capeTownMedia).toMatchObject({
+      provider: "wikimedia-commons",
+      title: "Cape Town, Table Mountain, view of Camps Bay"
+    });
   });
 });
