@@ -1,0 +1,1166 @@
+/*
+ * Wild Route festival system
+ *
+ * Inspired by the visual language of a 00s motorsport festival: asphalt,
+ * paper signage, route numbers, pit-lane trims, and deliberately offset
+ * panels. This is an original web treatment, not a copied game UI.
+ *
+ * The layout remains intentionally stable underneath the styling. Offsets are
+ * decorative and collapse back to a clean single column below 760px.
+ */
+
+:root {
+  --festival-asphalt: #0d0f0e;
+  --festival-asphalt-deep: #070908;
+  --festival-surface: #171b18;
+  --festival-surface-raised: #202520;
+  --festival-paper: #f1efe4;
+  --festival-paper-muted: #b9b8ac;
+  --festival-lime: #d7ff3f;
+  --festival-lime-ink: #12170b;
+  --festival-flag: #ff7657;
+  --festival-line: rgba(241, 239, 228, 0.16);
+  --festival-line-soft: rgba(241, 239, 228, 0.09);
+  --festival-radius: 4px;
+  --festival-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  --festival-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body.festival-system {
+  color: var(--festival-paper);
+  background:
+    radial-gradient(circle at 78% 0%, rgba(215, 255, 63, 0.08), transparent 28rem),
+    linear-gradient(180deg, #151915 0%, var(--festival-asphalt) 38%, var(--festival-asphalt-deep) 100%);
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+body.festival-system::before {
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  pointer-events: none;
+  opacity: 0.35;
+  background:
+    linear-gradient(115deg, transparent 0 49.7%, rgba(215, 255, 63, 0.05) 49.8% 50%, transparent 50.1%),
+    repeating-linear-gradient(90deg, transparent 0 7rem, rgba(241, 239, 228, 0.018) 7rem 7.06rem);
+  content: "";
+}
+
+body.festival-system .page-noise {
+  z-index: 80;
+  opacity: 0.1;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(241, 239, 228, 0.08) 1px, transparent 0),
+    radial-gradient(circle at 3px 3px, rgba(215, 255, 63, 0.05) 1px, transparent 0);
+  background-size: 18px 18px, 31px 31px;
+}
+
+body.festival-system ::selection {
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+}
+
+body.festival-system :focus-visible {
+  outline: 2px solid var(--festival-lime);
+  outline-offset: 3px;
+}
+
+body.festival-system .site-header {
+  top: 1rem;
+  z-index: 1100;
+}
+
+body.festival-system .site-corner-brand {
+  top: 0.12rem;
+  left: clamp(1rem, 2.8vw, 2.75rem);
+  gap: 0.55rem;
+  padding: 0.42rem 0.7rem 0.42rem 0.4rem;
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: rgba(13, 15, 14, 0.94);
+  box-shadow: 6px 6px 0 rgba(215, 255, 63, 0.08), var(--festival-shadow);
+  transform: rotate(-1.2deg);
+}
+
+body.festival-system .site-corner-brand__mark {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 2px;
+  background: var(--festival-lime);
+}
+
+body.festival-system .site-corner-brand .brand-name {
+  color: var(--festival-paper);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+body.festival-system .site-corner-brand__status {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+body.festival-system .site-command {
+  width: min(calc(100% - 2rem), 46rem);
+  grid-template-columns: 1fr auto auto;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: rgba(13, 15, 14, 0.95);
+  box-shadow: -8px 8px 0 rgba(255, 118, 87, 0.06), var(--festival-shadow);
+  transform: translateX(1.4rem) rotate(0.8deg);
+}
+
+body.festival-system .site-command__nav {
+  gap: 0.15rem;
+  padding: 0;
+  background: transparent;
+}
+
+body.festival-system .site-command__nav-item,
+body.festival-system .auth-chip,
+body.festival-system .site-command__cta {
+  min-height: 2.65rem;
+  border-radius: 2px;
+}
+
+body.festival-system .site-command__nav-item {
+  min-width: 0;
+  padding: 0.62rem 0.92rem;
+  color: var(--festival-paper-muted);
+}
+
+body.festival-system .site-command__nav-item:hover {
+  color: var(--festival-paper);
+  background: var(--festival-surface);
+  transform: translateY(-2px) rotate(-1deg);
+}
+
+body.festival-system .site-command__nav-item strong,
+body.festival-system .auth-chip strong,
+body.festival-system .site-command__cta {
+  font-family: var(--festival-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+body.festival-system .site-command__actions {
+  gap: 0.25rem;
+  background: transparent;
+}
+
+body.festival-system .auth-chip {
+  padding: 0.45rem 0.8rem;
+  background: transparent;
+  color: var(--festival-paper);
+}
+
+body.festival-system .auth-chip:hover {
+  background: var(--festival-surface);
+}
+
+body.festival-system .site-command__cta,
+body.festival-system .button,
+body.festival-system .button-island,
+body.festival-system .route-studio__primary-action,
+body.festival-system .route-studio-actions__primary-button {
+  border-radius: 2px;
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+  box-shadow: 4px 4px 0 rgba(215, 255, 63, 0.16);
+  font-family: var(--festival-mono);
+  font-weight: 900;
+}
+
+body.festival-system .site-command__cta:hover,
+body.festival-system .button:hover,
+body.festival-system .button-island:hover,
+body.festival-system .route-studio__primary-action:hover,
+body.festival-system .route-studio-actions__primary-button:hover {
+  background: #e1ff70;
+  box-shadow: 6px 6px 0 rgba(215, 255, 63, 0.2);
+  transform: translate(-2px, -2px);
+}
+
+body.festival-system .button:active,
+body.festival-system .button-island:active,
+body.festival-system .site-command__cta:active,
+body.festival-system .route-studio button:active {
+  transform: translate(1px, 1px) scale(0.99);
+  box-shadow: 2px 2px 0 rgba(215, 255, 63, 0.16);
+}
+
+body.festival-system .button-island {
+  gap: 0.8rem;
+  padding: 0.48rem 0.48rem 0.48rem 1rem;
+}
+
+body.festival-system .button-island__icon {
+  border-radius: 2px;
+  background: rgba(18, 23, 11, 0.14);
+}
+
+body.festival-system .button.button-ghost {
+  border: 1px solid var(--festival-line);
+  background: var(--festival-surface);
+  color: var(--festival-paper);
+  box-shadow: 3px 3px 0 rgba(255, 118, 87, 0.08);
+}
+
+body.festival-system .button.button-ghost:hover {
+  border-color: rgba(215, 255, 63, 0.52);
+  background: var(--festival-surface-raised);
+  box-shadow: 5px 5px 0 rgba(255, 118, 87, 0.1);
+}
+
+body.festival-system .eyebrow,
+body.festival-system .route-studio__kicker,
+body.festival-system .route-studio__section-heading p,
+body.festival-system .route-studio__inspector-copy p,
+body.festival-system .route-studio-actions__header span {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Homepage: the hero is an event poster with a readable route brief layered
+   over it. The offsets add personality without moving the CTA out of reach. */
+body.festival-system .journey-index {
+  background:
+    radial-gradient(circle at 86% 8%, rgba(215, 255, 63, 0.1), transparent 24rem),
+    linear-gradient(180deg, #141815 0%, var(--festival-asphalt) 48%, var(--festival-asphalt-deep) 100%);
+}
+
+body.festival-system .atlas-hero {
+  background: var(--festival-asphalt-deep);
+}
+
+body.festival-system .atlas-hero__image {
+  filter: saturate(0.72) contrast(1.12) brightness(0.7);
+}
+
+body.festival-system .atlas-hero__wash {
+  background:
+    linear-gradient(90deg, rgba(7, 9, 8, 0.95) 0%, rgba(7, 9, 8, 0.55) 50%, rgba(7, 9, 8, 0.76) 100%),
+    linear-gradient(180deg, rgba(7, 9, 8, 0.12) 0%, rgba(7, 9, 8, 0.96) 100%);
+}
+
+body.festival-system .atlas-hero__grid {
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem);
+  align-items: end;
+  gap: clamp(2rem, 6vw, 6.5rem);
+  padding-top: clamp(7rem, 12vh, 8.5rem);
+  padding-bottom: clamp(2.5rem, 7vh, 5rem);
+}
+
+body.festival-system .atlas-hero__copy {
+  max-width: 48rem;
+  transform: translateY(-3vh) rotate(-1.1deg);
+}
+
+body.festival-system .atlas-hero__copy h1 {
+  max-width: 10.5ch;
+  font-size: clamp(4.3rem, 7.4vw, 8.2rem);
+  font-weight: 900;
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+  text-wrap: balance;
+}
+
+body.festival-system .atlas-hero__lede {
+  max-width: 38ch;
+  color: rgba(241, 239, 228, 0.82);
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  line-height: 1.5;
+}
+
+body.festival-system .route-console {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  padding: 0.35rem;
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: rgba(18, 22, 19, 0.92);
+  box-shadow: 7px 7px 0 rgba(255, 118, 87, 0.12), var(--festival-shadow);
+  transform: translateY(-1.5rem) rotate(1.3deg);
+}
+
+body.festival-system .route-console::before,
+body.festival-system .route-studio__summary::before,
+body.festival-system .route-studio__inspector::before {
+  position: absolute;
+  top: -0.55rem;
+  right: 0.9rem;
+  width: 4.7rem;
+  height: 1.1rem;
+  background: var(--festival-flag);
+  content: "";
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%);
+  opacity: 0.92;
+}
+
+body.festival-system .route-console > * {
+  border-radius: 2px;
+}
+
+body.festival-system .route-console__header,
+body.festival-system .route-console__prompt,
+body.festival-system .route-console__tags,
+body.festival-system .route-console__routes {
+  background: var(--festival-surface);
+  box-shadow: none;
+}
+
+body.festival-system .route-console__header {
+  border-bottom: 1px solid var(--festival-line-soft);
+}
+
+body.festival-system .route-console__header span,
+body.festival-system .route-console__route b {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-console__prompt {
+  color: var(--festival-paper);
+  font-size: 1.12rem;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+body.festival-system .route-console__tags span,
+body.festival-system .prompt-strip span,
+body.festival-system .final-route-cta__brief span {
+  border-radius: 2px;
+  background: rgba(215, 255, 63, 0.11);
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.63rem;
+}
+
+body.festival-system .route-console__route {
+  border-radius: 2px;
+  background: var(--festival-surface-raised);
+}
+
+body.festival-system .route-console__route span {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 2px;
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-proof,
+body.festival-system .planning-stack,
+body.festival-system .atlas-section,
+body.festival-system .final-route-cta {
+  padding-top: clamp(5rem, 10vw, 8.5rem);
+  padding-bottom: clamp(4.5rem, 9vw, 8rem);
+}
+
+body.festival-system .route-proof__intro h2,
+body.festival-system .planning-stack h2,
+body.festival-system .atlas-section h2,
+body.festival-system .kinetic-story h2,
+body.festival-system .final-route-cta h2,
+body.festival-system .footer-departure h2 {
+  max-width: 12ch;
+  font-size: clamp(3rem, 5.8vw, 6.4rem);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+}
+
+body.festival-system .route-proof__intro {
+  transform: rotate(-0.8deg);
+}
+
+body.festival-system .route-proof__metrics {
+  transform: translateY(1.3rem) rotate(0.65deg);
+}
+
+body.festival-system .route-proof__metrics article,
+body.festival-system .planning-bento__cell,
+body.festival-system .route-story__panel,
+body.festival-system .atlas-row,
+body.festival-system .share-artifact,
+body.festival-system .app-footer--redesign,
+body.festival-system .footer-departure,
+body.festival-system .footer-newsletter {
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: var(--festival-surface);
+  box-shadow: var(--festival-shadow);
+}
+
+body.festival-system .route-proof__metrics article:first-child,
+body.festival-system .planning-bento__cell--wide {
+  background:
+    linear-gradient(135deg, rgba(215, 255, 63, 0.12), transparent 45%),
+    var(--festival-surface);
+}
+
+body.festival-system .route-proof__metrics article:nth-child(3),
+body.festival-system .planning-bento__cell:nth-child(3) {
+  background:
+    linear-gradient(135deg, rgba(255, 118, 87, 0.15), transparent 55%),
+    var(--festival-surface);
+}
+
+body.festival-system .route-proof__metrics strong {
+  color: var(--festival-lime);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(4rem, 8vw, 7.4rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+body.festival-system .route-proof__metrics span,
+body.festival-system .planning-bento__cell h3,
+body.festival-system .atlas-row strong {
+  color: var(--festival-paper);
+}
+
+body.festival-system .planning-bento__cell {
+  min-height: 16rem;
+  padding: 1.25rem;
+}
+
+body.festival-system .planning-bento__cell:nth-child(2) {
+  transform: translateY(1rem) rotate(1deg);
+}
+
+body.festival-system .planning-bento__cell:nth-child(3) {
+  transform: translateY(-0.5rem) rotate(-0.9deg);
+}
+
+body.festival-system .planning-bento__cell:nth-child(4) {
+  transform: translateY(0.7rem) rotate(0.6deg);
+}
+
+body.festival-system .planning-bento__index,
+body.festival-system .atlas-feature__copy span,
+body.festival-system .atlas-row span,
+body.festival-system .share-artifact__top {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .atlas-feature {
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  box-shadow: var(--festival-shadow);
+  transform: rotate(-0.7deg);
+}
+
+body.festival-system .atlas-row {
+  min-height: 6.8rem;
+  transform: translateX(0.6rem);
+}
+
+body.festival-system .atlas-row:nth-child(even) {
+  transform: translateX(-0.6rem) rotate(0.4deg);
+}
+
+body.festival-system .kinetic-story__shade {
+  background:
+    linear-gradient(90deg, rgba(7, 9, 8, 0.94), rgba(7, 9, 8, 0.32) 56%, rgba(7, 9, 8, 0.82)),
+    linear-gradient(180deg, rgba(7, 9, 8, 0.18), rgba(7, 9, 8, 0.94));
+}
+
+body.festival-system .share-artifact {
+  transform: rotate(1deg);
+}
+
+/* Planner: preserve the cockpit layout, but replace the soft glass language
+   with pit-wall panels, route numbers, and a high-contrast active state. */
+body.festival-system .route-studio {
+  --route-line: var(--festival-line);
+  --route-line-strong: rgba(215, 255, 63, 0.68);
+  --route-panel: rgba(23, 27, 24, 0.96);
+  --route-control: rgba(241, 239, 228, 0.055);
+  --route-control-hover: rgba(241, 239, 228, 0.1);
+  --route-text: var(--festival-paper);
+  --route-muted: var(--festival-paper-muted);
+  --route-accent: var(--festival-lime);
+  background:
+    radial-gradient(circle at 52% 34%, rgba(215, 255, 63, 0.1), transparent 22rem),
+    linear-gradient(180deg, #141815 0%, var(--festival-asphalt-deep) 100%);
+}
+
+body.festival-system .route-studio__summary,
+body.festival-system .route-studio__controls,
+body.festival-system .route-studio__dock,
+body.festival-system .route-studio__inspector,
+body.festival-system .route-studio__globe {
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: var(--festival-surface);
+  box-shadow: var(--festival-shadow);
+  backdrop-filter: none;
+}
+
+body.festival-system .route-studio__summary {
+  transform: rotate(-0.7deg);
+}
+
+body.festival-system .route-studio__inspector {
+  transform: rotate(0.55deg);
+}
+
+body.festival-system .route-studio__summary::before {
+  right: auto;
+  left: 1rem;
+  width: 3.8rem;
+  background: var(--festival-lime);
+}
+
+body.festival-system .route-studio__inspector::before {
+  background: var(--festival-flag);
+}
+
+body.festival-system .route-studio__summary h1,
+body.festival-system .route-studio__inspector-copy strong,
+body.festival-system .route-studio__inspector-empty strong {
+  font-weight: 900;
+  letter-spacing: -0.055em;
+}
+
+body.festival-system .route-studio__summary h1 {
+  max-width: 8.8ch;
+  font-size: clamp(2.7rem, 3.7vw, 4.6rem);
+  line-height: 0.86;
+}
+
+body.festival-system .route-studio__metrics span,
+body.festival-system .route-studio__metrics strong,
+body.festival-system .route-studio__tags span {
+  border-radius: 2px;
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-studio__metrics strong {
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+}
+
+body.festival-system .route-studio__globe {
+  background:
+    linear-gradient(rgba(215, 255, 63, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 255, 63, 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 50% 42%, rgba(215, 255, 63, 0.13), transparent 22rem),
+    #0b1510;
+  background-size: 3rem 3rem, 3rem 3rem, auto, auto;
+}
+
+body.festival-system .route-studio__globe .orbital-globe-fallback {
+  border-color: var(--festival-line);
+  border-radius: 2px;
+  background: rgba(7, 13, 9, 0.96);
+  box-shadow: 8px 8px 0 rgba(215, 255, 63, 0.08);
+}
+
+body.festival-system .route-studio__globe .map-fallback svg {
+  border-radius: 2px;
+}
+
+body.festival-system .route-studio__controls-toggle {
+  min-height: 3.15rem;
+  border-radius: 2px;
+  background: rgba(241, 239, 228, 0.04);
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-studio__controls-toggle:hover {
+  background: rgba(215, 255, 63, 0.1);
+}
+
+body.festival-system .route-studio__controls-body {
+  border-top-color: var(--festival-line);
+}
+
+body.festival-system .route-studio__prompt,
+body.festival-system .route-studio-form input {
+  border: 1px solid var(--festival-line);
+  border-radius: 2px;
+  background: var(--festival-asphalt-deep);
+  color: var(--festival-paper);
+}
+
+body.festival-system .route-studio__prompt:focus,
+body.festival-system .route-studio-form input:focus {
+  border-color: var(--festival-lime);
+  box-shadow: inset 0 0 0 1px var(--festival-lime);
+  outline: none;
+}
+
+body.festival-system .route-studio-form__field > span,
+body.festival-system .route-studio-form__fieldset legend {
+  color: var(--festival-paper-muted);
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-studio-form__segment,
+body.festival-system .route-studio-form__wish,
+body.festival-system .route-studio-actions__secondary-button {
+  border: 1px solid var(--festival-line);
+  border-radius: 2px;
+  background: var(--festival-asphalt);
+  color: var(--festival-paper-muted);
+}
+
+body.festival-system .route-studio-form__segment:hover,
+body.festival-system .route-studio-form__wish:hover,
+body.festival-system .route-studio-actions__secondary-button:hover {
+  border-color: rgba(215, 255, 63, 0.48);
+  background: var(--festival-surface-raised);
+  color: var(--festival-paper);
+}
+
+body.festival-system .route-studio-form__segment--active,
+body.festival-system .route-studio-form__wish--active {
+  border-color: var(--festival-lime);
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+}
+
+body.festival-system .route-studio__dock {
+  gap: 0.3rem;
+  padding: 0.3rem;
+  transform: translateY(0.35rem) rotate(-0.35deg);
+}
+
+body.festival-system .route-studio__route {
+  min-height: 4.7rem;
+  border: 1px solid var(--festival-line-soft);
+  border-radius: 2px;
+  background: var(--festival-asphalt);
+}
+
+body.festival-system .route-studio__route:hover {
+  background: var(--festival-surface-raised);
+}
+
+body.festival-system .route-studio__route--active,
+body.festival-system .route-studio__route--active:hover {
+  border-color: var(--festival-lime);
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+}
+
+body.festival-system .route-studio__route--active .route-studio__route-index,
+body.festival-system .route-studio__route--active small {
+  color: rgba(18, 23, 11, 0.78);
+}
+
+body.festival-system .route-studio__inspector-media {
+  margin: 0.65rem;
+  border: 1px solid var(--festival-line);
+  border-radius: 2px;
+}
+
+body.festival-system .route-studio__inspector-section,
+body.festival-system .route-studio-actions {
+  border-color: var(--festival-line-soft);
+}
+
+body.festival-system .route-studio__tags span {
+  background: var(--festival-asphalt);
+  color: var(--festival-paper-muted);
+}
+
+body.festival-system .route-studio__stops article {
+  border-top-color: var(--festival-line-soft);
+}
+
+body.festival-system .route-studio__reasons p {
+  border-left-color: var(--festival-flag);
+}
+
+body.festival-system .route-studio-actions__secondary-button {
+  font-family: var(--festival-mono);
+}
+
+/* Saved, shared, account, auth, and legal pages inherit the same pit-wall
+   surfaces so the product does not switch visual language at the handoff. */
+body.festival-system .saved-vault-shell,
+body.festival-system .share-route-shell,
+body.festival-system .auth-shell {
+  background:
+    radial-gradient(circle at 78% 12%, rgba(215, 255, 63, 0.08), transparent 25rem),
+    linear-gradient(180deg, #141815 0%, var(--festival-asphalt-deep) 100%);
+}
+
+body.festival-system .page-panel,
+body.festival-system .auth-card,
+body.festival-system .floating-sidebar__inner,
+body.festival-system .legal-panel,
+body.festival-system .route-action-console,
+body.festival-system .stop-card,
+body.festival-system .footer-newsletter,
+body.festival-system .newsletter-option {
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: var(--festival-surface);
+  box-shadow: var(--festival-shadow);
+  backdrop-filter: none;
+}
+
+body.festival-system .planner-stage-title,
+body.festival-system .floating-sidebar__header h2,
+body.festival-system .auth-card h2,
+body.festival-system .page-panel h1,
+body.festival-system .legal-copy h2 {
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+body.festival-system .status-pill,
+body.festival-system .tag-pill,
+body.festival-system .vault-route-card__link {
+  border-radius: 2px;
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .app-footer--redesign {
+  border: 1px solid var(--festival-line);
+  border-radius: var(--festival-radius);
+  background: var(--festival-surface);
+}
+
+body.festival-system .footer-newsletter {
+  border-top-color: var(--festival-line);
+  border-left-color: var(--festival-line);
+}
+
+@media (max-width: 1180px) {
+  body.festival-system .atlas-hero__grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.festival-system .atlas-hero__copy {
+    transform: translateY(-1rem) rotate(-0.7deg);
+  }
+
+  body.festival-system .route-console {
+    width: min(100%, 32rem);
+    transform: translate(0.5rem, 0) rotate(0.8deg);
+  }
+}
+
+@media (max-width: 760px) {
+  body.festival-system .site-header {
+    top: 0.7rem;
+  }
+
+  body.festival-system .site-corner-brand {
+    top: 0;
+    left: 0.75rem;
+    transform: rotate(-0.8deg);
+  }
+
+  body.festival-system .site-command {
+    width: calc(100% - 1.25rem);
+    max-width: none;
+    margin-top: 3.05rem;
+    transform: none;
+  }
+
+  body.festival-system .site-command__nav-item {
+    padding-inline: 0.55rem;
+  }
+
+  body.festival-system .site-command__cta {
+    padding-inline: 0.7rem;
+  }
+
+  body.festival-system .atlas-hero__grid {
+    width: min(100% - 1.5rem, 1240px);
+    gap: 1.5rem;
+    padding-top: 8.3rem;
+    padding-bottom: 2.25rem;
+  }
+
+  body.festival-system .atlas-hero__copy {
+    transform: none;
+  }
+
+  body.festival-system .atlas-hero__copy h1 {
+    max-width: 9.5ch;
+    font-size: clamp(3.4rem, 15vw, 5rem);
+    line-height: 0.88;
+  }
+
+  body.festival-system .route-console {
+    width: 100%;
+    transform: rotate(0.55deg);
+  }
+
+  body.festival-system .route-proof__metrics,
+  body.festival-system .planning-bento {
+    transform: none;
+  }
+
+  body.festival-system .planning-bento__cell:nth-child(2),
+  body.festival-system .planning-bento__cell:nth-child(3),
+  body.festival-system .planning-bento__cell:nth-child(4),
+  body.festival-system .atlas-row,
+  body.festival-system .atlas-row:nth-child(even),
+  body.festival-system .share-artifact,
+  body.festival-system .route-studio__summary,
+  body.festival-system .route-studio__inspector,
+  body.festival-system .route-studio__dock,
+  body.festival-system .atlas-feature {
+    transform: none;
+  }
+
+  body.festival-system .route-studio {
+    padding-top: 7.2rem;
+  }
+
+  body.festival-system .route-studio__summary h1 {
+    max-width: 9ch;
+    font-size: clamp(2.7rem, 13vw, 4rem);
+  }
+
+  body.festival-system .route-studio__globe,
+  body.festival-system .route-studio__globe .orbital-globe-stage {
+    min-height: min(54dvh, 24rem);
+  }
+
+  body.festival-system .route-studio__dock {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  body.festival-system .route-studio__route {
+    flex: 0 0 min(78vw, 18rem);
+  }
+
+  body.festival-system .app-footer--redesign {
+    grid-template-columns: 1fr;
+  }
+
+  body.festival-system .footer-newsletter {
+    border-left: 0;
+    border-top: 1px solid var(--festival-line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.festival-system::before {
+    display: none;
+  }
+
+  body.festival-system .site-corner-brand,
+  body.festival-system .site-command,
+  body.festival-system .route-console,
+  body.festival-system .atlas-hero__copy,
+  body.festival-system .planning-bento__cell:nth-child(2),
+  body.festival-system .planning-bento__cell:nth-child(3),
+  body.festival-system .planning-bento__cell:nth-child(4),
+  body.festival-system .atlas-row,
+  body.festival-system .atlas-row:nth-child(even),
+  body.festival-system .share-artifact {
+    transform: none;
+  }
+}
+
+/* Route composition agent: keep generated cost, source, and stop media visible
+   as evidence instead of hiding them behind an AI-shaped summary. */
+body.festival-system .route-map-libre {
+  width: 100%;
+  height: clamp(17rem, 40dvh, 28rem);
+  min-height: 12rem;
+  overflow: hidden;
+  border: 1px solid var(--festival-line);
+  background: #0b2418;
+}
+
+body.festival-system .route-map-libre .maplibregl-map {
+  font-family: var(--festival-mono);
+}
+
+body.festival-system .route-map-libre .maplibregl-ctrl-group,
+body.festival-system .route-map-libre .maplibregl-ctrl-attrib {
+  border: 1px solid rgba(215, 255, 63, 0.24);
+  border-radius: 2px;
+  background: rgba(7, 18, 13, 0.88);
+  color: var(--festival-paper-muted);
+}
+
+body.festival-system .route-map-libre .maplibregl-ctrl-group button {
+  width: 2rem;
+  height: 2rem;
+}
+
+body.festival-system .route-studio__inspector > .media-credit,
+body.festival-system .route-studio__stops .media-credit,
+body.festival-system .share-stop-card .media-credit {
+  margin: 0;
+  color: rgba(241, 239, 228, 0.52);
+  font-family: var(--festival-mono);
+  font-size: 0.5rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio__inspector > .media-credit a,
+body.festival-system .route-studio__stops .media-credit a,
+body.festival-system .share-stop-card .media-credit a {
+  color: var(--festival-paper-muted);
+}
+
+body.festival-system .route-studio__stops article {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.25rem 0.65rem;
+}
+
+body.festival-system .route-studio__stops article > strong,
+body.festival-system .route-studio__stops article > span,
+body.festival-system .route-studio__stops article > .media-credit {
+  grid-column: 2;
+}
+
+body.festival-system .route-studio__stops article > strong {
+  grid-row: 1;
+}
+
+body.festival-system .route-studio__stops article > span {
+  grid-row: 2;
+}
+
+body.festival-system .route-studio__stops article > .media-credit {
+  grid-row: 3;
+}
+
+body.festival-system .route-studio__stop-image {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  width: 3.25rem;
+  height: 3.25rem;
+  object-fit: cover;
+  border: 1px solid var(--festival-line);
+  border-radius: 2px;
+}
+
+body.festival-system .route-studio__cost-breakdown {
+  background: rgba(215, 255, 63, 0.035);
+}
+
+body.festival-system .route-studio__cost-header,
+body.festival-system .route-studio__cost-rows > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+body.festival-system .route-studio__cost-header strong {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.74rem;
+}
+
+body.festival-system .route-studio__cost-rows {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.65rem;
+}
+
+body.festival-system .route-studio__cost-rows > div {
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(241, 239, 228, 0.08);
+  color: var(--festival-paper-muted);
+  font-family: var(--festival-mono);
+  font-size: 0.57rem;
+}
+
+body.festival-system .route-studio__cost-rows strong {
+  color: var(--festival-paper);
+}
+
+body.festival-system .route-studio__cost-note {
+  margin: 0.7rem 0 0;
+  color: rgba(241, 239, 228, 0.55);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+body.festival-system .route-studio__cost-assumptions,
+body.festival-system .share-route-cost-breakdown__assumptions {
+  margin: 0.7rem 0 0;
+  padding-left: 1rem;
+  color: rgba(241, 239, 228, 0.48);
+  font-size: 0.58rem;
+  line-height: 1.45;
+}
+
+body.festival-system .share-route-cost-breakdown {
+  display: grid;
+  gap: 0.32rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--festival-line);
+  border-bottom: 1px solid var(--festival-line);
+}
+
+body.festival-system .share-route-cost-breakdown > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--festival-paper-muted);
+  font-family: var(--festival-mono);
+  font-size: 0.58rem;
+}
+
+body.festival-system .share-route-cost-breakdown > div strong {
+  color: var(--festival-lime);
+}
+
+body.festival-system .share-route-cost-breakdown__note {
+  margin: 0.7rem 0 0;
+  color: rgba(241, 239, 228, 0.55);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+body.festival-system .map-route:not(.map-route--active) {
+  opacity: 0.38;
+}
+
+body.festival-system .map-route--active .map-line {
+  stroke: var(--festival-lime);
+  stroke-width: 1.15;
+}
+
+body.festival-system .route-loading-mark {
+  display: inline-block;
+  width: 3.8rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+body.festival-system .route-loading-mark__track {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: square;
+  stroke-dasharray: 8 5;
+  animation: route-trace 1.15s linear infinite;
+}
+
+body.festival-system .route-loading-mark__node {
+  fill: currentColor;
+  opacity: 0.6;
+}
+
+body.festival-system .route-loading-mark__node--active {
+  color: var(--festival-flag);
+  animation: route-pulse 1.15s ease-in-out infinite;
+}
+
+body.festival-system .route-studio__primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+body.festival-system .orbital-globe-fallback__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+body.festival-system .orbital-globe-fallback__mode .route-loading-mark {
+  width: 2.8rem;
+  height: 1rem;
+}
+
+body.festival-system .route-composition-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  gap: 0.38rem;
+  width: min(18rem, calc(100% - 2rem));
+  padding: 1rem;
+  border: 1px solid rgba(215, 255, 63, 0.34);
+  background: rgba(7, 18, 13, 0.9);
+  color: var(--festival-paper);
+  box-shadow: 5px 5px 0 rgba(255, 118, 87, 0.11);
+  transform: translate(-50%, -50%);
+}
+
+body.festival-system .route-composition-loading .route-loading-mark {
+  color: var(--festival-lime);
+}
+
+body.festival-system .route-composition-loading strong {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.festival-system .route-composition-loading span {
+  color: var(--festival-paper-muted);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+@keyframes route-trace {
+  to {
+    stroke-dashoffset: -26;
+  }
+}
+
+@keyframes route-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.86);
+    transform-origin: center;
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+    transform-origin: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.festival-system .route-loading-mark__track,
+  body.festival-system .route-loading-mark__node--active {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  body.festival-system .route-map-libre {
+    height: clamp(12rem, 34dvh, 16rem);
+  }
+}

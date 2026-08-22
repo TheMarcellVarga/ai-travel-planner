@@ -1,5 +1,6 @@
 import { buildBookingLinks } from "@/lib/planner/provider-links";
 import { createFixtureProviderPayload } from "@/lib/planner/providers/fixture-provider";
+import { createFixtureCostBreakdown } from "@/lib/planner/providers/price-provider";
 import type { RouteProviderSnapshot } from "@/lib/planner/providers/types";
 import type { DestinationProfile, RouteOption, RouteStop, TripGeneration, TripIntent } from "@/lib/types";
 
@@ -50,20 +51,6 @@ function makeDestinationStop(destination: DestinationProfile): RouteStop {
   };
 }
 
-function estimateCost(stops: DestinationProfile[], budgetMode: TripIntent["budgetMode"]) {
-  return Math.round(
-    stops.reduce((total, stop) => {
-      if (budgetMode === "value") {
-        return total + stop.baseCostUsd;
-      }
-      if (budgetMode === "comfort") {
-        return total + stop.comfortCostUsd;
-      }
-      return total + (stop.baseCostUsd + stop.comfortCostUsd) / 2;
-    }, 0)
-  );
-}
-
 function createReasons(stops: DestinationProfile[], intent: TripIntent) {
   const matchedTags = Array.from(new Set(stops.flatMap((stop) => stop.tags))).filter((tag) =>
     intent.wishTags.includes(tag)
@@ -76,6 +63,44 @@ function createReasons(stops: DestinationProfile[], intent: TripIntent) {
     "Booking links are external provider searches; final price and availability must be confirmed there.",
     ...intent.exclusions
   ];
+}
+
+function buildDestinationSequences(
+  ranked: DestinationProfile[],
+  maxStops: number
+) {
+  const sequences: DestinationProfile[][] = [];
+  // The existing product contract treats maxStops as the number of route
+  // destinations available after the origin, with direct-only still showing
+  // one destination. Keep the public v1 cap at two destination stops while
+  // allowing the optimizer to compose direct and multi-stop alternatives.
+  const destinationCount = Math.min(maxStops === 0 ? 1 : 2, ranked.length);
+
+  if (destinationCount === 1) {
+    return ranked.map((destination) => [destination]);
+  }
+
+  for (let index = 0; index <= ranked.length - destinationCount; index += 1) {
+    sequences.push(ranked.slice(index, index + destinationCount));
+  }
+
+  // Keep a few non-adjacent combinations so the agent can surface a route
+  // with a meaningful rhythm instead of only walking the ranked list.
+  if (destinationCount >= 2 && ranked.length >= destinationCount + 1) {
+    sequences.push([
+      ranked[0],
+      ...ranked.slice(destinationCount, destinationCount + destinationCount - 1)
+    ]);
+  }
+
+  return sequences;
+}
+
+function scoreSequence(stops: DestinationProfile[], intent: TripIntent) {
+  return stops.reduce(
+    (total, destination, index) => total + scoreDestination(destination, intent) / (index + 1),
+    0
+  ) - Math.max(0, stops.length - 1) * 8;
 }
 
 function createTitle(stops: DestinationProfile[], intent: TripIntent) {
@@ -131,15 +156,14 @@ function buildRouteOptions(
     .sort((a, b) => scoreDestination(b, intent) - scoreDestination(a, intent))
     .slice(0, 6);
 
-  const desiredRouteCount = Math.min(4, ranked.length);
+  const sequences = buildDestinationSequences(ranked, intent.maxStops)
+    .sort((a, b) => scoreSequence(b, intent) - scoreSequence(a, intent))
+    .slice(0, 4);
 
-  return Array.from({ length: desiredRouteCount }, (_, index) => {
-    const primary = ranked[index];
-    const secondary = ranked[(index + 1) % ranked.length];
-    const useSecondary = intent.maxStops > 0 && secondary.id !== primary.id;
-    const routeDestinations = useSecondary ? [primary, secondary] : [primary];
+  return sequences.map((routeDestinations, index) => {
+    const primary = routeDestinations[0];
     const stops = [makeOriginStop(intent), ...routeDestinations.map(makeDestinationStop)];
-    const estimatedCostUsd = estimateCost(routeDestinations, intent.budgetMode);
+    const costBreakdown = createFixtureCostBreakdown(intent, routeDestinations);
 
     return {
       id: createId("route"),
@@ -147,9 +171,12 @@ function buildRouteOptions(
       tagline: stops.map((stop) => stop.code).join(" -> "),
       vibe: intent.vibe,
       promotedStopId: routeDestinations[0].id,
-      score: Math.round(scoreDestination(primary, intent) + (useSecondary ? scoreDestination(secondary, intent) * 0.48 : 0)),
-      confidence: Number((0.72 - index * 0.06 + intent.wishTags.length * 0.03).toFixed(2)),
-      estimatedCostUsd,
+      score: Math.round(scoreSequence(routeDestinations, intent)),
+      confidence: Number(
+        Math.min(0.96, Math.max(0.48, 0.76 - index * 0.06 + intent.wishTags.length * 0.03)).toFixed(2)
+      ),
+      estimatedCostUsd: costBreakdown.total,
+      costBreakdown,
       estimateStatus: "planning_estimate",
       availabilityStatus: "external_search_required",
       dataFreshness: describeFreshness(providerSnapshot),

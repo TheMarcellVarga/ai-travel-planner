@@ -1,8 +1,10 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
+  AgentRunMetadata,
   BookingHandoff,
   BookingLink,
   PublicSharedRoute,
+  RouteMediaAsset,
   RouteOption,
   SavedRoute,
   SharedRoute,
@@ -48,6 +50,18 @@ type BookingHandoffRow = {
   user_id: string | null;
   route_id: string;
   links: BookingLink[];
+  created_at: string;
+};
+
+type RouteAgentRunRow = {
+  id: string;
+  user_id: string | null;
+  generation_id: string | null;
+  mode: AgentRunMetadata["mode"];
+  status: AgentRunMetadata["status"];
+  agent_version: string;
+  model_id: string | null;
+  latency_ms: number;
   created_at: string;
 };
 
@@ -105,7 +119,6 @@ export async function saveGenerationToDatabase(
   const { data, error } = await supabase
     .from("route_generations")
     .insert({
-      id: generation.id,
       user_id: userId,
       prompt: generation.tripIntent.prompt,
       trip_intent: generation.tripIntent,
@@ -119,6 +132,120 @@ export async function saveGenerationToDatabase(
   }
 
   return mapGeneration(data);
+}
+
+export async function saveRouteAgentRunToDatabase(
+  generation: TripGeneration,
+  userId: string | null | undefined,
+  persistedGenerationId = generation.id
+) {
+  if (!isPersistentUser(userId) || !generation.agentRun) {
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const { data } = await supabase
+    .from("route_agent_runs")
+    .insert({
+      user_id: userId,
+      generation_id: persistedGenerationId,
+      mode: generation.agentRun.mode,
+      status: generation.agentRun.status,
+      agent_version: generation.agentRun.agentVersion,
+      model_id: generation.agentRun.modelId ?? null,
+      latency_ms: Math.round(generation.agentRun.latencyMs)
+    })
+    .select("id, user_id, generation_id, mode, status, agent_version, model_id, latency_ms, created_at")
+    .single<RouteAgentRunRow>();
+
+  return data
+    ? {
+        mode: data.mode,
+        status: data.status,
+        agentVersion: data.agent_version,
+        modelId: data.model_id ?? undefined,
+        latencyMs: data.latency_ms
+      }
+    : null;
+}
+
+export async function getDestinationMediaFromDatabase(destinationId: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) {
+    return null;
+  }
+
+  const { data } = await supabase
+    .from("destination_media")
+    .select("provider, image_url, source_url, title, creator, license_label, license_url, attribution_text, fetched_at")
+    .eq("destination_id", destinationId)
+    .gt("expires_at", new Date().toISOString())
+    .order("fetched_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{
+      provider: RouteMediaAsset["provider"];
+      image_url: string;
+      source_url: string;
+      title: string;
+      creator: string;
+      license_label: string;
+      license_url: string;
+      attribution_text: string;
+      fetched_at: string;
+    }>();
+
+  return data
+    ? {
+        provider: data.provider,
+        imageUrl: data.image_url,
+        sourceUrl: data.source_url,
+        title: data.title,
+        creator: data.creator,
+        licenseLabel: data.license_label,
+        licenseUrl: data.license_url,
+        attributionText: data.attribution_text,
+        fetchedAt: data.fetched_at
+      }
+    : null;
+}
+
+export async function saveDestinationMediaToDatabase(
+  destinationId: string,
+  asset: RouteMediaAsset
+) {
+  if (asset.provider === "local-fallback") {
+    return null;
+  }
+
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
+    return null;
+  }
+
+  await admin.from("destination_media").upsert(
+    {
+      id: `${asset.provider}:${destinationId}`,
+      destination_id: destinationId,
+      provider: asset.provider,
+      image_url: asset.imageUrl,
+      source_url: asset.sourceUrl,
+      title: asset.title,
+      creator: asset.creator,
+      license_label: asset.licenseLabel,
+      license_url: asset.licenseUrl,
+      attribution_text: asset.attributionText,
+      fetched_at: asset.fetchedAt,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    { onConflict: "id" }
+  );
+
+  return asset;
 }
 
 export async function getGenerationCountForUserFromDatabase(userId: string) {

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
 
 import "./globals.css";
+import "./festival.css";
 
 const displayFont = Geist({
   subsets: ["latin"],
@@ -59,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${displayFont.variable} ${bodyFont.variable}`}>
+      <body className={`${displayFont.variable} ${bodyFont.variable} festival-system`}>
         <a className="skip-link" href="#content">
           Skip to content
         </a>

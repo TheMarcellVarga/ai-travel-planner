@@ -6,6 +6,7 @@ type TripIntentInput = {
   origin?: string;
   tripLengthDays?: number;
   maxStops?: number;
+  departureDate?: string | null;
   wishTags?: string[];
   budgetMode?: BudgetMode;
 };
@@ -137,6 +138,7 @@ export function interpretTripIntent(input: TripIntentInput): TripIntent {
     origin: inferOrigin(input.origin),
     tripLengthDays: clamp(input.tripLengthDays ?? parseDays(prompt), 4, 30),
     maxStops: clamp(input.maxStops ?? parseStops(prompt), 0, 2),
+    departureDate: input.departureDate ?? null,
     wishTags,
     budgetMode: input.budgetMode ?? "balanced",
     vibe: inferVibe(prompt),

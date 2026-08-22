@@ -21,6 +21,7 @@ export type TripIntent = {
   origin: OriginProfile;
   tripLengthDays: number;
   maxStops: number;
+  departureDate?: string | null;
   wishTags: WishTag[];
   budgetMode: BudgetMode;
   vibe: string;
@@ -53,6 +54,49 @@ export type RouteStop = {
   tags: WishTag[];
   scene?: string;
   imageHint?: string;
+  media?: RouteMediaAsset | null;
+};
+
+export type RouteCostStatus = "planning_estimate" | "provider_observed" | "partial";
+
+export type RouteCostBreakdown = {
+  currency: "USD";
+  total: number;
+  transport: Array<{
+    fromCode: string;
+    toCode: string;
+    amount: number;
+    status: RouteCostStatus;
+    source: string;
+    observedAt: string | null;
+  }>;
+  stays: Array<{
+    stopId: string;
+    nights: number;
+    amount: number;
+    status: RouteCostStatus;
+  }>;
+  assumptions: string[];
+};
+
+export type RouteMediaAsset = {
+  provider: "wikimedia-commons" | "openverse" | "local-fallback";
+  imageUrl: string;
+  sourceUrl: string;
+  title: string;
+  creator: string;
+  licenseLabel: string;
+  licenseUrl: string;
+  attributionText: string;
+  fetchedAt: string;
+};
+
+export type AgentRunMetadata = {
+  mode: "deterministic" | "model";
+  agentVersion: string;
+  status: "complete" | "partial" | "fallback";
+  latencyMs: number;
+  modelId?: string;
 };
 
 export type BookingLink = {
@@ -88,6 +132,7 @@ export type RouteOption = {
   score: number;
   confidence: number;
   estimatedCostUsd: number;
+  costBreakdown: RouteCostBreakdown;
   estimateStatus: "planning_estimate";
   availabilityStatus: "external_search_required";
   dataFreshness: string;
@@ -104,6 +149,7 @@ export type TripGeneration = {
   createdAt: string;
   tripIntent: TripIntent;
   routes: RouteOption[];
+  agentRun?: AgentRunMetadata;
 };
 
 export type Entitlement = {
@@ -166,6 +212,7 @@ export type PublicRouteSnapshot = Pick<
   | "score"
   | "confidence"
   | "estimatedCostUsd"
+  | "costBreakdown"
   | "estimateStatus"
   | "availabilityStatus"
   | "dataFreshness"

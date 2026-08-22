@@ -10,6 +10,7 @@ type PlannerFormValues = {
   origin: string;
   tripLengthDays: number;
   maxStops: number;
+  departureDate: string | null;
   wishTags: WishTag[];
   budgetMode: BudgetMode;
 };
@@ -43,6 +44,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   const [origin, setOrigin] = useState(initialIntent.origin.label);
   const [tripLengthDays, setTripLengthDays] = useState(initialIntent.tripLengthDays);
   const [maxStops, setMaxStops] = useState(initialIntent.maxStops);
+  const [departureDate, setDepartureDate] = useState(initialIntent.departureDate ?? "");
   const [budgetMode, setBudgetMode] = useState<BudgetMode>(initialIntent.budgetMode);
   const [selectedTags, setSelectedTags] = useState<WishTag[]>(initialIntent.wishTags);
 
@@ -50,6 +52,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
     setOrigin(initialIntent.origin.label);
     setTripLengthDays(initialIntent.tripLengthDays);
     setMaxStops(initialIntent.maxStops);
+    setDepartureDate(initialIntent.departureDate ?? "");
     setBudgetMode(initialIntent.budgetMode);
     setSelectedTags(initialIntent.wishTags);
   }, [initialIntent]);
@@ -59,10 +62,11 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
       origin,
       tripLengthDays,
       maxStops,
+      departureDate: departureDate || null,
       wishTags: selectedTags,
       budgetMode
     });
-  }, [origin, tripLengthDays, maxStops, selectedTags, budgetMode, onChange]);
+  }, [origin, tripLengthDays, maxStops, departureDate, selectedTags, budgetMode, onChange]);
 
   function toggleTag(tag: WishTag) {
     setSelectedTags((current) =>
@@ -102,6 +106,19 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
             />
             <small>days</small>
           </div>
+        </label>
+
+        <label className="route-studio-form__field" htmlFor="planner-departure-date">
+          <span>Departure date</span>
+          <input
+            id="planner-departure-date"
+            type="text"
+            inputMode="numeric"
+            placeholder="YYYY-MM-DD"
+            value={departureDate}
+            onChange={(event) => setDepartureDate(event.target.value)}
+          />
+          <small>Optional · live price lookup needs a date</small>
         </label>
 
         <fieldset className="route-studio-form__field route-studio-form__fieldset">

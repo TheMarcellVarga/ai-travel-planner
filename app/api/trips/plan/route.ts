@@ -18,6 +18,9 @@ import {
 import { DATABASE_PERSISTENCE, MEMORY_PERSISTENCE } from "@/lib/store/persistence";
 import {
   getGenerationCountForUserFromDatabase,
+  getDestinationMediaFromDatabase,
+  saveRouteAgentRunToDatabase,
+  saveDestinationMediaToDatabase,
   saveGenerationToDatabase
 } from "@/lib/store/persistent-store";
 
@@ -26,6 +29,7 @@ const requestSchema = z.object({
   origin: z.string().optional(),
   tripLengthDays: z.coerce.number().min(4).max(30).optional(),
   maxStops: z.coerce.number().min(0).max(2).optional(),
+  departureDate: z.union([z.string().date(), z.string().datetime()]).nullable().optional(),
   wishTags: z.array(z.string()).optional(),
   budgetMode: z.enum(["value", "balanced", "comfort"]).optional()
 });
@@ -86,11 +90,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const candidateGeneration = await planTrip(tripIntent);
+  const candidateGeneration = await planTrip(tripIntent, undefined, {
+    mediaCache: {
+      get: getDestinationMediaFromDatabase,
+      set: saveDestinationMediaToDatabase
+    }
+  });
   const persistedGeneration = await saveGenerationToDatabase(candidateGeneration, user?.id);
-  const generation =
-    persistedGeneration ??
-    saveGeneration(candidateGeneration, user?.id ?? ANONYMOUS_GENERATION_USER_ID);
+  const persistedAgentRun = persistedGeneration
+    ? await saveRouteAgentRunToDatabase(candidateGeneration, user?.id, persistedGeneration.id)
+    : null;
+  const generation = persistedGeneration
+    ? { ...persistedGeneration, agentRun: candidateGeneration.agentRun }
+    : saveGeneration(candidateGeneration, user?.id ?? ANONYMOUS_GENERATION_USER_ID);
   const persistence = persistedGeneration ? DATABASE_PERSISTENCE : MEMORY_PERSISTENCE;
   const usage = getGenerationLimitStatus(entitlement, currentUsage.used + 1);
 
@@ -98,6 +110,7 @@ export async function POST(request: Request) {
     generationId: generation.id,
     tripIntent: generation.tripIntent,
     routes: generation.routes,
+    agentRun: persistedAgentRun ?? candidateGeneration.agentRun,
     entitlement: {
       plan: entitlement.plan,
       generationLimit: entitlement.generationLimit

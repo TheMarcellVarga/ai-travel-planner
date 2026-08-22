@@ -128,6 +128,15 @@ describe("trip planning API", () => {
         status: "fixture"
       }
     });
+    expect(payload.agentRun).toMatchObject({
+      mode: "deterministic",
+      status: "complete",
+      agentVersion: "wild-route-composition-0.1"
+    });
+    expect(payload.routes[0].costBreakdown.total).toBe(payload.routes[0].estimatedCostUsd);
+    expect(payload.routes[0].stops[1].media).toMatchObject({
+      provider: "local-fallback"
+    });
     expect(payload.routes[0].bookingLinks[0]).toMatchObject({
       status: "external_search"
     });

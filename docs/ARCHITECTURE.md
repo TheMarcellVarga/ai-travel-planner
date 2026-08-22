@@ -9,12 +9,13 @@ Wild Route is a travel route discovery and planning application. It separates UI
 | --- | --- |
 | Next.js App Router | Marketing pages, app UI, route handlers, auth-aware server actions/BFF behavior, Stripe webhook, rendering |
 | Supabase Auth | User identity, sessions, OAuth and magic-link login |
-| Supabase Postgres | Route generations, saved routes, public shares, booking handoffs, profiles, entitlements, newsletter data |
+| Supabase Postgres | Route generations, saved routes, public shares, booking handoffs, profiles, entitlements, normalized destination media, and agent-run metadata |
 | Supabase RLS | User-owned data isolation |
 | Stripe | Checkout, portal, subscriptions, entitlement events |
 | Resend-compatible email | Newsletters and route/account notifications |
-| Provider adapters | Booking links, future flights/stays/maps/weather/advisory data |
-| Route generation pipeline | Intent parsing, candidate expansion, scoring, entitlement enforcement, snapshot persistence |
+| Provider adapters | Booking links, destination data, price snapshots, openly licensed media, and future maps/weather/advisory data |
+| RouteCompositionAgent | Server-only guarded orchestration around intent, candidate selection, multi-stop optimization, cost/media enrichment, validation, and persistence hooks |
+| Route generation pipeline | Deterministic intent parsing, candidate expansion, scoring, route ordering, entitlement enforcement, snapshot persistence |
 
 ## Trust Boundaries
 
@@ -49,6 +50,8 @@ flowchart LR
   Stripe -->|"signature verified + event claimed"| API
   API -->|"allowlisted messages"| Email
   API --> Events
+  Planner --> MediaCache["Normalized media cache"]
+  Planner --> PriceAdapters["Server-only price adapters"]
   DB --> Mapper
   Mapper -->|"safe route fields only"| UI
   API -->|"handoff URL; no booking transaction"| Provider
@@ -84,6 +87,7 @@ flowchart LR
   Planner --> DestinationData["Destination metadata"]
   Planner --> ProviderAdapters["Provider adapters"]
   ProviderAdapters --> External["External booking/data providers"]
+  Planner --> Map["MapLibre or SVG route renderer"]
   Supabase --> RLS["RLS policies"]
 ```
 
@@ -92,10 +96,11 @@ flowchart LR
 2. Supabase Auth manages session cookies.
 3. Planner form posts to `POST /api/trips/plan`.
 4. Server validates input and interprets prompt into `TripIntent`.
-5. Route generation selects candidates, scores routes, enforces entitlement limits, and builds booking links.
-6. Generation snapshots are persisted when Supabase is configured; deterministic fallback is allowed only where explicitly documented.
-7. Save/publish/handoff APIs require ownership checks and durable route IDs.
-8. Stripe webhook updates entitlements after verified subscription events.
+5. `RouteCompositionAgent` selects candidates, orders up to two destination stops, reads normalized price/media adapters, and validates the completed snapshot.
+6. Deterministic arithmetic and entitlement enforcement run after any optional model/provider step; failures fall back to disclosed fixtures.
+7. Generation, agent-run, and normalized media metadata are persisted when Supabase is configured.
+8. Save/publish/handoff APIs require ownership checks and durable route IDs.
+9. Stripe webhook updates entitlements after verified subscription events.
 
 ## Repository Shape
 
@@ -116,6 +121,8 @@ ai-dev/skills/          Repo-local AI work-routing skills
 - Keep Supabase service role usage server-only.
 - Make optional integrations fail closed for private data and fail soft for public UX.
 - Prefer durable snapshots for generated routes so public shares do not mutate unexpectedly.
+- Public destination media is safe normalized metadata only; route agent runs are
+  user-owned operational metadata and are never exposed as raw model traces.
 
 ## Deployment Direction
 - Web app: Vercel or equivalent Next.js hosting.

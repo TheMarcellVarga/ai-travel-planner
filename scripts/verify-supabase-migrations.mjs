@@ -12,7 +12,9 @@ const requiredTables = [
   "shared_routes",
   "booking_handoffs",
   "profiles",
-  "stripe_webhook_events"
+  "stripe_webhook_events",
+  "destination_media",
+  "route_agent_runs"
 ];
 
 const rlsTables = [
@@ -22,7 +24,9 @@ const rlsTables = [
   "shared_routes",
   "booking_handoffs",
   "profiles",
-  "stripe_webhook_events"
+  "stripe_webhook_events",
+  "destination_media",
+  "route_agent_runs"
 ];
 
 const ownershipPolicyTables = [
@@ -31,7 +35,8 @@ const ownershipPolicyTables = [
   "saved_routes",
   "shared_routes",
   "booking_handoffs",
-  "profiles"
+  "profiles",
+  "route_agent_runs"
 ];
 
 function fail(message) {

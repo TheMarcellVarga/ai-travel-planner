@@ -1,14 +1,15 @@
-import { createTripGeneration } from "@/lib/planner/generate-routes";
-import { fixtureRouteDataProvider } from "@/lib/planner/providers/fixture-provider";
-import { resolveRouteProvider } from "@/lib/planner/providers/resolve-provider";
 import type { RouteDataProvider } from "@/lib/planner/providers/types";
-import { tripGenerationSchema } from "@/lib/planner/schema";
+import { routeCompositionAgent } from "@/lib/planner/route-composition-agent";
+import type { RouteCompositionAgentOptions } from "@/lib/planner/route-composition-agent";
 import type { TripIntent } from "@/lib/types";
 
 export async function planTrip(
   intent: TripIntent,
-  provider: RouteDataProvider = fixtureRouteDataProvider
+  provider?: RouteDataProvider,
+  options: Omit<RouteCompositionAgentOptions, "destinationProvider"> = {}
 ) {
-  const providerSnapshot = await resolveRouteProvider(provider, intent);
-  return tripGenerationSchema.parse(createTripGeneration(intent, providerSnapshot));
+  return routeCompositionAgent.compose(intent, {
+    ...options,
+    destinationProvider: provider
+  });
 }

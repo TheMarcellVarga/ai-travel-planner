@@ -1,7 +1,10 @@
 # AI And Route Generation
 
 ## Current Model
-Wild Route currently uses deterministic TypeScript logic for prompt interpretation and route generation. This is good for testability and avoids hidden provider cost. Future AI integration should enhance this pipeline, not replace domain constraints.
+Wild Route uses a guarded `RouteCompositionAgent` around deterministic TypeScript
+route generation. The first production slice is deterministic by default: a
+future model may interpret intent or explain a result, but it cannot invent
+coordinates, prices, availability, licenses, or safety claims.
 
 ## Pipeline
 1. Validate request input.
@@ -10,12 +13,15 @@ Wild Route currently uses deterministic TypeScript logic for prompt interpretati
 4. Collect explicit and inferred wish tags.
 5. Resolve a normalized route-data provider snapshot.
 6. Select and score destination candidates.
-7. Build route combinations.
-8. Estimate cost with non-guarantee language.
-9. Enforce entitlement limits, including promoted stops.
-10. Attach booking handoff links.
-11. Persist generation snapshot when durability is required.
-12. Render route cards, map/globe, save/share/handoff actions.
+7. Compose direct, one-stop, and two-stop destination sequences.
+8. Read a fixture or server-only live price provider snapshot.
+9. Calculate exact cost breakdowns deterministically.
+10. Enrich destination stops with allowlisted openly licensed media.
+11. Validate the complete generation schema and attach agent-run metadata.
+12. Enforce entitlement limits, including promoted stops.
+13. Attach booking handoff links.
+14. Persist generation, agent-run, and media-cache metadata when durability is required.
+15. Render route cards, cost details, map/globe, save/share/handoff actions.
 
 ## Core Domain Types
 - `TripIntent`
@@ -24,6 +30,9 @@ Wild Route currently uses deterministic TypeScript logic for prompt interpretati
 - `BookingLink`
 - `RouteOption`
 - `RouteDataSource`
+- `RouteCostBreakdown`
+- `RouteMediaAsset`
+- `AgentRunMetadata`
 - `TripGeneration`
 - `Entitlement`
 
@@ -36,6 +45,12 @@ The canonical definitions currently live in `lib/types.ts`.
 - Route safety, entitlement limits, and provider-data boundaries are deterministic rules, not prompt suggestions.
 - AI output must include assumptions and confidence/freshness fields where it affects user decisions.
 - Prompt injection must not override product guardrails.
+- The model, when enabled, receives only the travel prompt and normalized
+  preferences through an allowlisted adapter. Deterministic code owns stop
+  count, budget arithmetic, route order, entitlement limits, and final schema
+  validation.
+- A model timeout, malformed output, or provider failure returns the validated
+  deterministic fixture result and marks the run as `fallback` or `partial`.
 
 ## Provider Data Rules
 - Provider adapters must return normalized data plus freshness metadata.
@@ -47,6 +62,34 @@ The canonical definitions currently live in `lib/types.ts`.
 - The default `wild-route-destination-fixtures` adapter is deterministic and requires no API key.
 - Failed adapters degrade to that fixture through `resolveRouteProvider`; raw provider errors are not exposed in route output.
 - Current booking links use `external_search` status and disclaimers to keep the provider-confirmation boundary explicit.
+
+## Price And Media Contracts
+- `RoutePriceProvider` normalizes fixture or live transport/stay observations
+  into USD, source, observation time, freshness, assumptions, and partial
+  failure status. No departure date means no live fare query and a visible
+  planning-estimate label.
+- `RouteCostBreakdown.total` is calculated from normalized leg and stay rows;
+  it is never accepted from model output.
+- Wikimedia Commons is queried before Openverse. Only public domain, CC0,
+  CC BY, and CC BY-SA assets pass the license filter. NC and ND assets are
+  rejected. Each accepted asset retains title, creator, source, license, and
+  attribution text.
+- Media cache rows contain normalized metadata only. Provider payloads,
+  prompts, secrets, and private route details are not persisted.
+- MapLibre is an optional renderer selected by a public style URL. The SVG
+  route map remains the accessible and no-WebGL fallback; map tile usage and
+  attribution remain the responsibility of the configured tile provider.
+
+## Feature Flags
+- `ROUTE_AGENT_MODE=deterministic|model` (model currently records a guarded
+  deterministic fallback until a reviewed model adapter is configured).
+- `ROUTE_PRICE_MODE=fixture|live` (live currently returns a disclosed partial
+  result until a commercial provider is approved and configured).
+- `ROUTE_MEDIA_MODE=fixture|commons|openverse|hybrid` (hybrid is the default
+  Commons-first/Openverse-fallback path).
+- `NEXT_PUBLIC_MAP_RENDERER=svg|maplibre` plus
+  `NEXT_PUBLIC_MAP_STYLE_URL` and `NEXT_PUBLIC_MAP_ATTRIBUTION` for an
+  explicitly configured MapLibre style and tile attribution.
 
 ## Scoring Principles
 Route scoring should consider:
@@ -90,9 +133,14 @@ disclosed local fixture rather than reaching scoring or persistence.
 No AI-backed route feature is complete until deterministic tests still pass and eval fixtures catch at least schema, unsafe-travel, and stale-data failures.
 
 ## Current Deterministic MVP Status
-Phase 4 is complete without live AI:
+Phase 6 guarded composition slice:
 - prompt interpretation is deterministic
 - route scoring is deterministic
+- direct, one-stop, and two-stop route sequences are generated and bounded
+- fixture costs expose exact transport/stay totals and assumptions
+- optional server-only price and media provider seams exist
+- selected stops carry media attribution or local artwork fallback
+- agent-run metadata records deterministic, partial, or fallback execution
 - route output includes planning-estimate metadata
 - booking links disclose external-search status
 - unsupported safety, visa, guarantee, and illegal-travel claims are captured as caveats
@@ -100,5 +148,6 @@ Phase 4 is complete without live AI:
 - provider adapter tests cover deterministic fixture metadata and disclosed failure fallback
 - route evals cover schema validity, activity/direct constraints, unsafe and illegal requests, prompt injection, and stale-provider disclosure
 
-The provider contract and fixture adapter now exist. Live provider selection,
-provider-confirmed freshness, and live AI integration remain Phase 6 work.
+Live provider credentials, a model adapter, production map tiles, and provider-
+confirmed freshness remain feature-flagged rollout work. The route contract is
+ready for those adapters without changing the UI or persistence boundary.

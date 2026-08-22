@@ -23,6 +23,7 @@ Secrets:
 Public:
 - marketing page copy
 - public shared route snapshots by slug
+- normalized destination image metadata and attribution
 - static brand assets
 - non-sensitive destination metadata
 
@@ -38,6 +39,8 @@ Public:
 - Anonymous Supabase clients must not receive direct `shared_routes` table access.
 - Public share reads must use the server-only lookup and return only safe public snapshots.
 - Service-role code must be isolated to server-only modules.
+- Route agent runs are user-owned operational rows; destination media is public
+  only because its schema contains allowlisted image and attribution fields.
 
 ## Billing Rules
 - Client never submits trusted Stripe price/customer/subscription IDs.
@@ -64,6 +67,19 @@ instead of logging request bodies, raw errors, or provider payloads.
 - Avoid encouraging illegal, unsafe, or environmentally harmful travel behavior.
 - Where future provider/advisory data is added, show source and freshness.
 - If data is missing, say so.
+
+## Guarded Agent Rules
+- The composition agent is an orchestration boundary, not an autonomous
+  chatbot. It may interpret preferences and explain a route, but deterministic
+  code owns coordinates, stop limits, ordering, budget arithmetic, licensing,
+  entitlement rules, and final schema validation.
+- Live price and model adapters are server-only and feature-flagged. Browser
+  bundles never receive provider credentials, raw responses, or model traces.
+- A missing date, stale price result, unavailable media provider, malformed
+  model response, or timeout must produce a disclosed estimate/partial/fallback
+  state rather than a fabricated claim.
+- Open media is filtered to public domain, CC0, CC BY, and CC BY-SA. Every
+  displayed asset retains source, creator, license, and attribution links.
 
 ## Security Review Checklist
 - No secret in client bundle.

@@ -4,10 +4,12 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
+import { MediaCredit } from "@/components/media-credit";
 import { ResilientImage } from "@/components/resilient-image";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
-import { getDestinationMedia } from "@/lib/media";
+import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
+import { getRouteStopMedia } from "@/lib/media";
 import type { PersistenceStatus } from "@/lib/store/persistence";
 import type { RouteOption, TripGeneration } from "@/lib/types";
 
@@ -19,6 +21,7 @@ type PlannerApiResponse = {
   generationId: string;
   tripIntent: TripGeneration["tripIntent"];
   routes: RouteOption[];
+  agentRun?: TripGeneration["agentRun"];
   persistence?: PersistenceStatus;
 };
 
@@ -38,6 +41,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     origin: initialGeneration.tripIntent.origin.label,
     tripLengthDays: initialGeneration.tripIntent.tripLengthDays,
     maxStops: initialGeneration.tripIntent.maxStops,
+    departureDate: initialGeneration.tripIntent.departureDate ?? null,
     wishTags: initialGeneration.tripIntent.wishTags,
     budgetMode: initialGeneration.tripIntent.budgetMode,
   });
@@ -47,7 +51,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const promotedStop = activeRoute?.stops.find(
     (stop) => stop.id === activeRoute.promotedStopId,
   );
-  const promotedMedia = getDestinationMedia(promotedStop?.id ?? "bali");
+  const promotedMedia = getRouteStopMedia(promotedStop);
   const destinationStops = useMemo(
     () =>
       activeRoute?.stops.filter((stop) => stop.kind === "destination") ?? [],
@@ -103,6 +107,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           createdAt: new Date().toISOString(),
           tripIntent: payload.tripIntent,
           routes: payload.routes,
+          agentRun: payload.agentRun
         });
         setPersistenceStatus(payload.persistence ?? null);
         setActiveRouteId(payload.routes[0]?.id ?? null);
@@ -148,6 +153,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <RouteGlobe
             routes={generation.routes}
             activeRouteId={activeRouteId}
+            isComposing={isPending}
             onSelectRoute={(routeId) => {
               setActiveRouteId(routeId);
               setIsMissionPanelOpen(false);
@@ -218,7 +224,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   disabled={isPending}
                   aria-busy={isPending}
                 >
-                  {isPending ? "Composing..." : "Compose new routes"}
+                  {isPending ? (
+                    <>
+                      <RouteLoadingMark />
+                      <span>Composing…</span>
+                    </>
+                  ) : (
+                    "Compose new routes"
+                  )}
                 </button>
                 <p className="route-studio__status" role="status" aria-live="polite">
                   {isPending ? "Scoring route options…" : statusMessage}
@@ -260,6 +273,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   <span>{promotedMedia.punchline}</span>
                 </div>
               </div>
+              <MediaCredit asset={promotedMedia} compact />
 
               <section className="route-studio__inspector-section">
                 <p className="route-studio__kicker">Route path</p>
@@ -290,13 +304,54 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 <div className="route-studio__stops">
                   {destinationStops.map((stop) => (
                     <article key={stop.id}>
+                      <ResilientImage
+                        alt={getRouteStopMedia(stop).alt}
+                        className="route-studio__stop-image"
+                        src={getRouteStopMedia(stop).src}
+                        width={52}
+                        height={52}
+                        unoptimized
+                      />
                       <strong>
                         {stop.name} ({stop.code})
                       </strong>
                       <span>{stop.scene}</span>
+                      <MediaCredit asset={getRouteStopMedia(stop)} compact />
                     </article>
                   ))}
                 </div>
+              </section>
+
+              <section className="route-studio__inspector-section route-studio__cost-breakdown">
+                <div className="route-studio__cost-header">
+                  <p className="route-studio__kicker">Route cost</p>
+                  <strong>${activeRoute.costBreakdown.total} est.</strong>
+                </div>
+                <div className="route-studio__cost-rows">
+                  {activeRoute.costBreakdown.transport.map((leg) => (
+                    <div key={`${leg.fromCode}-${leg.toCode}`}>
+                      <span>{leg.fromCode} → {leg.toCode}</span>
+                      <strong>${leg.amount}</strong>
+                    </div>
+                  ))}
+                  {activeRoute.costBreakdown.stays.map((stay) => (
+                    <div key={stay.stopId}>
+                      <span>{stay.nights} nights · {stay.stopId}</span>
+                      <strong>${stay.amount}</strong>
+                    </div>
+                  ))}
+                </div>
+                <p className="route-studio__cost-note">
+                  Price status · {Array.from(new Set(activeRoute.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
+                  {activeRoute.costBreakdown.transport.some((leg) => leg.observedAt)
+                    ? ` Observed ${activeRoute.costBreakdown.transport.find((leg) => leg.observedAt)?.observedAt}.`
+                    : " No provider observation; live inventory was not queried."}
+                </p>
+                <ul className="route-studio__cost-assumptions">
+                  {activeRoute.costBreakdown.assumptions.map((assumption) => (
+                    <li key={assumption}>{assumption}</li>
+                  ))}
+                </ul>
               </section>
 
               <section className="route-studio__inspector-section route-studio__estimate-note">

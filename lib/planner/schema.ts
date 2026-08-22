@@ -8,10 +8,65 @@ const wishTagSchema = z.enum([
   "surf"
 ]);
 
+const departureDateSchema = z
+  .union([z.string().date(), z.string().datetime()])
+  .nullable()
+  .optional();
+
 const coordinatesSchema = z
   .object({
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180)
+  })
+    .strict();
+
+const routeCostStatusSchema = z.enum(["planning_estimate", "provider_observed", "partial"]);
+
+const routeCostBreakdownSchema = z
+  .object({
+    currency: z.literal("USD"),
+    total: z.number().nonnegative(),
+    transport: z
+      .array(
+        z
+          .object({
+            fromCode: z.string().min(2).max(4),
+            toCode: z.string().min(2).max(4),
+            amount: z.number().nonnegative(),
+            status: routeCostStatusSchema,
+            source: z.string().min(1),
+            observedAt: z.string().datetime().nullable()
+          })
+          .strict()
+      )
+      .min(1),
+    stays: z
+      .array(
+        z
+          .object({
+            stopId: z.string().min(1),
+            nights: z.number().int().nonnegative(),
+            amount: z.number().nonnegative(),
+            status: routeCostStatusSchema
+          })
+          .strict()
+      )
+      .min(1),
+    assumptions: z.array(z.string().min(1))
+  })
+  .strict();
+
+const routeMediaAssetSchema = z
+  .object({
+    provider: z.enum(["wikimedia-commons", "openverse", "local-fallback"]),
+    imageUrl: z.string().min(1),
+    sourceUrl: z.string().url(),
+    title: z.string().min(1),
+    creator: z.string().min(1),
+    licenseLabel: z.string().min(1),
+    licenseUrl: z.string().url(),
+    attributionText: z.string().min(1),
+    fetchedAt: z.string().datetime()
   })
   .strict();
 
@@ -70,7 +125,8 @@ const routeStopSchema = z
     coordinates: coordinatesSchema,
     tags: z.array(wishTagSchema),
     scene: z.string().optional(),
-    imageHint: z.string().optional()
+    imageHint: z.string().optional(),
+    media: routeMediaAssetSchema.nullable().optional()
   })
   .strict();
 
@@ -96,6 +152,7 @@ export const routeOptionSchema = z
     score: z.number(),
     confidence: z.number().min(0).max(1),
     estimatedCostUsd: z.number().nonnegative(),
+    costBreakdown: routeCostBreakdownSchema,
     estimateStatus: z.literal("planning_estimate"),
     availabilityStatus: z.literal("external_search_required"),
     dataFreshness: z.string().min(1),
@@ -121,6 +178,7 @@ export const tripIntentSchema = z
       .strict(),
     tripLengthDays: z.number().int().min(4).max(30),
     maxStops: z.number().int().min(0).max(2),
+    departureDate: departureDateSchema,
     wishTags: z.array(wishTagSchema),
     budgetMode: z.enum(["value", "balanced", "comfort"]),
     vibe: z.string().min(1),
@@ -133,6 +191,16 @@ export const tripGenerationSchema = z
     id: z.string().min(1),
     createdAt: z.string().datetime(),
     tripIntent: tripIntentSchema,
-    routes: z.array(routeOptionSchema).min(1).max(5)
+    routes: z.array(routeOptionSchema).min(1).max(5),
+    agentRun: z
+      .object({
+        mode: z.enum(["deterministic", "model"]),
+        agentVersion: z.string().min(1),
+        status: z.enum(["complete", "partial", "fallback"]),
+        latencyMs: z.number().nonnegative(),
+        modelId: z.string().min(1).optional()
+      })
+      .strict()
+      .optional()
   })
   .strict();

@@ -96,3 +96,33 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   await expect(page.getByText(routeTitle, { exact: true })).toHaveCount(2);
   await expect(page.getByRole("link", { name: "Open preview share" })).toBeVisible();
 });
+
+test("planner exposes guarded composition loading, multi-stop cost, and media attribution", async ({
+  page
+}) => {
+  await page.route("**/api/trips/plan", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await route.continue();
+  });
+
+  await page.goto("/planner");
+  await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
+  await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
+  await expect(page.getByText("planning_estimate", { exact: false })).toBeVisible();
+  await expect(page.getByText("Media:", { exact: false }).first()).toBeVisible();
+
+  await page.getByRole("button", { name: "2 stops 2 hops" }).click();
+  await page.getByRole("button", { name: "Compose new routes" }).click();
+
+  await expect(page.getByText("Plotting route options")).toBeVisible();
+  const composeButton = page.locator(".route-studio__primary-action");
+  await expect(composeButton).toHaveAttribute("aria-busy", "true");
+  await expect(composeButton).toBeDisabled();
+  await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
+  expect(await page.locator(".route-studio__stop-image").count()).toBeGreaterThanOrEqual(2);
+
+  const routeCards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
+  await routeCards.nth(1).click();
+  await expect(routeCards.nth(1)).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".map-route--active")).toHaveCount(1);
+});

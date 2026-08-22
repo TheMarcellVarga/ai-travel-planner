@@ -24,6 +24,10 @@ describe("createTripGeneration", () => {
       expect(route.promotedStopId).toBe(route.stops[1]?.id);
       expect(route.bookingLinks.length).toBeGreaterThan(0);
       expect(route.estimateStatus).toBe("planning_estimate");
+      expect(route.costBreakdown.total).toBe(route.estimatedCostUsd);
+      expect(route.costBreakdown.transport.length).toBe(route.stops.length - 1);
+      expect(route.costBreakdown.stays.length).toBe(route.stops.length - 1);
+      expect(route.costBreakdown.assumptions[0]).toContain("planning estimate");
       expect(route.availabilityStatus).toBe("external_search_required");
       expect(route.disclaimer).toContain("not confirmed provider price");
       expect(route.dataFreshness).toContain("Local destination fixture");
@@ -53,6 +57,26 @@ describe("createTripGeneration", () => {
 
     generation.routes.forEach((route) => {
       expect(route.stops).toHaveLength(2);
+      expect(route.costBreakdown.transport).toHaveLength(1);
+      expect(route.costBreakdown.stays).toHaveLength(1);
+    });
+  });
+
+  it("composes up to two destination stops when the request allows them", () => {
+    const generation = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Find a 14 day jungle route from Singapore with max 2 stops.",
+        origin: "Singapore",
+        tripLengthDays: 14,
+        maxStops: 2,
+        wishTags: ["hiking", "mtb"],
+        budgetMode: "balanced"
+      })
+    );
+
+    expect(generation.routes.some((route) => route.stops.length === 3)).toBe(true);
+    generation.routes.forEach((route) => {
+      expect(route.stops.filter((stop) => stop.kind === "destination").length).toBeLessThanOrEqual(2);
     });
   });
 

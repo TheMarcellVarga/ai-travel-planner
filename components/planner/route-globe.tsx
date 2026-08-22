@@ -5,12 +5,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
 import { RouteMapFallback } from "@/components/planner/route-map-fallback";
+import { RouteMapLibre } from "@/components/planner/route-map-libre";
+import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
 import type { RouteOption } from "@/lib/types";
 
 type RouteGlobeProps = {
   routes: RouteOption[];
   activeRouteId: string | null;
   onSelectRoute: (routeId: string) => void;
+  isComposing?: boolean;
 };
 
 type GlobeViewport = {
@@ -95,7 +98,7 @@ function buildTooltip(point: GlobePoint) {
   `;
 }
 
-export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeProps) {
+export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing = false }: RouteGlobeProps) {
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
   const [globeTimedOut, setGlobeTimedOut] = useState(false);
@@ -112,6 +115,8 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
   const idleRecommendation = routes[idleHighlightIndex % Math.max(routes.length, 1)] ?? null;
   const fallbackRoute = activeRoute ?? idleRecommendation ?? routes[0] ?? null;
   const shouldPrioritizeFallback = !webGlAvailable || prefersReducedMotion || globeTimedOut;
+  const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL;
+  const useMapLibre = process.env.NEXT_PUBLIC_MAP_RENDERER === "maplibre" && Boolean(mapStyleUrl);
   const isIdle = activeRoute === null;
   const promotedStop =
     activeRoute
@@ -376,10 +381,40 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute }: RouteGlobeP
           }
         >
           <div className="orbital-globe-fallback__header">
-            <span>{shouldPrioritizeFallback ? "2D route view" : "Loading 3D route view"}</span>
+            <span className="orbital-globe-fallback__mode">
+              {shouldPrioritizeFallback ? (
+                "2D route view"
+              ) : (
+                <>
+                  <RouteLoadingMark />
+                  <span>Plotting map</span>
+                </>
+              )}
+            </span>
             <small>{fallbackRoute.tagline}</small>
           </div>
-          <RouteMapFallback route={fallbackRoute} />
+          {useMapLibre && mapStyleUrl ? (
+            <RouteMapLibre
+              routes={routes}
+              activeRouteId={activeRouteId ?? fallbackRoute.id}
+              styleUrl={mapStyleUrl}
+              onSelectRoute={onSelectRoute}
+            />
+          ) : (
+            <RouteMapFallback
+              route={fallbackRoute}
+              routes={routes}
+              activeRouteId={activeRouteId ?? fallbackRoute.id}
+            />
+          )}
+        </div>
+      ) : null}
+
+      {isComposing ? (
+        <div className="route-composition-loading" role="status" aria-live="polite">
+          <RouteLoadingMark />
+          <strong>Plotting route options</strong>
+          <span>Comparing stops, cost, and route rhythm.</span>
         </div>
       ) : null}
 

@@ -16,6 +16,7 @@ export default defineConfig({
   },
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
+    env: { ROUTE_MEDIA_MODE: "fixture" },
     url: `${baseURL}/api/health`,
     reuseExistingServer: false,
     timeout: 120_000

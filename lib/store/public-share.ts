@@ -10,6 +10,13 @@ export function createPublicRouteSnapshot(route: RouteOption): PublicSharedRoute
     score: route.score,
     confidence: route.confidence,
     estimatedCostUsd: route.estimatedCostUsd,
+    costBreakdown: {
+      currency: route.costBreakdown.currency,
+      total: route.costBreakdown.total,
+      transport: route.costBreakdown.transport.map((leg) => ({ ...leg })),
+      stays: route.costBreakdown.stays.map((stay) => ({ ...stay })),
+      assumptions: [...route.costBreakdown.assumptions]
+    },
     estimateStatus: route.estimateStatus,
     availabilityStatus: route.availabilityStatus,
     dataFreshness: route.dataFreshness,
@@ -33,7 +40,12 @@ export function createPublicRouteSnapshot(route: RouteOption): PublicSharedRoute
       },
       tags: [...stop.tags],
       scene: stop.scene,
-      imageHint: stop.imageHint
+      imageHint: stop.imageHint,
+      media: stop.media
+        ? {
+            ...stop.media
+          }
+        : null
     }))
   };
 }

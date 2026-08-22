@@ -17,6 +17,10 @@ type DestinationMedia = MediaAsset & {
   punchline: string;
 };
 
+export type RouteDisplayMedia = MediaAsset & {
+  punchline: string;
+};
+
 const unsplashImage = (photoId: string, width = 1800) =>
   `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${width}&q=82`;
 
@@ -171,4 +175,44 @@ export const expeditionIndex = [
 
 export function getDestinationMedia(destinationId: string) {
   return destinationMedia[destinationId] ?? destinationMedia.bali;
+}
+
+export function getRouteStopMedia(stop?: {
+  id: string;
+  name: string;
+  scene?: string;
+  media?: {
+    imageUrl: string;
+    sourceUrl: string;
+    title: string;
+    creator: string;
+    licenseLabel: string;
+    licenseUrl: string;
+  } | null;
+}): RouteDisplayMedia {
+  if (stop?.media) {
+    return {
+      kind: "image",
+      src: stop.media.imageUrl,
+      alt: `${stop.name}: ${stop.media.title}`,
+      title: stop.media.title,
+      author: stop.media.creator,
+      sourceUrl: stop.media.sourceUrl,
+      licenseLabel: stop.media.licenseLabel,
+      licenseUrl: stop.media.licenseUrl,
+      punchline: stop.scene ?? "A route stop selected for the shape of the journey."
+    };
+  }
+
+  return {
+    kind: "image",
+    src: "/editorial/route-ribbon-hero.png",
+    alt: `${stop?.name ?? "Route stop"}: Wild Route local artwork`,
+    title: `${stop?.name ?? "Route stop"} route study`,
+    author: "Wild Route",
+    sourceUrl: "https://github.com/TheMarcellVarga/ai-travel-planner",
+    licenseLabel: "Wild Route local artwork",
+    licenseUrl: "https://github.com/TheMarcellVarga/ai-travel-planner",
+    punchline: stop?.scene ?? "A route stop selected for the shape of the journey."
+  };
 }

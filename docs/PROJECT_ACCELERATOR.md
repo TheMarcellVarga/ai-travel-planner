@@ -6,7 +6,7 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-08-01.
+Last checked: 2026-08-22.
 
 ```bash
 npm run test
@@ -14,10 +14,10 @@ npm run build
 ```
 
 Result:
-- `npm run test`: passed, 16 test files, 74 tests.
+- `npm run test`: passed, 19 test files, 84 tests.
 - `npm run test:evals`: passed, 7 fixtures.
 - `npm run test:e2e`: passed, 15 tests in Chromium.
-- `npm run verify:migrations`: passed, 5 migration files.
+- `npm run verify:migrations`: passed, 6 migration files.
 - `npm run build`: passed with Next.js 15.5.22.
 - `npm audit --omit=dev`: zero known vulnerabilities.
 
@@ -52,6 +52,13 @@ Build routes currently include:
 ## What Is Still Fallback-Backed Or Thin
 - Route generation uses local destination data and app-side scoring, not live flights/stays/weather/provider availability.
 - Route generation now reads through a normalized provider boundary; the active provider remains the local deterministic fixture.
+- The guarded `RouteCompositionAgent` composes direct, one-stop, and two-stop
+  routes, calculates exact cost breakdowns, attaches openly licensed media
+  metadata, validates snapshots, and records normalized agent-run status.
+- Wikimedia Commons is the primary media adapter, Openverse is the filtered
+  fallback, and local Wild Route artwork is the resilient final fallback.
+- Optional MapLibre rendering is wired behind a public style URL; the existing
+  SVG route map remains the no-WebGL, reduced-motion, and missing-config path.
 - `POST /api/trips/plan` can use the in-memory demo store when Supabase
   persistence is unavailable; route responses label that state non-durable.
 - Demo saves use browser storage, demo publishing uses a bounded validated route
@@ -64,7 +71,8 @@ Build routes currently include:
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - Remote Unsplash media now degrades once to bundled Wild Route artwork and the
   failure path is covered in Chromium.
-- There is no AI model path yet, which is acceptable until deterministic route generation is stronger.
+- There is no live model or commercial price provider enabled yet; the guarded
+  adapter seams are present and deterministic fixtures remain the default.
 - Automated keyboard order, active reduced motion, axe scans, and media failure
   behavior are covered; manual screen-reader and broader multi-browser QA remain.
 
@@ -79,7 +87,7 @@ Last audited: 2026-08-01.
 | 3. Backend And Data Foundation | Complete | Supabase migrations/RLS, clients, health, export/delete, migration verification, explicit database-vs-memory persistence metadata, and the server-only sanitized public-share boundary exist. |
 | 4. Route Generation MVP | Complete | Deterministic generation, route metadata, external-search disclaimers, unsupported prompt caveats, unit tests, and trip API tests exist. |
 | 5. Save, Share, Account, Billing | Partial | Core routes, generation limits, ownership tests, public-share hardening, deterministic billing/webhook tests, and Stripe test-mode QA checklist exist; live Stripe checkout/portal execution remains. |
-| 6. Real Data And AI Hardening | In progress | Provider contract, deterministic fixture, normalized status/freshness/latency/fallback metadata, strict schemas, and seven eval fixtures exist; live data, model usage, and cost tracking remain. |
+| 6. Real Data And AI Hardening | In progress | Guarded composition agent, 0–2-stop optimizer, exact cost contracts, optional price/media adapters, strict schemas, cache/RLS migration, and eval coverage exist; live credentials, model usage, and cost tracking remain. |
 | 7. Security, Observability, QA | In progress | Direct public `shared_routes` reads are revoked; bounded rate limits, privacy-safe operational events, Stripe replay protection, dependency audit, and Chromium axe/keyboard/reduced-motion/media QA exist. A formal threat model, distributed limiter, production alert sink, and broader browser/screen-reader QA remain. |
 | 8. Polish And Launch Prep | Complete | The verified Vercel demo, serverless-safe golden path, no-placeholder audit, screenshots, deployment/environment checklist, demo walkthrough, trust-boundary diagram, and case study are committed. |
 
@@ -314,6 +322,38 @@ npm run test
 npm run build
 ```
 
+### T13: Build Guarded Route Composition Agent
+Phase: 6. Real Data And AI Hardening
+
+Status: complete for the deterministic first slice. Live model and commercial
+price adapters remain feature-flagged follow-up work.
+
+Files:
+- `lib/planner/route-composition-agent.ts`
+- `lib/planner/providers/price-provider.ts`
+- `lib/planner/providers/media-provider.ts`
+- `components/planner/route-map-libre.tsx`
+- `supabase/migrations/20260822081641_route_agent_runs_and_destination_media.sql`
+
+Acceptance criteria:
+- Route generation validates a deterministic, persisted-ready snapshot.
+- Direct, one-stop, and two-stop options retain exact cost breakdowns.
+- Departure-date absence is disclosed as a planning estimate.
+- Commons/Openverse media is license-filtered, attributed, cached, and locally
+  resilient.
+- MapLibre is optional and the SVG route fallback remains primary for
+  accessibility and WebGL failure.
+- User-owned agent-run metadata and public media cache rows have RLS policies.
+
+Verification:
+
+```bash
+npm run test
+npm run test:evals
+npm run verify:migrations
+npm run build
+```
+
 ### T11: Add Health Check Coverage
 Phase: 3. Backend And Data Foundation
 
@@ -368,6 +408,7 @@ Sprint 2: Trust And Durability
 Sprint 3: Route Quality
 - T9: Add Route Generation Fixture Set
 - T10: Add Provider Adapter Boundary
+- T13: Build Guarded Route Composition Agent
 
 Sprint 4: Launch Readiness
 - T8: Expand Browser QA And Accessibility Pass

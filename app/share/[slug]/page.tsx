@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { ResilientImage } from "@/components/resilient-image";
-import { getDestinationMedia } from "@/lib/media";
+import { getRouteStopMedia } from "@/lib/media";
 import { resolveDemoShare } from "@/lib/store/demo-preview";
 import { getPublicSharedRoute } from "@/lib/store/demo-store";
 import { getPublicSharedRouteFromDatabase } from "@/lib/store/persistent-store";
@@ -23,7 +23,9 @@ export default async function SharePage({ params }: SharePageProps) {
     notFound();
   }
 
-  const shareMedia = getDestinationMedia(sharedRoute.route.promotedStopId);
+  const shareMedia = getRouteStopMedia(
+    sharedRoute.route.stops.find((stop) => stop.id === sharedRoute.route.promotedStopId)
+  );
 
   return (
     <main className="planner-command-shell share-route-shell">
@@ -80,6 +82,32 @@ export default async function SharePage({ params }: SharePageProps) {
               Availability: external provider search required. Freshness:{" "}
               {sharedRoute.route.dataFreshness}.
             </p>
+            <div className="share-route-cost-breakdown">
+              <p className="eyebrow">Cost breakdown</p>
+              {sharedRoute.route.costBreakdown.transport.map((leg) => (
+                <div key={leg.fromCode + "-" + leg.toCode}>
+                  <span>{leg.fromCode} → {leg.toCode}</span>
+                  <strong>{"$"}{leg.amount}</strong>
+                </div>
+              ))}
+              {sharedRoute.route.costBreakdown.stays.map((stay) => (
+                <div key={stay.stopId}>
+                  <span>{stay.nights} nights · {stay.stopId}</span>
+                  <strong>{"$"}{stay.amount}</strong>
+                </div>
+              ))}
+              <p className="share-route-cost-breakdown__note">
+                Status: {Array.from(new Set(sharedRoute.route.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
+                {sharedRoute.route.costBreakdown.transport.some((leg) => leg.observedAt)
+                  ? ` Observed ${sharedRoute.route.costBreakdown.transport.find((leg) => leg.observedAt)?.observedAt}.`
+                  : " No provider observation; this is a planning estimate."}
+              </p>
+              <ul className="share-route-cost-breakdown__assumptions">
+                {sharedRoute.route.costBreakdown.assumptions.map((assumption) => (
+                  <li key={assumption}>{assumption}</li>
+                ))}
+              </ul>
+            </div>
             <RouteActions routeId={sharedRoute.route.id} route={demoShare?.route} />
           </div>
 
@@ -106,15 +134,19 @@ export default async function SharePage({ params }: SharePageProps) {
                   {stop.kind === "destination" && (
                     <ResilientImage
                       alt=""
-                      src={getDestinationMedia(stop.id).src}
+                      src={getRouteStopMedia(stop).src}
                       className="card-image-xs"
                       width={60}
                       height={60}
+                      unoptimized
                     />
                   )}
                 </div>
                 <p className="muted-copy text-small share-stop-card__country">{stop.country}</p>
                 {stop.scene ? <p className="route-tagline text-small share-stop-card__scene">{stop.scene}</p> : null}
+                {stop.kind === "destination" ? (
+                  <MediaCredit asset={getRouteStopMedia(stop)} compact />
+                ) : null}
               </article>
             ))}
           </div>

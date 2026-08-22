@@ -1,7 +1,7 @@
 # Design System
 
 ## Direction
-Wild Route should feel like a cinematic jungle expedition interface crossed with a modern route-planning product. It should be bold and memorable, but still practical on mobile.
+Wild Route should feel like a cinematic jungle expedition interface crossed with a 00s adventure festival and motorsport paddock. It should be bold, slightly misaligned, and memorable, while keeping route decisions practical on mobile.
 
 ## Visual Keywords
 - jungle canopy
@@ -11,16 +11,18 @@ Wild Route should feel like a cinematic jungle expedition interface crossed with
 - weathered paper
 - trail markers
 - 00s adventure energy
+- festival paddock signage
+- route numbers and pit-wall panels
 - cinematic globe
 - editorial travel cards
 
 ## Palette Direction
-Use the existing visual direction as the base:
-- background: deep jungle black / green-black
-- surface: dark moss, charcoal, smoky glass
-- accent: sharp lime for action and route signal
-- secondary accents: sand, amber, muted leaf, off-white
-- text: warm off-white primary, muted green-gray secondary
+Use the festival system as the base:
+- background: charcoal asphalt / green-black
+- surface: deep moss-black and raised charcoal panels
+- primary accent: acid lime for actions, active route states, and route signal
+- limited flag accent: hot coral for event markers, caution, and decorative tape
+- text: warm off-white primary, paper-gray secondary
 - warning: amber with text labels
 - destructive: red with text labels
 
@@ -37,6 +39,9 @@ Avoid:
 
 ## Component Rules
 - Planner form should feel like an expedition console, not a generic lead form.
+- Use hard-edged panels, short radii, route numbering, and one or two optical offsets per composition. Misalignment is decorative, never structural.
+- Primary actions use acid lime with dark ink; secondary actions remain dark, bordered, and text-labelled.
+- Use diagonal trims, paper-tape flags, and route grid lines only as supporting texture. They must never compete with labels, inputs, or route reasoning.
 - Route cards should expose title, tagline, stops, reasons, confidence, and actions without hiding key tradeoffs.
 - Globe/map is a hero support layer, not the only way to understand the route.
 - The 2D/list fallback must be first-class.
@@ -66,4 +71,3 @@ Avoid:
 - Route confidence and errors must be text-visible.
 - Interactive map/globe features need non-map alternatives.
 - Check contrast after any palette change.
-

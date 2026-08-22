@@ -9,6 +9,7 @@ Supabase Postgres is the relational system of record. SQL migrations live in `su
 - `20260422_account_profiles.sql`
 - `20260727_public_share_boundary.sql`
 - `20260731161920_stripe_webhook_idempotency.sql`
+- `20260822081641_route_agent_runs_and_destination_media.sql`
 
 ## Core Tables
 
@@ -56,10 +57,42 @@ Expected fields:
 - routes JSON
 - created timestamp
 - data freshness metadata when available
+- validated `RouteOption` JSON including cost breakdowns and normalized stop media
 
 Rules:
 - Persist snapshots before save/share flows depend on them.
 - Do not mutate existing snapshots in a way that breaks public shares.
+
+### `destination_media`
+Purpose: cache safe, normalized public image metadata for destination stops.
+
+Expected fields:
+- destination ID and provider (`wikimedia-commons`, `openverse`, or fallback)
+- image URL, source URL, title, creator, license label/URL, attribution text
+- fetched, expiry, created, and updated timestamps
+
+Rules:
+- Only public-domain, CC0, CC BY, and CC BY-SA assets are accepted by the
+  application; NC and ND assets are rejected.
+- The table is publicly readable because it contains only the allowlisted
+  attribution contract. Inserts and updates remain server/admin operations.
+- Raw Commons/Openverse responses, prompts, credentials, and private route data
+  are never stored.
+
+### `route_agent_runs`
+Purpose: normalized execution metadata for a completed route composition.
+
+Expected fields:
+- nullable authenticated owner ID
+- generation ID as text, matching the app's current generation identifier
+- deterministic/model mode, complete/partial/fallback status, agent version,
+  optional model ID, latency, and created timestamp
+
+Rules:
+- RLS is enabled and authenticated users can access only their own rows.
+- The row stores operational metadata only, never prompts, raw model output,
+  provider payloads, or secrets.
+- Anonymous/demo runs may remain in memory and do not create durable agent rows.
 
 ### `saved_routes`
 Purpose: private user route vault.
@@ -140,6 +173,8 @@ Rules:
 - Public share routes are read server-side and exposed only as safe snapshots by slug.
 - Service-role operations must remain server-only.
 - Migration reviews must confirm RLS is enabled on protected tables.
+- Public media and private agent-run policies must be reviewed together so a
+  public image never becomes a path to private route or model data.
 
 ## JSON Data Rules
 - Use typed TypeScript domain objects for JSON payloads.

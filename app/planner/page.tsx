@@ -8,7 +8,10 @@ import {
   saveGeneration
 } from "@/lib/store/demo-store";
 import {
+  getDestinationMediaFromDatabase,
   getLatestGenerationForUserFromDatabase,
+  saveRouteAgentRunToDatabase,
+  saveDestinationMediaToDatabase,
   saveGenerationToDatabase
 } from "@/lib/store/persistent-store";
 
@@ -33,14 +36,27 @@ export default async function PlannerPage() {
       maxStops: 1,
       wishTags: ["crypto-friendly", "hiking", "mtb", "animal-friendly"],
       budgetMode: "balanced"
-    })
+    }),
+    undefined,
+    {
+      mediaCache: {
+        get: getDestinationMediaFromDatabase,
+        set: saveDestinationMediaToDatabase
+      }
+    }
   );
   const persistedGeneration =
     user?.authMode === "supabase"
       ? await saveGenerationToDatabase(candidateGeneration, user.id)
       : null;
+  const persistedAgentRun =
+    persistedGeneration && user?.authMode === "supabase"
+      ? await saveRouteAgentRunToDatabase(candidateGeneration, user.id, persistedGeneration.id)
+      : null;
   const generation =
-    persistedGeneration ?? saveGeneration(candidateGeneration, memoryUserId);
+    persistedGeneration
+      ? { ...persistedGeneration, agentRun: persistedAgentRun ?? candidateGeneration.agentRun }
+      : saveGeneration(candidateGeneration, memoryUserId);
 
   return <PlannerWorkspace initialGeneration={generation} />;
 }
