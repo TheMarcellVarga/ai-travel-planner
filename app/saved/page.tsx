@@ -34,15 +34,15 @@ export default async function SavedPage() {
           <div className="planner-stage-title">
             <p className="eyebrow">Saved routes</p>
             <h1>
-              Route memory needs an account.
+              Save the routes worth returning to.
             </h1>
           </div>
         </div>
         <aside className="floating-sidebar floating-sidebar-left vault-panel vault-panel-left">
           <div className="floating-sidebar__inner vault-panel__inner">
             <p className="lede vault-panel__lede">
-              Anonymous users can explore the planner, but route storage and
-              publishing are account-backed features.
+              Sign in to keep private routes and publish shareable route pages.
+              You can still explore and compose without an account.
             </p>
             <div className="vault-panel__actions">
               <Link href="/auth" className="button button-island layout-fill">

@@ -1,4 +1,9 @@
 :root {
+  /* Keep the type system legible even while Next's generated font classes
+     are being refreshed during local development. The body class still
+     overrides these with the bundled Geist faces when available. */
+  --font-display: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
   --font-body: var(--font-display);
   --bg: #06120c;
   --bg-deep: #030a06;
@@ -6248,7 +6253,8 @@ body:has(.planner-command-shell) .site-command__cta,
 }
 
 .route-studio__summary h1 {
-  max-width: 9ch;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   color: var(--route-text);
   font-size: clamp(2.6rem, 4vw, 4.6rem);
   line-height: 0.84;

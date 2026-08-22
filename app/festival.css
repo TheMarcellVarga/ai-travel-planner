@@ -545,8 +545,9 @@ body.festival-system .route-studio__inspector-empty strong {
 }
 
 body.festival-system .route-studio__summary h1 {
-  max-width: 8.8ch;
-  font-size: clamp(2.7rem, 3.7vw, 4.6rem);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(2.6rem, 3.25vw, 4.35rem);
   line-height: 0.86;
 }
 
@@ -837,7 +838,7 @@ body.festival-system .footer-newsletter {
   }
 
   body.festival-system .route-studio__summary h1 {
-    max-width: 9ch;
+    max-width: 100%;
     font-size: clamp(2.7rem, 13vw, 4rem);
   }
 
@@ -1132,6 +1133,21 @@ body.festival-system .route-composition-loading span {
   text-align: center;
 }
 
+body.festival-system .route-studio__controls-body > .route-composition-loading--panel {
+  position: relative;
+  top: auto;
+  left: auto;
+  align-content: center;
+  width: auto;
+  min-height: 15rem;
+  margin: 0.35rem;
+  padding: 1.5rem 1rem;
+  border-color: rgba(215, 255, 63, 0.2);
+  background: rgba(7, 18, 13, 0.42);
+  box-shadow: none;
+  transform: none;
+}
+
 @keyframes route-trace {
   to {
     stroke-dashoffset: -26;
@@ -1162,5 +1178,554 @@ body.festival-system .route-composition-loading span {
 @media (max-width: 760px) {
   body.festival-system .route-map-libre {
     height: clamp(12rem, 34dvh, 16rem);
+  }
+}
+
+/* Readability guardrail: festival display type stays bold, but route evidence
+   and controls must remain comfortable at normal and enlarged text sizes. */
+body.festival-system .route-studio {
+  font-size: 1rem;
+}
+
+body.festival-system .route-studio__summary,
+body.festival-system .route-studio__controls,
+body.festival-system .route-studio__dock,
+body.festival-system .route-studio__inspector {
+  min-width: 0;
+}
+
+body.festival-system .route-studio__summary,
+body.festival-system .route-studio__inspector {
+  transform: none;
+}
+
+body.festival-system .route-studio__summary h1,
+body.festival-system .route-studio__inspector-copy strong,
+body.festival-system .route-studio__inspector-empty strong {
+  min-width: 0;
+  max-width: 100%;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+body.festival-system .route-studio__summary h1 {
+  width: 100%;
+  font-size: clamp(2.55rem, 3.1vw, 4.15rem);
+}
+
+body.festival-system .route-studio__kicker,
+body.festival-system .route-studio__section-heading p,
+body.festival-system .route-studio__inspector-copy p,
+body.festival-system .route-studio-actions__header span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio__summary-copy,
+body.festival-system .route-studio__section-heading span,
+body.festival-system .route-studio__path {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__controls-toggle span {
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio__prompt {
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+body.festival-system .route-studio__primary-action,
+body.festival-system .route-studio-actions__primary-button {
+  min-height: 3rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio-form__field > span,
+body.festival-system .route-studio-form__fieldset legend {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio-form input {
+  min-height: 2.7rem;
+  font-size: 0.82rem;
+}
+
+body.festival-system .route-studio-form__segment {
+  min-height: 4.3rem;
+  padding: 0.72rem 0.7rem;
+}
+
+body.festival-system .route-studio-form__segment strong,
+body.festival-system .route-studio-form__wish {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio-form__segment small {
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio__dock {
+  transform: translateY(0.2rem) rotate(-0.15deg);
+}
+
+body.festival-system .route-studio__route {
+  grid-template-rows: auto auto auto;
+  min-height: 5.15rem;
+  padding: 0.65rem 0.68rem;
+}
+
+body.festival-system .route-studio__route-index {
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+
+body.festival-system .route-studio__route strong {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+body.festival-system .route-studio__route small {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__inspector-copy strong {
+  font-size: 1.55rem;
+}
+
+body.festival-system .route-studio__inspector-copy span,
+body.festival-system .route-studio__stops span,
+body.festival-system .route-studio__reasons p,
+body.festival-system .route-studio__estimate-note p {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__tags span {
+  padding: 0.42rem 0.52rem;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+body.festival-system .route-studio__stops strong {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__inspector > .media-credit,
+body.festival-system .route-studio__stops .media-credit,
+body.festival-system .share-stop-card .media-credit {
+  color: rgba(241, 239, 228, 0.72);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__inspector > .media-credit a,
+body.festival-system .route-studio__stops .media-credit a,
+body.festival-system .share-stop-card .media-credit a {
+  color: var(--festival-paper);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.14em;
+}
+
+body.festival-system .route-studio__cost-header strong {
+  font-size: 0.88rem;
+}
+
+body.festival-system .route-studio__cost-rows > div {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+body.festival-system .route-studio__cost-note {
+  color: rgba(241, 239, 228, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+body.festival-system .route-studio__cost-assumptions {
+  color: rgba(241, 239, 228, 0.7);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+body.festival-system .route-studio-actions__header small,
+body.festival-system .route-studio-actions__secondary-button {
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio-actions__secondary-button {
+  min-height: 2.7rem;
+}
+
+body.festival-system .route-studio__inspector,
+body.festival-system .route-studio__controls-body {
+  scrollbar-gutter: stable;
+}
+
+@media (max-width: 760px) {
+  body.festival-system .route-studio__summary,
+  body.festival-system .route-studio__inspector {
+    transform: none;
+  }
+
+  body.festival-system .route-studio__summary h1 {
+    max-width: 100%;
+    font-size: clamp(2.4rem, 12vw, 3.7rem);
+    line-height: 1;
+  }
+}
+
+/* Professional product scale: keep the festival signal in the color, trim,
+   and rhythm—not in oversized copy or all-caps control labels. */
+body.festival-system .page-panel h1,
+body.festival-system .auth-panel h1 {
+  max-width: 22ch;
+  font-size: clamp(2.35rem, 4vw, 4.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+body.festival-system .auth-panel {
+  padding: clamp(1.25rem, 2.2vw, 2rem);
+}
+
+body.festival-system .auth-panel .section-heading {
+  gap: 0.75rem;
+  max-width: 64rem;
+}
+
+body.festival-system .auth-panel > .section-heading > .muted-copy {
+  max-width: 66ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+body.festival-system .auth-grid {
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+body.festival-system .auth-card {
+  padding: clamp(1.15rem, 1.7vw, 1.5rem);
+}
+
+body.festival-system .auth-card h2 {
+  max-width: 20ch;
+  margin-top: 0.4rem;
+  font-size: clamp(1.55rem, 1.7vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+body.festival-system .auth-card .muted-copy {
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+body.festival-system .auth-panel .eyebrow,
+body.festival-system .auth-form label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+}
+
+body.festival-system .auth-form {
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+body.festival-system .auth-form label {
+  text-transform: none;
+}
+
+body.festival-system .auth-form input {
+  min-height: 2.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+body.festival-system .auth-form .button,
+body.festival-system .auth-card > .button,
+body.festival-system .button.button-ghost {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+body.festival-system .auth-form .button,
+body.festival-system .auth-card > .button {
+  box-shadow: 3px 3px 0 rgba(215, 255, 63, 0.14);
+}
+
+body.festival-system .auth-status {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+body.festival-system .button,
+body.festival-system .button-island {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+body.festival-system .atlas-hero__copy h1 {
+  max-width: 13ch;
+  font-size: clamp(3.8rem, 6.4vw, 6.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+}
+
+body.festival-system .route-proof h2,
+body.festival-system .planning-stack h2,
+body.festival-system .atlas-section h2,
+body.festival-system .kinetic-story h2,
+body.festival-system .final-route-cta h2 {
+  font-size: clamp(2.6rem, 5vw, 5.1rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+
+@media (max-width: 760px) {
+  body.festival-system .page-panel h1,
+  body.festival-system .auth-panel h1 {
+    max-width: 18ch;
+    font-size: clamp(2.2rem, 10vw, 3.35rem);
+    line-height: 1.04;
+  }
+
+  body.festival-system .auth-panel {
+    padding: 1rem;
+  }
+
+  body.festival-system .auth-card h2 {
+    font-size: 1.55rem;
+  }
+
+  body.festival-system .atlas-hero__copy h1 {
+    font-size: clamp(3.2rem, 14vw, 5rem);
+  }
+}
+
+/* Business-product display scale: keep the festival energy in the palette,
+   cut-lines, and image treatment while returning hierarchy to a usable range. */
+body.festival-system .atlas-hero__copy h1 {
+  max-width: 12ch;
+  font-size: clamp(3.4rem, 5vw, 5.25rem);
+  line-height: 0.95;
+}
+
+body.festival-system .route-proof h2,
+body.festival-system .planning-stack h2,
+body.festival-system .atlas-section h2,
+body.festival-system .kinetic-story h2,
+body.festival-system .final-route-cta h2,
+body.festival-system .footer-departure h2 {
+  max-width: 18ch;
+  font-size: clamp(2.2rem, 3.5vw, 3.8rem);
+  line-height: 1.02;
+}
+
+body.festival-system .route-proof__metrics strong {
+  font-size: clamp(2.8rem, 4vw, 4.5rem);
+  line-height: 0.9;
+}
+
+body.festival-system .planning-bento__cell h3,
+body.festival-system .atlas-feature__copy h3,
+body.festival-system .route-story__copy h3,
+body.festival-system .share-artifact h3 {
+  max-width: 16ch;
+  font-size: clamp(1.65rem, 2.6vw, 2.8rem);
+  line-height: 1.02;
+}
+
+body.festival-system .saved-vault-shell .planner-stage-header h1,
+body.festival-system .share-route-shell .planner-stage-header h1 {
+  max-width: 14ch;
+  font-size: clamp(2.4rem, 4vw, 4.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+@media (max-width: 760px) {
+  body.festival-system .atlas-hero__copy h1 {
+    font-size: clamp(3rem, 12vw, 4.6rem);
+  }
+
+  body.festival-system .route-proof h2,
+  body.festival-system .planning-stack h2,
+  body.festival-system .atlas-section h2,
+  body.festival-system .kinetic-story h2,
+  body.festival-system .final-route-cta h2,
+  body.festival-system .footer-departure h2 {
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  body.festival-system .route-proof__metrics strong {
+    font-size: clamp(2.8rem, 14vw, 4rem);
+  }
+
+  body.festival-system .planning-bento__cell h3,
+  body.festival-system .atlas-feature__copy h3,
+  body.festival-system .route-story__copy h3,
+  body.festival-system .share-artifact h3 {
+    font-size: clamp(1.55rem, 7vw, 2.2rem);
+  }
+
+  body.festival-system .saved-vault-shell .planner-stage-header h1,
+  body.festival-system .share-route-shell .planner-stage-header h1 {
+    font-size: clamp(2.35rem, 11vw, 3.6rem);
+  }
+}
+
+/* Signed-out saved vault: an intentional empty state, not a stretched sidebar. */
+body.festival-system .saved-vault-shell-empty {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+  align-items: center;
+  gap: clamp(2rem, 7vw, 7rem);
+  min-height: 100dvh;
+  height: auto;
+  padding: clamp(8rem, 14vh, 10rem) clamp(1.25rem, 6vw, 6rem) clamp(2rem, 6vh, 4rem);
+  overflow: hidden;
+}
+
+body.festival-system .saved-vault-shell-empty .saved-vault-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: 100%;
+  min-height: 100%;
+}
+
+body.festival-system .saved-vault-shell-empty .saved-vault-media__image {
+  opacity: 0.26;
+  filter: saturate(0.68) contrast(0.98);
+}
+
+body.festival-system .saved-vault-shell-empty .saved-vault-media__wash {
+  background:
+    linear-gradient(90deg, rgba(7, 10, 8, 0.98), rgba(7, 10, 8, 0.7) 48%, rgba(7, 10, 8, 0.88)),
+    linear-gradient(180deg, rgba(7, 10, 8, 0.36), rgba(7, 10, 8, 0.96));
+  backdrop-filter: blur(3px);
+}
+
+body.festival-system .saved-vault-shell-empty .planner-stage-header,
+body.festival-system .saved-vault-shell-empty .floating-sidebar {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+
+body.festival-system .saved-vault-shell-empty .planner-stage-header {
+  align-self: center;
+}
+
+body.festival-system .saved-vault-shell-empty .planner-stage-title {
+  gap: 0.7rem;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+body.festival-system .saved-vault-shell-empty .planner-stage-header h1 {
+  max-width: 12ch;
+  font-size: clamp(3rem, 5vw, 4.25rem);
+  line-height: 0.98;
+}
+
+body.festival-system .saved-vault-shell-empty .floating-sidebar__inner {
+  display: grid;
+  gap: 1rem;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding: clamp(1.15rem, 2vw, 1.45rem);
+  border-top: 3px solid var(--festival-lime);
+}
+
+body.festival-system .saved-vault-shell-empty .vault-panel__lede {
+  max-width: 30ch;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+body.festival-system .saved-vault-shell-empty .vault-panel__actions {
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+body.festival-system .saved-vault-shell-empty .vault-panel__actions .button {
+  min-height: 2.75rem;
+  padding-block: 0.7rem;
+}
+
+@media (max-width: 900px) {
+  body.festival-system .saved-vault-shell-empty {
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 1.75rem;
+    padding: 8rem 1rem 2rem;
+  }
+
+  body.festival-system .saved-vault-shell-empty .planner-stage-header h1 {
+    max-width: 16ch;
+  }
+
+  body.festival-system .saved-vault-shell-empty .floating-sidebar {
+    width: min(100%, 28rem);
   }
 }

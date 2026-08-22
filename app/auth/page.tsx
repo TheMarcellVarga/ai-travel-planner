@@ -38,9 +38,9 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       <section className="page-panel auth-panel">
         <div className="section-heading">
           <p className="eyebrow">Account access</p>
-          <h1>Access your route vault without fighting broken auth controls.</h1>
+          <h1>Keep your routes close.</h1>
           <p className="muted-copy">
-            Use Supabase auth when backend credentials are configured. Otherwise, enter demo mode and keep the product flow moving in this preview.
+            Sign in to save, publish, and return to the routes you are shaping. No account yet? Use the preview to explore first.
           </p>
         </div>
 
@@ -74,10 +74,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <div className="auth-grid">
           {hasSupabaseEnv ? (
             <article className="auth-card">
-              <p className="eyebrow">Supabase auth</p>
+              <p className="eyebrow">Sign in</p>
               <h2>Email magic link</h2>
               <p className="muted-copy">
-                Real auth is active in this environment. Use magic link or Google OAuth to sync routes, billing, and account data.
+                Use a magic link or Google to sync routes, billing, and account data.
               </p>
               <form action="/api/auth/signin" className="auth-form" method="post">
                 <input name="next" type="hidden" value="/saved" />
@@ -109,22 +109,22 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             </article>
           ) : (
             <article className="auth-card auth-card-inactive">
-              <p className="eyebrow">Managed auth</p>
-              <h2>Supabase is not wired in this environment.</h2>
+              <p className="eyebrow">Sign in unavailable</p>
+              <h2>Account sign-in is not connected in this preview.</h2>
               <p className="muted-copy">
-                Add <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> to enable magic link and OAuth sign-in here.
+                Connect account authentication to enable magic links and OAuth sign-in here.
               </p>
               <p className="muted-copy">
-                Until then, use demo mode on the right. The route save, publish, and handoff flows still work in the preview.
+                Until then, use demo mode to explore. Route save, publish, and handoff flows still work in the preview.
               </p>
             </article>
           )}
 
           <article className="auth-card">
             <p className="eyebrow">Demo mode</p>
-            <h2>Enter the preview and keep testing.</h2>
+            <h2>Explore in demo mode.</h2>
             <p className="muted-copy">
-              Demo auth uses a secure cookie. Saves stay in this browser and published previews are stateless share links.
+              Try the planning flow in this browser. Saves stay local and published previews remain shareable.
             </p>
             <form action="/api/auth/demo" className="auth-form" method="post">
               <input name="next" type="hidden" value="/saved" />
@@ -140,7 +140,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               </button>
             </form>
             <Link className="button button-ghost" href="/planner">
-              Keep Exploring Anonymously
+              Continue without an account
             </Link>
           </article>
         </div>
