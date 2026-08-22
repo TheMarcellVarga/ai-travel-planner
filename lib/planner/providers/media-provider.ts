@@ -12,8 +12,40 @@ export type RouteMediaCache = {
 
 const LOCAL_SOURCE_URL = "https://github.com/TheMarcellVarga/ai-travel-planner";
 const LOCAL_LICENSE_URL = "https://github.com/TheMarcellVarga/ai-travel-planner";
+const DOCUMENT_LIKE_TERMS = [
+  "book",
+  "cover",
+  "diagram",
+  "document",
+  "logo",
+  "map",
+  "poster",
+  "report",
+  "scan",
+  "specimen"
+] as const;
+const SEARCH_STOP_WORDS = new Set([
+  "above",
+  "and",
+  "behind",
+  "cliffs",
+  "coastal",
+  "green",
+  "haze",
+  "ocean",
+  "roads",
+  "sea",
+  "the",
+  "with"
+]);
+type MediaDestinationContext = {
+  name: string;
+  country: string;
+  region?: string;
+  imageHint?: string;
+};
 
-function createLocalFallbackMedia(destination: DestinationProfile): RouteMediaAsset {
+function createLocalFallbackMedia(destination: Pick<DestinationProfile, "name">): RouteMediaAsset {
   return {
     provider: "local-fallback",
     imageUrl: "/editorial/route-ribbon-hero.png",
@@ -33,6 +65,93 @@ function stripHtml(value: unknown) {
     .replace(/&nbsp;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function searchableText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map(searchableText).join(" ");
+  }
+
+  if (value && typeof value === "object") {
+    return Object.values(value).map(searchableText).join(" ");
+  }
+
+  return stripHtml(value);
+}
+
+function normalizeSearchText(value: unknown) {
+  return searchableText(value)
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function meaningfulSearchTokens(value: string) {
+  return normalizeSearchText(value)
+    .split(" ")
+    .filter((token) => token.length > 2 && !SEARCH_STOP_WORDS.has(token));
+}
+
+function isDocumentLike(title: string, mime = "") {
+  const normalized = normalizeSearchText(title);
+  const normalizedMime = normalizeSearchText(mime);
+
+  return (
+    normalizedMime === "application pdf" ||
+    /\b(?:pdf|djvu|docx?|pptx?|xlsx?)\b/.test(normalized) ||
+    DOCUMENT_LIKE_TERMS.some((term) => new RegExp(`\\b${term}\\b`).test(normalized))
+  );
+}
+
+function mediaRelevanceScore(destination: MediaDestinationContext, text: string) {
+  const normalizedText = normalizeSearchText(text);
+  const destinationName = normalizeSearchText(destination.name);
+  const country = normalizeSearchText(destination.country);
+  const region = normalizeSearchText(destination.region ?? "");
+  const nameTokens = meaningfulSearchTokens(destination.name);
+  const hintTokens = meaningfulSearchTokens(destination.imageHint ?? "");
+  let score = 0;
+
+  if (destinationName && normalizedText.includes(destinationName)) {
+    score += 8;
+  }
+
+  if (country && normalizedText.includes(country)) {
+    score += 3;
+  }
+
+  if (region && normalizedText.includes(region)) {
+    score += 1;
+  }
+
+  score += nameTokens.filter((token) => normalizedText.includes(token)).length * 2;
+  score += hintTokens.filter((token) => normalizedText.includes(token)).length * 2;
+
+  return score;
+}
+
+function isRelevantMediaCandidate(destination: MediaDestinationContext, title: string, context: string) {
+  if (isDocumentLike(title)) {
+    return false;
+  }
+
+  return mediaRelevanceScore(destination, `${title} ${context}`) >= 3;
+}
+
+function isUsableMediaAsset(asset: RouteMediaAsset, destination: MediaDestinationContext) {
+  if (asset.provider === "local-fallback") {
+    return asset.imageUrl.startsWith("/") && Boolean(asset.title.trim());
+  }
+
+  return (
+    isHttpUrl(asset.imageUrl) &&
+    isHttpUrl(asset.sourceUrl) &&
+    isHttpUrl(asset.licenseUrl) &&
+    isAllowedLicense(asset.licenseLabel) &&
+    isRelevantMediaCandidate(destination, asset.title, asset.attributionText)
+  );
 }
 
 function isAllowedLicense(value: string) {
@@ -106,17 +225,26 @@ async function searchWikimediaCommons(destination: DestinationProfile) {
     const imageUrl = String(imageInfo?.thumburl ?? imageInfo?.url ?? "");
     const sourceUrl = String(imageInfo?.descriptionurl ?? "");
     const mime = String(imageInfo?.mime ?? "");
+    const title = stripHtml(page.title).replace(/^File:\s*/i, "") || `${destination.name} image`;
+    const metadataText = [
+      metadata.ImageDescription?.value,
+      metadata.ObjectName?.value,
+      metadata.Categories?.value,
+      metadata.Caption?.value
+    ]
+      .map(searchableText)
+      .join(" ");
 
     if (
       !isHttpUrl(imageUrl) ||
       !isHttpUrl(sourceUrl) ||
       (mime && !mime.startsWith("image/")) ||
-      !isAllowedLicense(licenseLabel)
+      !isAllowedLicense(licenseLabel) ||
+      !isRelevantMediaCandidate(destination, title, metadataText)
     ) {
       continue;
     }
 
-    const title = stripHtml(page.title).replace(/^File:\s*/i, "") || `${destination.name} image`;
     const creator =
       stripHtml(metadata.Artist?.value ?? metadata.Credit?.value) ||
       "Wikimedia Commons contributor";
@@ -160,9 +288,16 @@ async function searchOpenverse(destination: DestinationProfile) {
     const title = String(result.title ?? `${destination.name} image`).trim();
     const creator = String(result.creator ?? "Openverse contributor").trim();
     const licenseLabel = String(result.license_version ? `${license} ${result.license_version}` : license).trim();
+    const resultContext = [result.description, result.tags, result.category]
+      .map(searchableText)
+      .join(" ");
 
     const licenseUrl = String(result.license_url ?? licenseUrlFor(license));
     if (!isHttpUrl(licenseUrl)) {
+      continue;
+    }
+
+    if (!isRelevantMediaCandidate(destination, title, resultContext)) {
       continue;
     }
 
@@ -267,13 +402,17 @@ export async function enrichRoutesWithMedia(
         return;
       }
 
-      const cachedAsset =
+      const cachedCandidate =
         provider.id === "local-fallback"
           ? null
           : await Promise.race([
               cache?.get(destinationId) ?? Promise.resolve(null),
               new Promise<null>((resolve) => setTimeout(() => resolve(null), 350))
             ]);
+      const cachedAsset =
+        cachedCandidate && isUsableMediaAsset(cachedCandidate, destination)
+          ? cachedCandidate
+          : null;
       const asset =
         cachedAsset ??
         (await provider.getMedia({
@@ -291,10 +430,13 @@ export async function enrichRoutesWithMedia(
         cryptoFriendly: destination.tags.includes("crypto-friendly"),
         activityScore: 0
         }));
-      if (!cachedAsset && provider.id !== "local-fallback") {
-        void cache?.set(destinationId, asset).catch(() => undefined);
+      const usableAsset = isUsableMediaAsset(asset, destination)
+        ? asset
+        : createLocalFallbackMedia(destination);
+      if (!cachedAsset && usableAsset.provider !== "local-fallback" && provider.id !== "local-fallback") {
+        void cache?.set(destinationId, usableAsset).catch(() => undefined);
       }
-      mediaByDestination.set(destinationId, asset);
+      mediaByDestination.set(destinationId, usableAsset);
     })
   );
 

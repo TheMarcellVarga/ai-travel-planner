@@ -360,6 +360,13 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   Wild Route shows planning estimates and app-side route confidence. External
                   providers own final price and availability.
                 </p>
+                {generation.agentRun?.status === "fallback" ? (
+                  <p role="status">
+                    {generation.agentRun.mode === "model"
+                      ? "Model composition was unavailable, so Wild Route used its deterministic route planner."
+                      : "Route composition encountered an issue, so Wild Route used its deterministic fallback."}
+                  </p>
+                ) : null}
               </section>
 
               <RouteActions

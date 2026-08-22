@@ -67,12 +67,12 @@ describe("RouteCompositionAgent", () => {
     });
 
     expect(generation.agentRun).toMatchObject({
-      mode: "deterministic",
+      mode: "model",
       status: "fallback"
     });
   });
 
-  it("falls back when an enrichment result fails the final schema", async () => {
+  it("replaces invalid enrichment results with local artwork", async () => {
     const agent = new RouteCompositionAgent();
     const generation = await agent.compose(intent, {
       mediaProvider: {
@@ -93,7 +93,9 @@ describe("RouteCompositionAgent", () => {
       }
     });
 
-    expect(generation.agentRun?.status).toBe("fallback");
-    expect(generation.routes[0]?.stops[1]?.media).toBeUndefined();
+    expect(generation.agentRun?.status).toBe("complete");
+    expect(generation.routes[0]?.stops[1]?.media).toMatchObject({
+      provider: "local-fallback"
+    });
   });
 });

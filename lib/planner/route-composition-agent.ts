@@ -106,7 +106,7 @@ export class RouteCompositionAgent {
         ...generation,
         routes,
         agentRun: {
-          mode: "deterministic",
+          mode: requestedMode,
           agentVersion: AGENT_VERSION,
           status:
             requestedMode === "model"
@@ -128,7 +128,7 @@ export class RouteCompositionAgent {
       return tripGenerationSchema.parse({
         ...fallback,
         agentRun: {
-          mode: "deterministic",
+          mode: requestedMode,
           agentVersion: AGENT_VERSION,
           status: "fallback",
           latencyMs: Date.now() - startedAt
