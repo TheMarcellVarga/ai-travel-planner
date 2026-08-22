@@ -385,10 +385,9 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
               {shouldPrioritizeFallback ? (
                 "2D route view"
               ) : (
-                <>
+                <span role="status" aria-label="Loading route map">
                   <RouteLoadingMark />
-                  <span>Plotting map</span>
-                </>
+                </span>
               )}
             </span>
             <small>{fallbackRoute.tagline}</small>

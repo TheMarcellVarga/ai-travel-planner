@@ -206,50 +206,53 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
 
           {isMissionPanelOpen ? (
             <div className="route-studio__controls-body">
-              <div className="route-studio__section-heading">
-                <p>Route brief</p>
-                <span>Adjust the shape of the journey, then compose a new set.</span>
-              </div>
-              <div className="route-studio__brief">
-                <textarea
-                  className="route-studio__prompt"
-                  placeholder="Jungle riding, cold water, one dramatic stop, low friction transfers..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  rows={4}
-                />
-                <button
-                  className="route-studio__primary-action"
-                  onClick={handlePlan}
-                  disabled={isPending}
-                  aria-busy={isPending}
-                >
-                  {isPending ? (
-                    <>
-                      <RouteLoadingMark />
-                      <span>Composing…</span>
-                    </>
-                  ) : (
-                    "Compose new routes"
-                  )}
-                </button>
-                <p className="route-studio__status" role="status" aria-live="polite">
-                  {isPending ? "Scoring route options…" : statusMessage}
-                </p>
-                {errorMessage ? (
-                  <p className="route-studio__error" role="alert">{errorMessage}</p>
-                ) : null}
-                {persistenceStatus && !persistenceStatus.durable ? (
-                  <p className="route-studio__notice">
-                    Demo persistence: this route set is kept only for the current app instance and is not durable.
-                  </p>
-                ) : null}
-              </div>
+              {isPending ? (
+                <div className="route-composition-loading route-composition-loading--panel" aria-hidden="true">
+                  <RouteLoadingMark />
+                  <strong>Composing route options</strong>
+                  <span>Comparing stops, cost, and route rhythm.</span>
+                </div>
+              ) : (
+                <>
+                  <div className="route-studio__section-heading">
+                    <p>Route brief</p>
+                    <span>Adjust the shape of the journey, then compose a new set.</span>
+                  </div>
+                  <div className="route-studio__brief">
+                    <textarea
+                      className="route-studio__prompt"
+                      placeholder="Jungle riding, cold water, one dramatic stop, low friction transfers..."
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      rows={4}
+                    />
+                    <button
+                      className="route-studio__primary-action"
+                      onClick={handlePlan}
+                      disabled={isPending}
+                      aria-busy={isPending}
+                    >
+                      Compose new routes
+                    </button>
+                    <p className="route-studio__status" role="status" aria-live="polite">
+                      {statusMessage}
+                    </p>
+                    {errorMessage ? (
+                      <p className="route-studio__error" role="alert">{errorMessage}</p>
+                    ) : null}
+                    {persistenceStatus && !persistenceStatus.durable ? (
+                      <p className="route-studio__notice">
+                        Demo persistence: this route set is kept only for the current app instance and is not durable.
+                      </p>
+                    ) : null}
+                  </div>
 
-              <PlannerForm
-                initialIntent={generation.tripIntent}
-                onChange={setSecondaryValues}
-              />
+                  <PlannerForm
+                    initialIntent={generation.tripIntent}
+                    onChange={setSecondaryValues}
+                  />
+                </>
+              )}
             </div>
           ) : null}
         </aside>
