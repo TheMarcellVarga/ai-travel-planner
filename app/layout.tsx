@@ -43,8 +43,11 @@ export const metadata: Metadata = {
     images: ["/logo.png"]
   },
   icons: {
-    icon: "/wild-route-mark.svg",
-    apple: "/wild-route-mark.svg"
+    icon: [
+      { url: "/wild-route-mark.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", sizes: "512x512", type: "image/png" }
+    ],
+    apple: [{ url: "/brand-mark.png", sizes: "1024x1024", type: "image/png" }]
   }
 };
 

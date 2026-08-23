@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { getCurrentUser } from "@/lib/auth";
+import { site } from "@/lib/site";
 
 export async function AppFooter() {
   const user = await getCurrentUser();
@@ -10,6 +12,10 @@ export async function AppFooter() {
     <footer className="shell app-footer app-footer--redesign">
       <div className="footer-departure">
         <div className="footer-departure__copy">
+          <Link className="footer-brand" href="/" aria-label={`${site.name} home`}>
+            <Image src="/wild-route-mark.svg" alt="" width={48} height={48} aria-hidden="true" />
+            <span>{site.name}</span>
+          </Link>
           <h2>Plan hard. Book elsewhere.</h2>
           <p>
             Compose round-trip or one-way journeys, compare the meaningful

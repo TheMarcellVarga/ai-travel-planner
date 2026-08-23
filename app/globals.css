@@ -1136,7 +1136,29 @@ select {
 .brand-mark-small {
   width: 34px;
   height: 34px;
+  object-fit: contain;
   filter: drop-shadow(0 6px 14px rgba(1, 4, 2, 0.28));
+}
+
+.footer-brand {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--text);
+}
+
+.footer-brand img {
+  width: 2.9rem;
+  height: 2.9rem;
+}
+
+.footer-brand span {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .brand-status {
