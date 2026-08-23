@@ -91,10 +91,6 @@ body:has(.route-studio) .app-footer {
   text-overflow: ellipsis;
 }
 
-.route-studio__globe .orbital-globe-fallback:not(.orbital-globe-fallback--visible) {
-  visibility: hidden;
-}
-
 @media (max-width: 760px) {
   body:has(.route-studio) .site-header {
     position: absolute;
@@ -1828,33 +1824,6 @@ h3,
   padding: 14px;
 }
 
-.map-fallback svg {
-  width: 100%;
-  height: auto;
-}
-
-.map-ocean {
-  fill: rgba(14, 39, 28, 0.92);
-  stroke: rgba(255, 255, 255, 0.08);
-  stroke-width: 0.4;
-}
-
-.map-line {
-  stroke: rgba(247, 223, 142, 0.9);
-  stroke-width: 0.8;
-  stroke-dasharray: 2 1.2;
-}
-
-.map-point {
-  fill: var(--accent);
-}
-
-.map-label {
-  fill: var(--text);
-  font-size: 2.4px;
-  letter-spacing: 0.3px;
-}
-
 .focus-card {
   margin-top: 18px;
   display: grid;
@@ -2038,15 +2007,61 @@ h3,
 }
 
 .media-credit {
+  position: relative;
   margin: 14px 0 0;
   color: rgba(237, 248, 239, 0.72);
   font-size: 0.78rem;
   line-height: 1.45;
 }
 
-.media-credit a {
+.media-credit__popover {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.media-credit__trigger {
+  display: inline-flex;
+}
+
+.media-credit__tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 20;
+  display: grid;
+  gap: 0.25rem;
+  width: max-content;
+  max-width: calc(100% - 0.25rem);
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgba(237, 248, 239, 0.18);
+  border-radius: 0.45rem;
+  background: rgba(4, 13, 8, 0.98);
+  box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.32);
+  color: rgba(237, 248, 239, 0.9);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  overflow-wrap: anywhere;
+  transform: translateY(0.25rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 160ms ease;
+  visibility: hidden;
+}
+
+.media-credit__tooltip a {
   text-decoration: underline;
   text-decoration-color: rgba(247, 223, 142, 0.55);
+}
+
+.media-credit__popover:hover .media-credit__tooltip,
+.media-credit__popover:focus-within .media-credit__tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
 }
 
 .media-credit-compact {
@@ -6328,35 +6343,24 @@ body:has(.planner-command-shell) .site-command__cta,
   opacity: 0;
 }
 
-.orbital-globe-fallback {
+.orbital-globe-status {
   position: absolute;
+  top: 50%;
   left: 50%;
-  bottom: clamp(1rem, 4vw, 3rem);
   z-index: 2;
+  display: grid;
+  gap: 0.65rem;
   width: min(34rem, calc(100vw - 2rem));
-  padding: 0.85rem;
+  padding: 1rem;
   border: 1px solid rgba(216, 211, 200, 0.18);
-  border-radius: 1.1rem;
-  background:
-    linear-gradient(135deg, rgba(8, 27, 17, 0.94), rgba(4, 13, 8, 0.82)),
-    rgba(4, 13, 8, 0.9);
+  border-radius: 0.8rem;
+  background: rgba(4, 13, 8, 0.88);
   box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.42);
   color: var(--route-text);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%) translateY(0.6rem);
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
+  transform: translate(-50%, -50%);
 }
 
-.orbital-globe-fallback--visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-
-.orbital-globe-fallback__header {
+.orbital-globe-status__header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -6367,23 +6371,17 @@ body:has(.planner-command-shell) .site-command__cta,
   text-transform: uppercase;
 }
 
-.orbital-globe-fallback__header span {
+.orbital-globe-status__header span {
   color: var(--route-accent);
   font-weight: 800;
 }
 
-.orbital-globe-fallback__header small {
+.orbital-globe-status__header small {
   overflow: hidden;
   max-width: 62%;
   color: var(--route-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.orbital-globe-fallback .map-fallback svg {
-  display: block;
-  height: clamp(9rem, 23vw, 14rem);
-  border-radius: 0.8rem;
 }
 
 .route-studio__controls {
@@ -6957,11 +6955,6 @@ body:has(.planner-command-shell) .site-command__cta,
     padding: 0;
   }
 
-  .orbital-globe-fallback {
-    bottom: 1rem;
-    width: min(30rem, calc(100vw - 1.5rem));
-  }
-
   .route-studio__dock {
     margin-top: 0;
     justify-self: center;
@@ -7059,19 +7052,6 @@ body:has(.planner-command-shell) .site-command__cta,
 
   .route-studio__globe {
     pointer-events: auto;
-  }
-
-  .orbital-globe-fallback {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    width: 100%;
-    margin: 0 auto;
-    transform: none;
-  }
-
-  .orbital-globe-fallback--visible {
-    transform: none;
   }
 
 .route-studio__controls {
@@ -8825,18 +8805,6 @@ body {
   opacity: 0.1;
 }
 
-.route-studio__globe .orbital-globe-fallback {
-  top: 50%;
-  bottom: auto;
-  left: 50%;
-  width: min(34rem, calc(100% - 2rem));
-  transform: translate(-50%, -50%);
-}
-
-.route-studio__globe .orbital-globe-fallback--visible {
-  transform: translate(-50%, -50%);
-}
-
 .route-studio__summary {
   border: 1px solid rgba(245, 243, 234, 0.1);
   border-radius: var(--radius-lg);
@@ -9151,18 +9119,6 @@ body:has(.route-studio) {
 
 .route-studio__globe .orbital-globe-frame--loading {
   opacity: 0.08;
-}
-
-.route-studio__globe .orbital-globe-fallback {
-  top: 50%;
-  bottom: auto;
-  left: 50%;
-  width: min(34rem, calc(100% - 2rem));
-  transform: translate(-50%, -50%);
-}
-
-.route-studio__globe .orbital-globe-fallback--visible {
-  transform: translate(-50%, -50%);
 }
 
 .route-studio__dock {
@@ -9548,18 +9504,6 @@ body:has(.route-studio) {
   min-height: clamp(31rem, 65dvh, 42rem);
 }
 
-.route-studio__globe .orbital-globe-fallback {
-  width: min(48rem, calc(100% - 2rem));
-  padding: clamp(0.95rem, 1.5vw, 1.25rem);
-}
-
-.route-studio__globe .orbital-globe-fallback .map-fallback svg {
-  height: clamp(17rem, 40dvh, 28rem);
-  background:
-    radial-gradient(circle at 66% 40%, rgba(213, 244, 95, 0.16), transparent 14rem),
-    #0b2418;
-}
-
 .route-studio__dock {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -9660,10 +9604,6 @@ body:has(.route-studio) {
     min-height: 0;
   }
 
-  .route-studio__globe .orbital-globe-fallback .map-fallback svg {
-    height: clamp(15rem, 36dvh, 23rem);
-  }
-
   .route-studio__inspector-media {
     min-height: 9.5rem;
   }
@@ -9694,14 +9634,6 @@ body:has(.route-studio) {
   .route-studio__globe,
   .route-studio__globe .orbital-globe-stage {
     min-height: min(54dvh, 24rem);
-  }
-
-  .route-studio__globe .orbital-globe-fallback {
-    width: calc(100% - 1rem);
-  }
-
-  .route-studio__globe .orbital-globe-fallback .map-fallback svg {
-    height: clamp(12rem, 34dvh, 16rem);
   }
 
   .route-studio__dock {

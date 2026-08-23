@@ -24,6 +24,9 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   await page.goto("/planner");
   await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
   const routeControls = page.getByRole("button", { name: "Route controls" });
+  await expect(routeControls).toHaveAttribute("aria-expanded", "false");
+  await routeControls.click();
+  await expect(routeControls).toHaveAttribute("aria-expanded", "true");
   await routeControls.click();
   await expect(routeControls).toHaveAttribute("aria-expanded", "false");
   await routeControls.click();
@@ -49,6 +52,7 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   ).toBeVisible();
   const routeTitle = await page.locator("main h1").innerText();
 
+  await page.locator(".route-studio-actions summary").click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Saved in this browser's demo vault.")).toBeVisible();
 
@@ -77,6 +81,7 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
       response.url().endsWith("/handoff") &&
       response.request().method() === "POST"
   );
+  await page.locator(".route-studio-actions summary").click();
   await page.getByRole("button", { name: "Open booking handoff" }).click();
   const handoffResponse = await handoffResponsePromise;
   expect(handoffResponse.ok()).toBe(true);
@@ -108,15 +113,31 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   await page.goto("/planner");
   await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
   await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
-  await expect(page.getByText("planning_estimate", { exact: false })).toBeVisible();
-  await expect(page.getByText("Media:", { exact: false }).first()).toBeVisible();
+  await expect(page.locator(".route-studio__cost-status")).toContainText("Planning estimate");
+  const sourceLink = page.getByRole("link", { name: /^Source\./ }).first();
+  await expect(sourceLink).toBeVisible();
+  await sourceLink.hover();
+  await expect(page.getByRole("tooltip").first()).toBeVisible();
+  const whyDetails = page.locator("details").filter({ hasText: "Why this route" });
+  await expect(whyDetails.locator(".route-studio__reasons")).toBeHidden();
+  await whyDetails.locator("summary").click();
+  await expect(whyDetails.locator(".route-studio__reasons")).toBeVisible();
+  const costDetails = page.locator(".route-studio__cost-details");
+  await expect(costDetails.locator(".route-studio__cost-rows")).toBeHidden();
+  await costDetails.locator("summary").click();
+  await expect(costDetails.locator(".route-studio__cost-rows")).toBeVisible();
+  await expect(page.getByText("2D route view", { exact: true })).toHaveCount(0);
+  await expect(page.locator('[aria-label="2D route map fallback"]')).toHaveCount(0);
 
+  await page.getByRole("button", { name: "Route controls" }).click();
   await page.getByRole("button", { name: "2 stops 2 hops" }).click();
   await page.getByRole("button", { name: "Compose new routes" }).click();
 
   await expect(page.getByText("Plotting route options")).toBeVisible();
   await expect(page.getByText("Plotting map", { exact: true })).toHaveCount(0);
-  await expect(page.locator(".orbital-globe-fallback__mode .route-loading-mark")).toBeVisible();
+  await expect(page.locator(".route-composition-loading .route-loading-mark").first()).toBeVisible();
+  await expect(page.locator(".route-composition-loading .route-loading-mark__fill").first()).toBeVisible();
+  await expect(page.locator(".orbital-globe-status")).toHaveCount(0);
   const composeButton = page.locator(".route-studio__primary-action");
   await expect(composeButton).toHaveCount(0);
   await expect(page.getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")).toHaveCount(0);
@@ -128,7 +149,6 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   const routeCards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
   await routeCards.nth(1).click();
   await expect(routeCards.nth(1)).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".map-route--active")).toHaveCount(1);
 });
 
 test("planner keeps festival typography inside readable panel bounds", async ({
@@ -144,34 +164,77 @@ test("planner keeps festival typography inside readable panel bounds", async ({
       ".route-studio__route strong",
       ".route-studio__route small",
       ".route-studio__stops strong",
-      ".route-studio__stops span",
+      ".route-studio__stops article > span",
       ".route-studio__cost-note",
       ".route-studio__cost-assumptions",
       ".route-studio__estimate-note p"
     ];
+    const metadataSelectors = [
+      ".route-studio__inspector > .media-credit",
+      ".route-studio__stops .media-credit",
+      ".route-studio__reasons p",
+      ".route-studio__cost-note",
+      ".route-studio__cost-assumptions"
+    ];
+
+    const boundsFor = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      const parentRect = element.parentElement?.getBoundingClientRect();
+
+      return {
+        fitsParent: !parentRect || (rect.left >= parentRect.left - 1 && rect.right <= parentRect.right + 1),
+        fitsOwnBox: element.scrollWidth <= element.clientWidth + 1
+      };
+    };
 
     return {
       pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+      mediaRatio: (() => {
+        const media = document.querySelector(".route-studio__inspector-media");
+        if (!media) return null;
+        const rect = media.getBoundingClientRect();
+        return rect.width / rect.height;
+      })(),
+      sourceBelowMedia: (() => {
+        const media = document.querySelector(".route-studio__inspector-media");
+        const source = document.querySelector(".route-studio__inspector > .media-credit");
+        if (!media || !source) return false;
+        return source.getBoundingClientRect().top >= media.getBoundingClientRect().bottom - 1;
+      })(),
+      stopImageSizes: Array.from(document.querySelectorAll(".route-studio__stop-image")).map(
+        (element) => {
+          const rect = element.getBoundingClientRect();
+          return { width: rect.width, height: rect.height };
+        }
+      ),
       text: selectors.flatMap((selector) =>
         Array.from(document.querySelectorAll(selector)).map((element) => {
-          const rect = element.getBoundingClientRect();
-          const parentRect = element.parentElement?.getBoundingClientRect();
           const styles = window.getComputedStyle(element);
 
           return {
-            fitsParent: !parentRect || (rect.left >= parentRect.left - 1 && rect.right <= parentRect.right + 1),
-            fitsOwnBox: element.scrollWidth <= element.clientWidth + 1,
+            ...boundsFor(element),
             fontSize: Number.parseFloat(styles.fontSize)
           };
         })
+      ),
+      metadata: metadataSelectors.flatMap((selector) =>
+        Array.from(document.querySelectorAll(selector)).map(boundsFor)
       )
     };
   });
 
   expect(audit.pageOverflow).toBe(false);
+  expect(audit.mediaRatio).toBeGreaterThan(1.65);
+  expect(audit.mediaRatio).toBeLessThan(1.9);
+  expect(audit.sourceBelowMedia).toBe(true);
+  expect(audit.stopImageSizes.every((size) => size.width >= 52 && size.height >= 52)).toBe(true);
   expect(
     audit.text.filter((item) => !item.fitsParent || !item.fitsOwnBox),
     "Readable planner text must fit its panel and own box"
+  ).toEqual([]);
+  expect(
+    audit.metadata.filter((item) => !item.fitsParent || !item.fitsOwnBox),
+    "Planner metadata must wrap inside its panel"
   ).toEqual([]);
   expect(audit.text.every((item) => item.fontSize >= 11.2)).toBe(true);
 });
@@ -277,4 +340,63 @@ test("signed-out saved routes use a compact empty state on desktop and mobile", 
     expect(audit.headingFits).toBe(true);
     expect(audit.buttons.every((button) => button.height <= 52 && button.fitsParent)).toBe(true);
   }
+});
+
+test("festival supporting copy keeps a readable line weight", async ({ page }) => {
+  await page.goto("/");
+
+  const weights = await page.evaluate(() =>
+    [
+      ".atlas-hero__lede",
+      ".route-console__header small",
+      ".route-console__route small",
+      ".route-proof p",
+      ".planning-bento__cell p",
+      ".atlas-section__heading p",
+      ".atlas-row p",
+      ".share-artifact li",
+      ".footer-departure p:not(.eyebrow)"
+    ].map((selector) =>
+      Number.parseInt(window.getComputedStyle(document.querySelector(selector)!).fontWeight, 10)
+    )
+  );
+
+  expect(weights.every((weight) => weight >= 500)).toBe(true);
+});
+
+test("festival composition keeps structural surfaces level", async ({ page }) => {
+  await page.goto("/");
+
+  const audit = await page.evaluate(() => {
+    const levelSelectors = [
+      ".site-corner-brand",
+      ".site-command",
+      ".route-proof__intro",
+      ".route-proof__metrics",
+      ".planning-bento__cell:nth-child(2)",
+      ".planning-bento__cell:nth-child(3)",
+      ".planning-bento__cell:nth-child(4)",
+      ".atlas-feature",
+      ".atlas-row:nth-child(even)",
+      ".share-artifact"
+    ];
+    const rotationFor = (selector: string) => {
+      const transform = getComputedStyle(document.querySelector(selector)!).transform;
+      const matrix = transform.match(/^matrix\(([^)]+)\)$/);
+      const values = matrix ? matrix[1].split(",").map(Number) : [];
+      return values.length >= 2 ? (Math.atan2(values[1], values[0]) * 180) / Math.PI : 0;
+    };
+    const rotations = levelSelectors.map(rotationFor);
+    const consoleTransform = getComputedStyle(
+      document.querySelector(".route-console")!
+    ).transform;
+    const matrix = consoleTransform.match(/^matrix\(([^)]+)\)$/);
+    const values = matrix ? matrix[1].split(",").map(Number) : [];
+    const consoleAngle = values.length >= 2 ? (Math.atan2(values[1], values[0]) * 180) / Math.PI : 0;
+
+    return { rotations, consoleAngle };
+  });
+
+  expect(audit.rotations.every((rotation) => Math.abs(rotation) <= 0.05)).toBe(true);
+  expect(Math.abs(audit.consoleAngle)).toBeLessThanOrEqual(0.7);
 });

@@ -74,57 +74,59 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
   }
 
   return (
-    <div className="route-studio-actions">
-      <div className="route-studio-actions__header">
+    <details className="route-studio-actions">
+      <summary className="route-studio-actions__summary">
         <span>Decision tools</span>
         <small>{isPending ? "working" : "ready"}</small>
-      </div>
-      <div className="route-studio-actions__secondary">
+      </summary>
+      <div className="route-studio-actions__body">
+        <div className="route-studio-actions__secondary">
+          <button
+            className="route-studio-actions__secondary-button"
+            disabled={isPending}
+            onClick={() =>
+              runAction(
+                `/api/routes/${routeId}/save`,
+                () => "Saved in this browser's demo vault.",
+                false,
+                true
+              )
+            }
+            type="button"
+          >
+            Save
+          </button>
+          <button
+            className="route-studio-actions__secondary-button"
+            disabled={isPending}
+            onClick={() =>
+              runAction(
+                `/api/routes/${routeId}/publish`,
+                (payload) => `Published preview at ${payload.shareUrl}`
+              )
+            }
+            type="button"
+          >
+            Publish
+          </button>
+        </div>
         <button
-          className="route-studio-actions__secondary-button"
+          className="route-studio-actions__primary-button"
           disabled={isPending}
           onClick={() =>
-            runAction(
-              `/api/routes/${routeId}/save`,
-              () => "Saved in this browser's demo vault.",
-              false,
-              true
-            )
+            runAction(`/api/routes/${routeId}/handoff`, () => "Opened booking handoff.", true)
           }
           type="button"
         >
-          Save
+          Open booking handoff
         </button>
-        <button
-          className="route-studio-actions__secondary-button"
-          disabled={isPending}
-          onClick={() =>
-            runAction(
-              `/api/routes/${routeId}/publish`,
-              (payload) => `Published preview at ${payload.shareUrl}`
-            )
-          }
-          type="button"
-        >
-          Publish
-        </button>
+        {message ? (
+          <p className="route-studio-actions__message" role="status" aria-live="polite">
+            {message}{" "}
+            {actionHref ? <a href={actionHref}>Open share</a> : null}
+          </p>
+        ) : null}
       </div>
-      <button
-        className="route-studio-actions__primary-button"
-        disabled={isPending}
-        onClick={() =>
-          runAction(`/api/routes/${routeId}/handoff`, () => "Opened booking handoff.", true)
-        }
-        type="button"
-      >
-        Open booking handoff
-      </button>
-      {message ? (
-        <p className="route-studio-actions__message" role="status" aria-live="polite">
-          {message}{" "}
-          {actionHref ? <a href={actionHref}>Open share</a> : null}
-        </p>
-      ) : null}
-    </div>
+    </details>
   );
 }

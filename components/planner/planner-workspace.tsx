@@ -34,7 +34,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
-  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(true);
+  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
 
   const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
   const [secondaryValues, setSecondaryValues] = useState({
@@ -278,7 +278,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               </div>
               <MediaCredit asset={promotedMedia} compact />
 
-              <section className="route-studio__inspector-section">
+              <section className="route-studio__inspector-section route-studio__route-overview">
                 <p className="route-studio__kicker">Route path</p>
                 <p className="route-studio__path">{activeRoute.tagline}</p>
                 <div className="route-studio__tags">
@@ -293,83 +293,99 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </div>
               </section>
 
-              <section className="route-studio__inspector-section">
-                <p className="route-studio__kicker">Why this ranks</p>
-                <div className="route-studio__reasons">
-                  {activeRoute.reasons.slice(0, 3).map((reason) => (
-                    <p key={reason}>{reason}</p>
-                  ))}
+              <details className="route-studio__inspector-details">
+                <summary>
+                  <span>Why this route</span>
+                  <small>{activeRoute.reasons.length} signals</small>
+                </summary>
+                <div className="route-studio__inspector-details-body">
+                  <div className="route-studio__reasons">
+                    {activeRoute.reasons.slice(0, 3).map((reason) => (
+                      <p key={reason}>{reason}</p>
+                    ))}
+                  </div>
                 </div>
-              </section>
+              </details>
 
-              <section className="route-studio__inspector-section">
-                <p className="route-studio__kicker">Leg order</p>
-                <div className="route-studio__stops">
-                  {destinationStops.map((stop) => (
-                    <article key={stop.id}>
-                      <ResilientImage
-                        alt={getRouteStopMedia(stop).alt}
-                        className="route-studio__stop-image"
-                        src={getRouteStopMedia(stop).src}
-                        width={52}
-                        height={52}
-                        unoptimized
-                      />
-                      <strong>
-                        {stop.name} ({stop.code})
-                      </strong>
-                      <span>{stop.scene}</span>
-                      <MediaCredit asset={getRouteStopMedia(stop)} compact />
-                    </article>
-                  ))}
+              <details className="route-studio__inspector-details">
+                <summary>
+                  <span>Stops &amp; sources</span>
+                  <small>{destinationStops.length} stops</small>
+                </summary>
+                <div className="route-studio__inspector-details-body">
+                  <div className="route-studio__stops">
+                    {destinationStops.map((stop) => (
+                      <article key={stop.id}>
+                        <ResilientImage
+                          alt={getRouteStopMedia(stop).alt}
+                          className="route-studio__stop-image"
+                          src={getRouteStopMedia(stop).src}
+                          width={52}
+                          height={52}
+                          unoptimized
+                        />
+                        <strong>
+                          {stop.name} ({stop.code})
+                        </strong>
+                        <span>{stop.scene}</span>
+                        <MediaCredit asset={getRouteStopMedia(stop)} compact />
+                      </article>
+                    ))}
+                  </div>
                 </div>
-              </section>
+              </details>
 
               <section className="route-studio__inspector-section route-studio__cost-breakdown">
                 <div className="route-studio__cost-header">
                   <p className="route-studio__kicker">Route cost</p>
                   <strong>${activeRoute.costBreakdown.total} est.</strong>
                 </div>
-                <div className="route-studio__cost-rows">
-                  {activeRoute.costBreakdown.transport.map((leg) => (
-                    <div key={`${leg.fromCode}-${leg.toCode}`}>
-                      <span>{leg.fromCode} → {leg.toCode}</span>
-                      <strong>${leg.amount}</strong>
-                    </div>
-                  ))}
-                  {activeRoute.costBreakdown.stays.map((stay) => (
-                    <div key={stay.stopId}>
-                      <span>{stay.nights} nights · {stay.stopId}</span>
-                      <strong>${stay.amount}</strong>
-                    </div>
-                  ))}
-                </div>
-                <p className="route-studio__cost-note">
-                  Price status · {Array.from(new Set(activeRoute.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
-                  {activeRoute.costBreakdown.transport.some((leg) => leg.observedAt)
-                    ? ` Observed ${activeRoute.costBreakdown.transport.find((leg) => leg.observedAt)?.observedAt}.`
-                    : " No provider observation; live inventory was not queried."}
+                <p className="route-studio__cost-status">
+                  Planning estimate · provider confirmation required
                 </p>
-                <ul className="route-studio__cost-assumptions">
-                  {activeRoute.costBreakdown.assumptions.map((assumption) => (
-                    <li key={assumption}>{assumption}</li>
-                  ))}
-                </ul>
-              </section>
-
-              <section className="route-studio__inspector-section route-studio__estimate-note">
-                <p className="route-studio__kicker">Estimate boundary</p>
-                <p>
-                  Wild Route shows planning estimates and app-side route confidence. External
-                  providers own final price and availability.
-                </p>
-                {generation.agentRun?.status === "fallback" ? (
-                  <p role="status">
-                    {generation.agentRun.mode === "model"
-                      ? "Model composition was unavailable, so Wild Route used its deterministic route planner."
-                      : "Route composition encountered an issue, so Wild Route used its deterministic fallback."}
-                  </p>
-                ) : null}
+                <details className="route-studio__cost-details">
+                  <summary>View cost breakdown</summary>
+                  <div className="route-studio__cost-details-body">
+                    <div className="route-studio__cost-rows">
+                      {activeRoute.costBreakdown.transport.map((leg) => (
+                        <div key={`${leg.fromCode}-${leg.toCode}`}>
+                          <span>{leg.fromCode} → {leg.toCode}</span>
+                          <strong>${leg.amount}</strong>
+                        </div>
+                      ))}
+                      {activeRoute.costBreakdown.stays.map((stay) => (
+                        <div key={stay.stopId}>
+                          <span>{stay.nights} nights · {stay.stopId}</span>
+                          <strong>${stay.amount}</strong>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="route-studio__cost-note">
+                      Price status · {Array.from(new Set(activeRoute.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
+                      {activeRoute.costBreakdown.transport.some((leg) => leg.observedAt)
+                        ? ` Observed ${activeRoute.costBreakdown.transport.find((leg) => leg.observedAt)?.observedAt}.`
+                        : " No provider observation; live inventory was not queried."}
+                    </p>
+                    <ul className="route-studio__cost-assumptions">
+                      {activeRoute.costBreakdown.assumptions.map((assumption) => (
+                        <li key={assumption}>{assumption}</li>
+                      ))}
+                    </ul>
+                    <div className="route-studio__estimate-note">
+                      <p>
+                        Wild Route shows planning estimates and app-side route confidence. External
+                        providers own final price and availability.
+                      </p>
+                      {generation.agentRun?.status === "fallback" ? (
+                        <p role="status">
+                          {generation.agentRun.mode === "model"
+                            ? "Model composition was unavailable, so Wild Route used its deterministic route planner."
+                            : "Route composition encountered an issue, so Wild Route used its deterministic fallback."}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </details>
               </section>
 
               <RouteActions

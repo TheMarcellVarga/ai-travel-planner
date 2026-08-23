@@ -37,12 +37,22 @@ async function expectSequentialKeyboardOrder(page: Page) {
       elements.flatMap((element, index) => {
         const htmlElement = element as HTMLElement;
         const styles = window.getComputedStyle(htmlElement);
+        const closedDetails = htmlElement.closest("details:not([open])");
+        const isDisclosureSummary = htmlElement.tagName === "SUMMARY";
+        const rect = htmlElement.getBoundingClientRect();
+        const intersectsViewport =
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < window.innerHeight &&
+          rect.left < window.innerWidth;
         const isVisible =
           htmlElement.getRootNode() === document &&
           htmlElement.getClientRects().length > 0 &&
+          intersectsViewport &&
           styles.display !== "none" &&
           styles.visibility !== "hidden" &&
-          !htmlElement.closest("[hidden], [inert]");
+          !htmlElement.closest("[hidden], [inert]") &&
+          (!closedDetails || isDisclosureSummary);
 
         if (!isVisible) {
           return [];

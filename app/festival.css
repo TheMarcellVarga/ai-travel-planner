@@ -572,17 +572,6 @@ body.festival-system .route-studio__globe {
   background-size: 3rem 3rem, 3rem 3rem, auto, auto;
 }
 
-body.festival-system .route-studio__globe .orbital-globe-fallback {
-  border-color: var(--festival-line);
-  border-radius: 2px;
-  background: rgba(7, 13, 9, 0.96);
-  box-shadow: 8px 8px 0 rgba(215, 255, 63, 0.08);
-}
-
-body.festival-system .route-studio__globe .map-fallback svg {
-  border-radius: 2px;
-}
-
 body.festival-system .route-studio__controls-toggle {
   min-height: 3.15rem;
   border-radius: 2px;
@@ -885,34 +874,6 @@ body.festival-system .footer-newsletter {
   }
 }
 
-/* Route composition agent: keep generated cost, source, and stop media visible
-   as evidence instead of hiding them behind an AI-shaped summary. */
-body.festival-system .route-map-libre {
-  width: 100%;
-  height: clamp(17rem, 40dvh, 28rem);
-  min-height: 12rem;
-  overflow: hidden;
-  border: 1px solid var(--festival-line);
-  background: #0b2418;
-}
-
-body.festival-system .route-map-libre .maplibregl-map {
-  font-family: var(--festival-mono);
-}
-
-body.festival-system .route-map-libre .maplibregl-ctrl-group,
-body.festival-system .route-map-libre .maplibregl-ctrl-attrib {
-  border: 1px solid rgba(215, 255, 63, 0.24);
-  border-radius: 2px;
-  background: rgba(7, 18, 13, 0.88);
-  color: var(--festival-paper-muted);
-}
-
-body.festival-system .route-map-libre .maplibregl-ctrl-group button {
-  width: 2rem;
-  height: 2rem;
-}
-
 body.festival-system .route-studio__inspector > .media-credit,
 body.festival-system .route-studio__stops .media-credit,
 body.festival-system .share-stop-card .media-credit {
@@ -1054,30 +1015,21 @@ body.festival-system .map-route--active .map-line {
 }
 
 body.festival-system .route-loading-mark {
-  display: inline-block;
-  width: 3.8rem;
-  height: 1.5rem;
+  display: block;
+  width: min(100%, 11rem);
+  height: 0.62rem;
   flex: 0 0 auto;
-  overflow: visible;
+  overflow: hidden;
 }
 
 body.festival-system .route-loading-mark__track {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: square;
-  stroke-dasharray: 8 5;
-  animation: route-trace 1.15s linear infinite;
+  fill: rgba(215, 255, 63, 0.16);
 }
 
-body.festival-system .route-loading-mark__node {
+body.festival-system .route-loading-mark__fill {
   fill: currentColor;
-  opacity: 0.6;
-}
-
-body.festival-system .route-loading-mark__node--active {
-  color: var(--festival-flag);
-  animation: route-pulse 1.15s ease-in-out infinite;
+  opacity: 0.9;
+  animation: route-loading-sweep 1.35s ease-in-out infinite;
 }
 
 body.festival-system .route-studio__primary-action {
@@ -1085,17 +1037,6 @@ body.festival-system .route-studio__primary-action {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-}
-
-body.festival-system .orbital-globe-fallback__mode {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-body.festival-system .orbital-globe-fallback__mode .route-loading-mark {
-  width: 2.8rem;
-  height: 1rem;
 }
 
 body.festival-system .route-composition-loading {
@@ -1148,36 +1089,22 @@ body.festival-system .route-studio__controls-body > .route-composition-loading--
   transform: none;
 }
 
-@keyframes route-trace {
-  to {
-    stroke-dashoffset: -26;
-  }
-}
-
-@keyframes route-pulse {
+@keyframes route-loading-sweep {
   0%,
   100% {
     opacity: 0.45;
-    transform: scale(0.86);
-    transform-origin: center;
+    x: 1px;
   }
+
   50% {
     opacity: 1;
-    transform: scale(1.14);
-    transform-origin: center;
+    x: 58px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.festival-system .route-loading-mark__track,
-  body.festival-system .route-loading-mark__node--active {
+  body.festival-system .route-loading-mark__fill {
     animation: none;
-  }
-}
-
-@media (max-width: 760px) {
-  body.festival-system .route-map-libre {
-    height: clamp(12rem, 34dvh, 16rem);
   }
 }
 
@@ -1728,4 +1655,347 @@ body.festival-system .saved-vault-shell-empty .vault-panel__actions .button {
   body.festival-system .saved-vault-shell-empty .floating-sidebar {
     width: min(100%, 28rem);
   }
+}
+
+/* Weight rhythm: strengthen supporting copy just enough to hold its own
+   against the festival display faces without turning every role into a bold. */
+body.festival-system .atlas-hero__lede,
+body.festival-system .route-console__header small,
+body.festival-system .route-console__route small,
+body.festival-system .route-proof p,
+body.festival-system .planning-bento__cell p,
+body.festival-system .atlas-section__heading p,
+body.festival-system .atlas-row p,
+body.festival-system .share-artifact li,
+body.festival-system .footer-departure p:not(.eyebrow),
+body.festival-system .muted-copy,
+body.festival-system .lede,
+body.festival-system .status-copy {
+  font-weight: 500;
+}
+
+body.festival-system .route-studio__summary-copy,
+body.festival-system .route-studio__section-heading span,
+body.festival-system .route-studio__path,
+body.festival-system .route-studio__route small,
+body.festival-system .route-studio__inspector-copy p,
+body.festival-system .route-studio__stops span,
+body.festival-system .route-studio__reasons p,
+body.festival-system .route-studio__estimate-note p,
+body.festival-system .route-studio__cost-note,
+body.festival-system .route-studio__cost-assumptions,
+body.festival-system .route-studio__cost-rows > div {
+  font-weight: 500;
+}
+
+/* Tilt budget: keep one expressive hero angle, return the reading surfaces and
+   controls to a stable baseline so the festival treatment feels energetic,
+   not physically off-balance. */
+body.festival-system .site-corner-brand,
+body.festival-system .site-command,
+body.festival-system .route-proof__intro,
+body.festival-system .route-proof__metrics,
+body.festival-system .planning-bento__cell:nth-child(2),
+body.festival-system .planning-bento__cell:nth-child(3),
+body.festival-system .planning-bento__cell:nth-child(4),
+body.festival-system .atlas-feature,
+body.festival-system .atlas-row,
+body.festival-system .atlas-row:nth-child(even),
+body.festival-system .share-artifact,
+body.festival-system .route-studio__dock {
+  transform: none;
+}
+
+body.festival-system .site-command__nav-item:hover {
+  transform: translateY(-2px);
+}
+
+body.festival-system .atlas-hero__copy {
+  transform: translateY(-3vh);
+}
+
+body.festival-system .route-console {
+  transform: translateY(-1.5rem) rotate(0.6deg);
+}
+
+@media (max-width: 1180px) {
+  body.festival-system .atlas-hero__copy {
+    transform: translateY(-1rem);
+  }
+
+  body.festival-system .route-console {
+    transform: translate(0.5rem, 0) rotate(0.45deg);
+  }
+}
+
+@media (max-width: 760px) {
+  body.festival-system .atlas-hero__copy,
+  body.festival-system .route-console {
+    transform: none;
+  }
+}
+
+/* Metadata boundary guardrail: credits and provider evidence are real content,
+   so they must wrap inside the inspector instead of being visually clipped. */
+body.festival-system .route-studio__inspector,
+body.festival-system .route-studio__inspector *,
+body.festival-system .route-studio__stops article,
+body.festival-system .route-studio__cost-breakdown,
+body.festival-system .route-studio__cost-breakdown * {
+  min-width: 0;
+}
+
+body.festival-system .route-studio__inspector {
+  overflow-x: hidden;
+}
+
+body.festival-system .route-studio__inspector > .media-credit {
+  max-width: 100%;
+  padding-inline: 0.65rem;
+}
+
+body.festival-system .route-studio__inspector > .media-credit,
+body.festival-system .route-studio__stops .media-credit,
+body.festival-system .route-studio__path,
+body.festival-system .route-studio__reasons p,
+body.festival-system .route-studio__cost-note,
+body.festival-system .route-studio__cost-assumptions,
+body.festival-system .route-studio__estimate-note p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+body.festival-system .route-studio__inspector .media-credit a {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+body.festival-system .route-studio__cost-header,
+body.festival-system .route-studio__cost-rows > div {
+  min-width: 0;
+}
+
+body.festival-system .route-studio__cost-rows > div span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+body.festival-system .media-credit__trigger {
+  color: var(--festival-lime);
+  font-family: var(--festival-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-decoration-color: rgba(215, 255, 63, 0.52);
+  text-underline-offset: 0.18em;
+  text-transform: uppercase;
+}
+
+body.festival-system .media-credit__tooltip {
+  border-color: var(--festival-line);
+  border-radius: 2px;
+  background: rgba(7, 13, 9, 0.98);
+  color: var(--festival-paper);
+  font-family: var(--festival-mono);
+  font-size: 0.68rem;
+}
+
+body.festival-system .media-credit__tooltip a {
+  color: var(--festival-lime);
+}
+
+/* Media rhythm: let the destination photography carry more of the inspector
+   while keeping its proportions stable as the rail gets narrower. */
+body.festival-system .route-studio__inspector-media {
+  aspect-ratio: 16 / 9;
+  height: clamp(8rem, 52.5cqw, 9.5rem);
+  min-height: 0;
+}
+
+body.festival-system .route-studio__inspector {
+  container-type: inline-size;
+}
+
+body.festival-system .route-studio__inspector-copy {
+  right: 0.72rem;
+  bottom: 0.68rem;
+  left: 0.72rem;
+  gap: 0.2rem;
+}
+
+body.festival-system .route-studio__inspector-copy strong {
+  font-size: clamp(1.25rem, 1.7vw, 1.45rem);
+  line-height: 0.98;
+}
+
+body.festival-system .route-studio__inspector-copy span {
+  max-width: 32ch;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+body.festival-system .route-studio__stops article {
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+}
+
+body.festival-system .route-studio__stop-image {
+  width: 3.5rem;
+  height: 3.5rem;
+  aspect-ratio: 1;
+}
+
+/* Progressive disclosure: keep the selected route scannable, then let users
+   open the evidence they need without turning the rail into a wall of copy. */
+body.festival-system .route-studio__inspector-details {
+  margin-inline: 0.65rem;
+  border-bottom: 1px solid var(--festival-line);
+}
+
+body.festival-system .route-studio__inspector-details summary,
+body.festival-system .route-studio__cost-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.78rem 0.2rem;
+  color: var(--festival-paper);
+  cursor: pointer;
+  font-family: var(--festival-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+body.festival-system .route-studio__inspector-details summary::-webkit-details-marker,
+body.festival-system .route-studio__cost-details summary::-webkit-details-marker {
+  display: none;
+}
+
+body.festival-system .route-studio__inspector-details summary::after,
+body.festival-system .route-studio__cost-details summary::after {
+  flex: 0 0 auto;
+  color: var(--festival-lime);
+  content: "+";
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+body.festival-system .route-studio__inspector-details[open] > summary::after,
+body.festival-system .route-studio__cost-details[open] > summary::after {
+  content: "−";
+}
+
+body.festival-system .route-studio__inspector-details summary:focus-visible,
+body.festival-system .route-studio__cost-details summary:focus-visible {
+  outline: 2px solid rgba(210, 232, 130, 0.82);
+  outline-offset: -2px;
+}
+
+body.festival-system .route-studio__inspector-details summary small {
+  margin-left: auto;
+  color: var(--festival-paper-muted);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+body.festival-system .route-studio__inspector-details-body {
+  padding: 0.05rem 0.2rem 0.85rem;
+}
+
+body.festival-system .route-studio__cost-status {
+  margin: 0.55rem 0 0;
+  color: var(--festival-paper-muted);
+  font-family: var(--festival-mono);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+body.festival-system .route-studio__cost-details {
+  margin-top: 0.55rem;
+  border-top: 1px solid rgba(241, 239, 228, 0.08);
+}
+
+body.festival-system .route-studio__cost-details summary {
+  padding-inline: 0;
+  color: var(--festival-lime);
+  font-size: 0.62rem;
+}
+
+body.festival-system .route-studio__cost-details-body {
+  padding-bottom: 0.15rem;
+}
+
+body.festival-system .route-studio__cost-details-body .route-studio__estimate-note {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(241, 239, 228, 0.08);
+}
+
+body.festival-system .route-studio-actions {
+  margin-inline: 0.65rem;
+  padding: 0.78rem 0.2rem;
+}
+
+body.festival-system .route-studio-actions__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--festival-lime);
+  cursor: pointer;
+  font-family: var(--festival-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+body.festival-system .route-studio-actions__summary::-webkit-details-marker {
+  display: none;
+}
+
+body.festival-system .route-studio-actions__summary::after {
+  color: var(--festival-lime);
+  content: "+";
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+body.festival-system .route-studio-actions[open] > .route-studio-actions__summary::after {
+  content: "−";
+}
+
+body.festival-system .route-studio-actions__summary:focus-visible {
+  outline: 2px solid rgba(210, 232, 130, 0.82);
+  outline-offset: -2px;
+}
+
+body.festival-system .route-studio-actions__summary small {
+  margin-left: auto;
+  color: var(--festival-paper-muted);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+body.festival-system .route-studio-actions__body {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
 }
