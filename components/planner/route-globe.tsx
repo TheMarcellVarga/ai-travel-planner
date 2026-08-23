@@ -4,8 +4,6 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
-import { RouteMapFallback } from "@/components/planner/route-map-fallback";
-import { RouteMapLibre } from "@/components/planner/route-map-libre";
 import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
 import type { RouteOption } from "@/lib/types";
 
@@ -59,11 +57,11 @@ const Globe = dynamic(() => import("react-globe.gl"), {
 }) as React.ComponentType<GlobeProps & { ref?: React.Ref<GlobeMethods | undefined> }>;
 
 const GLOBE_TEXTURE_URL =
-  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg";
+  "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg";
 const GLOBE_BUMP_URL =
   "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png";
 const GLOBE_ACCENT = "#d4ff00";
-const GLOBE_SOFT = "#d8d3c8";
+const GLOBE_SOFT = "#d8e9e1";
 
 function canUseWebGL() {
   if (typeof document === "undefined") {
@@ -113,10 +111,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
 
   const activeRoute = routes.find((route) => route.id === activeRouteId) ?? null;
   const idleRecommendation = routes[idleHighlightIndex % Math.max(routes.length, 1)] ?? null;
-  const fallbackRoute = activeRoute ?? idleRecommendation ?? routes[0] ?? null;
-  const shouldPrioritizeFallback = !webGlAvailable || prefersReducedMotion || globeTimedOut;
-  const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL;
-  const useMapLibre = process.env.NEXT_PUBLIC_MAP_RENDERER === "maplibre" && Boolean(mapStyleUrl);
+  const statusRoute = activeRoute ?? idleRecommendation ?? routes[0] ?? null;
   const isIdle = activeRoute === null;
   const promotedStop =
     activeRoute
@@ -192,9 +187,9 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
     controls.maxDistance = compactViewport ? 520 : 420;
     controls.rotateSpeed = isIdle ? 0.35 : 0.9;
     controls.zoomSpeed = 0.8;
-    controls.autoRotate = isIdle;
+    controls.autoRotate = isIdle && !prefersReducedMotion;
     controls.autoRotateSpeed = 0.65;
-  }, [compactViewport, globeReady, isIdle, viewport.height, viewport.width]);
+  }, [compactViewport, globeReady, isIdle, prefersReducedMotion, viewport.height, viewport.width]);
 
   useEffect(() => {
     if (!globeReady || !globeRef.current) {
@@ -208,7 +203,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
           lng: 18,
           altitude: compactViewport ? 2.55 : 2.35
         },
-        1000
+        prefersReducedMotion ? 0 : 1000
       );
       return;
     }
@@ -223,9 +218,9 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
         lng: promotedStop.coordinates.lng,
         altitude: compactViewport ? 2.2 : 1.85
       },
-      1000
+      prefersReducedMotion ? 0 : 1000
     );
-  }, [compactViewport, globeReady, isIdle, promotedStop]);
+  }, [compactViewport, globeReady, isIdle, prefersReducedMotion, promotedStop]);
 
   useEffect(() => {
     if (!isIdle) {
@@ -372,40 +367,24 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
 
   return (
     <div className="orbital-globe-stage" ref={containerRef}>
-      {fallbackRoute ? (
-        <div
-          className={
-            shouldPrioritizeFallback || !globeReady
-              ? "orbital-globe-fallback orbital-globe-fallback--visible"
-              : "orbital-globe-fallback"
-          }
-        >
-          <div className="orbital-globe-fallback__header">
-            <span className="orbital-globe-fallback__mode">
-              {shouldPrioritizeFallback ? (
-                "2D route view"
+      {statusRoute && !globeReady && !isComposing ? (
+        <div className="orbital-globe-status" role="status" aria-live="polite">
+          <div className="orbital-globe-status__header">
+            <span className="orbital-globe-status__mode">
+              {globeTimedOut ? (
+                "3D route globe unavailable"
               ) : (
-                <span role="status" aria-label="Loading route map">
+                <span role="status" aria-label="Loading 3D route globe">
                   <RouteLoadingMark />
                 </span>
               )}
             </span>
-            <small>{fallbackRoute.tagline}</small>
+            <small>
+              {globeTimedOut
+                ? "Use the ranked route options below to choose a route."
+                : statusRoute.tagline}
+            </small>
           </div>
-          {useMapLibre && mapStyleUrl ? (
-            <RouteMapLibre
-              routes={routes}
-              activeRouteId={activeRouteId ?? fallbackRoute.id}
-              styleUrl={mapStyleUrl}
-              onSelectRoute={onSelectRoute}
-            />
-          ) : (
-            <RouteMapFallback
-              route={fallbackRoute}
-              routes={routes}
-              activeRouteId={activeRouteId ?? fallbackRoute.id}
-            />
-          )}
         </div>
       ) : null}
 
@@ -417,7 +396,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
         </div>
       ) : null}
 
-      {!shouldPrioritizeFallback ? (
+      {webGlAvailable && !globeTimedOut ? (
         <div
           className={
             globeReady
