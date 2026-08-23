@@ -22,20 +22,14 @@ export async function SiteHeader() {
         className="site-corner-brand"
         aria-label={`${site.name} home`}
       >
-        <span className="site-corner-brand__mark">
-          <Image
-            className="brand-mark-small"
-            src="/wild-route-mark.svg"
-            alt=""
-            width={36}
-            height={36}
-            aria-hidden="true"
-          />
-        </span>
-        <div>
-          <span className="brand-name">{site.name}</span>
-          <span className="site-corner-brand__status">adventure routes</span>
-        </div>
+        <Image
+          className="site-brand-lockup"
+          src="/wild-route-logo.svg"
+          alt={site.name}
+          width={230}
+          height={56}
+          priority
+        />
       </Link>
 
       <div className="site-command">

@@ -13,8 +13,12 @@ export async function AppFooter() {
       <div className="footer-departure">
         <div className="footer-departure__copy">
           <Link className="footer-brand" href="/" aria-label={`${site.name} home`}>
-            <Image src="/wild-route-mark.svg" alt="" width={48} height={48} aria-hidden="true" />
-            <span>{site.name}</span>
+            <Image
+              src="/wild-route-logo.svg"
+              alt={site.name}
+              width={250}
+              height={61}
+            />
           </Link>
           <h2>Plan hard. Book elsewhere.</h2>
           <p>
