@@ -37,6 +37,18 @@ function makeOriginStop(intent: TripIntent): RouteStop {
   };
 }
 
+function makeReturnStop(intent: TripIntent): RouteStop {
+  return {
+    id: `return-${intent.origin.code}`,
+    name: intent.origin.label,
+    code: intent.origin.code,
+    country: intent.origin.country,
+    kind: "return",
+    coordinates: intent.origin.coordinates,
+    tags: []
+  };
+}
+
 function makeDestinationStop(destination: DestinationProfile): RouteStop {
   return {
     id: destination.id,
@@ -59,6 +71,9 @@ function createReasons(stops: DestinationProfile[], intent: TripIntent) {
   return [
     `Matches ${matchedTags.length || 1} of your active route wishes.`,
     `Keeps the route within a ${intent.tripLengthDays}-day travel window.`,
+    intent.routeType === "round_trip"
+      ? `Returns to ${intent.origin.code} after the final stop.`
+      : `Finishes at the final destination instead of returning to ${intent.origin.code}.`,
     `${stops[0]?.name} is used as the free promoted stop for stronger discovery placement.`,
     "Booking links are external provider searches; final price and availability must be confirmed there.",
     ...intent.exclusions
@@ -163,6 +178,9 @@ function buildRouteOptions(
   return sequences.map((routeDestinations, index) => {
     const primary = routeDestinations[0];
     const stops = [makeOriginStop(intent), ...routeDestinations.map(makeDestinationStop)];
+    if (intent.routeType === "round_trip") {
+      stops.push(makeReturnStop(intent));
+    }
     const costBreakdown = createFixtureCostBreakdown(intent, routeDestinations);
 
     return {

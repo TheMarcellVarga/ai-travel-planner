@@ -33,6 +33,7 @@ describe("route price planning estimates", () => {
         breakdown.stays.reduce((total, stay) => total + stay.amount, 0)
     );
     expect(breakdown.transport.every((leg) => leg.status === "planning_estimate")).toBe(true);
+    expect(breakdown.transport.at(-1)?.toCode).toBe("SIN");
   });
 
   it("does not imply a live fare without a departure date", () => {
@@ -47,6 +48,7 @@ describe("route price planning estimates", () => {
       "No departure date was supplied, so live fare lookup was not attempted."
     );
     expect(breakdown.transport[0]?.observedAt).toBeNull();
+    expect(breakdown.transport.at(-1)?.toCode).toBe("SYD");
   });
 
   it("uses a disclosed partial result when live pricing is enabled without an adapter", async () => {

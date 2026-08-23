@@ -4,6 +4,8 @@ export type WishTag = (typeof wishTags)[number];
 
 export type BudgetMode = "value" | "balanced" | "comfort";
 
+export type RouteType = "round_trip" | "one_way";
+
 export type Coordinates = {
   lat: number;
   lng: number;
@@ -19,6 +21,7 @@ export type OriginProfile = {
 export type TripIntent = {
   prompt: string;
   origin: OriginProfile;
+  routeType: RouteType;
   tripLengthDays: number;
   maxStops: number;
   departureDate?: string | null;
@@ -49,7 +52,7 @@ export type RouteStop = {
   name: string;
   code: string;
   country: string;
-  kind: "origin" | "destination";
+  kind: "origin" | "destination" | "return";
   coordinates: Coordinates;
   tags: WishTag[];
   scene?: string;

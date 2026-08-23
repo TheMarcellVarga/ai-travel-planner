@@ -21,6 +21,7 @@ const coordinatesSchema = z
     .strict();
 
 const routeCostStatusSchema = z.enum(["planning_estimate", "provider_observed", "partial"]);
+const routeTypeSchema = z.enum(["round_trip", "one_way"]);
 
 const routeCostBreakdownSchema = z
   .object({
@@ -121,7 +122,7 @@ const routeStopSchema = z
     name: z.string().min(1),
     code: z.string().min(2).max(4),
     country: z.string().min(1),
-    kind: z.enum(["origin", "destination"]),
+    kind: z.enum(["origin", "destination", "return"]),
     coordinates: coordinatesSchema,
     tags: z.array(wishTagSchema),
     scene: z.string().optional(),
@@ -176,6 +177,7 @@ export const tripIntentSchema = z
         country: z.string().min(1)
       })
       .strict(),
+    routeType: routeTypeSchema.default("round_trip"),
     tripLengthDays: z.number().int().min(4).max(30),
     maxStops: z.number().int().min(0).max(2),
     departureDate: departureDateSchema,

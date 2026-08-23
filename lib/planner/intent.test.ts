@@ -11,6 +11,7 @@ describe("interpretTripIntent", () => {
 
     expect(intent.tripLengthDays).toBe(18);
     expect(intent.maxStops).toBe(1);
+    expect(intent.routeType).toBe("round_trip");
     expect(intent.vibe).toBe("jungle");
     expect(intent.wishTags).toEqual(
       expect.arrayContaining(["crypto-friendly", "hiking", "mtb"])
@@ -22,6 +23,7 @@ describe("interpretTripIntent", () => {
     const intent = interpretTripIntent({
       prompt: "Go direct only for 7 days.",
       origin: "Lisbon",
+      routeType: "one_way",
       tripLengthDays: 12,
       maxStops: 2,
       wishTags: ["surf"],
@@ -29,6 +31,7 @@ describe("interpretTripIntent", () => {
     });
 
     expect(intent.origin.code).toBe("LIS");
+    expect(intent.routeType).toBe("one_way");
     expect(intent.tripLengthDays).toBe(12);
     expect(intent.maxStops).toBe(2);
     expect(intent.wishTags).toEqual(["surf"]);
@@ -72,5 +75,13 @@ describe("interpretTripIntent", () => {
 
     expect(intent.tripLengthDays).toBe(30);
     expect(intent.maxStops).toBe(2);
+  });
+
+  it("recognizes an explicitly requested one-way route", () => {
+    const intent = interpretTripIntent({
+      prompt: "Find a 10 day one-way route from Singapore."
+    });
+
+    expect(intent.routeType).toBe("one_way");
   });
 });

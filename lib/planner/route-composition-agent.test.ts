@@ -31,7 +31,11 @@ describe("RouteCompositionAgent", () => {
       status: "complete",
       agentVersion: "wild-route-composition-0.1"
     });
-    expect(generation.routes.some((route) => route.stops.length === 3)).toBe(true);
+    expect(generation.routes.some((route) => route.stops.length === 4)).toBe(true);
+    expect(generation.routes[0]?.stops.at(-1)).toMatchObject({
+      kind: "return",
+      code: intent.origin.code
+    });
     expect(generation.routes[0]?.stops[1]?.media).toMatchObject({
       provider: "local-fallback"
     });

@@ -55,6 +55,21 @@ function destinationBudget(destination: DestinationProfile, budgetMode: TripInte
   return Math.round((destination.baseCostUsd + destination.comfortCostUsd) / 2);
 }
 
+function allocateAmount(total: number, weights: number[]) {
+  const weightTotal = weights.reduce((sum, weight) => sum + weight, 0);
+  let allocated = 0;
+
+  return weights.map((weight, index) => {
+    if (index === weights.length - 1) {
+      return total - allocated;
+    }
+
+    const amount = weightTotal ? Math.round((total * weight) / weightTotal) : 0;
+    allocated += amount;
+    return amount;
+  });
+}
+
 export function createFixtureCostBreakdown(
   intent: TripIntent,
   destinations: DestinationProfile[],
@@ -63,28 +78,32 @@ export function createFixtureCostBreakdown(
   const safeDestinations = destinations.length ? destinations : [];
   const budgets = safeDestinations.map((destination) => destinationBudget(destination, intent.budgetMode));
   const total = budgets.reduce((sum, amount) => sum + amount, 0);
+  const transportCodes = [
+    intent.origin.code,
+    ...safeDestinations.map((destination) => destination.code),
+    ...(intent.routeType === "round_trip" ? [intent.origin.code] : [])
+  ];
+  const transportTotal = Math.round(total * 0.35);
+  const transportAmounts = allocateAmount(transportTotal, Array(transportCodes.length - 1).fill(1));
+  const stayTotal = total - transportTotal;
+  const stayAmounts = allocateAmount(stayTotal, budgets);
   const nightsPerStop = Math.max(
     1,
     Math.round(Math.max(intent.tripLengthDays - 1, safeDestinations.length) / Math.max(safeDestinations.length, 1))
   );
-  const transport = safeDestinations.map((destination, index) => {
-    const previousCode = index === 0 ? intent.origin.code : safeDestinations[index - 1].code;
-    const amount = Math.round(budgets[index] * 0.35);
-
-    return {
-      fromCode: previousCode,
-      toCode: destination.code,
-      amount,
+  const transport = transportCodes.slice(0, -1).map((fromCode, index) => ({
+      fromCode,
+      toCode: transportCodes[index + 1],
+      amount: transportAmounts[index] ?? 0,
       status,
       source: status === "provider_observed" ? "route-price-provider" : "wild-route-price-fixtures",
       observedAt: null
-    };
-  });
+    }));
 
   const stays = safeDestinations.map((destination, index) => ({
     stopId: destination.id,
     nights: nightsPerStop,
-    amount: budgets[index] - transport[index].amount,
+    amount: stayAmounts[index] ?? 0,
     status
   }));
 
@@ -95,7 +114,7 @@ export function createFixtureCostBreakdown(
     stays,
     assumptions: [
       "This cost is a Wild Route planning estimate, not a confirmed provider price.",
-      "Fixture costs split each destination budget into estimated transport and stay portions.",
+      `Fixture costs allocate ${intent.routeType === "round_trip" ? "outbound, inter-stop, and return" : "outbound and inter-stop"} transport across the route legs and the rest across destination stays.`,
       ...(intent.departureDate
         ? [`No live inventory was queried for the ${intent.departureDate} departure date.`]
         : ["No departure date was supplied, so live fare lookup was not attempted."])

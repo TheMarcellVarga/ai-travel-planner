@@ -1,9 +1,10 @@
 import { defaultOrigin, knownOrigins } from "@/lib/data/destinations";
-import type { BudgetMode, OriginProfile, TripIntent, WishTag } from "@/lib/types";
+import type { BudgetMode, OriginProfile, RouteType, TripIntent, WishTag } from "@/lib/types";
 
 type TripIntentInput = {
   prompt: string;
   origin?: string;
+  routeType?: RouteType;
   tripLengthDays?: number;
   maxStops?: number;
   departureDate?: string | null;
@@ -78,6 +79,18 @@ function parseStops(prompt: string, fallback = 1) {
   return match ? Number(match[1]) : fallback;
 }
 
+function parseRouteType(prompt: string, fallback: RouteType = "round_trip"): RouteType {
+  if (/\b(one[- ]way|open[- ]jaw)\b/i.test(prompt)) {
+    return "one_way";
+  }
+
+  if (/\b(round[- ]trip|return|back to|come back)\b/i.test(prompt)) {
+    return "round_trip";
+  }
+
+  return fallback;
+}
+
 function inferVibe(prompt: string) {
   const normalized = prompt.toLowerCase();
 
@@ -136,6 +149,7 @@ export function interpretTripIntent(input: TripIntentInput): TripIntent {
   return {
     prompt,
     origin: inferOrigin(input.origin),
+    routeType: input.routeType ?? parseRouteType(prompt),
     tripLengthDays: clamp(input.tripLengthDays ?? parseDays(prompt), 4, 30),
     maxStops: clamp(input.maxStops ?? parseStops(prompt), 0, 2),
     departureDate: input.departureDate ?? null,

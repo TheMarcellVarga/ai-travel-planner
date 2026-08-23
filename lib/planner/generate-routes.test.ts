@@ -25,8 +25,16 @@ describe("createTripGeneration", () => {
       expect(route.bookingLinks.length).toBeGreaterThan(0);
       expect(route.estimateStatus).toBe("planning_estimate");
       expect(route.costBreakdown.total).toBe(route.estimatedCostUsd);
+      expect(route.stops.at(-1)?.kind).toBe("return");
+      expect(route.stops.at(-1)?.code).toBe(route.stops[0]?.code);
       expect(route.costBreakdown.transport.length).toBe(route.stops.length - 1);
-      expect(route.costBreakdown.stays.length).toBe(route.stops.length - 1);
+      expect(route.costBreakdown.transport.at(-1)?.toCode).toBe("SIN");
+      expect(route.bookingLinks.filter((link) => link.kind === "leg")).toHaveLength(
+        route.costBreakdown.transport.length
+      );
+      expect(route.costBreakdown.stays.length).toBe(
+        route.stops.filter((stop) => stop.kind === "destination").length
+      );
       expect(route.costBreakdown.assumptions[0]).toContain("planning estimate");
       expect(route.availabilityStatus).toBe("external_search_required");
       expect(route.disclaimer).toContain("not confirmed provider price");
@@ -56,9 +64,29 @@ describe("createTripGeneration", () => {
     );
 
     generation.routes.forEach((route) => {
-      expect(route.stops).toHaveLength(2);
-      expect(route.costBreakdown.transport).toHaveLength(1);
+      expect(route.stops).toHaveLength(3);
+      expect(route.stops.at(-1)?.kind).toBe("return");
+      expect(route.costBreakdown.transport).toHaveLength(2);
       expect(route.costBreakdown.stays).toHaveLength(1);
+    });
+  });
+
+  it("keeps an explicitly requested one-way route from adding a return leg", () => {
+    const generation = createTripGeneration(
+      interpretTripIntent({
+        prompt: "Find a 12 day one-way hiking route from Singapore.",
+        origin: "Singapore",
+        tripLengthDays: 12,
+        maxStops: 1,
+        wishTags: ["hiking"],
+        budgetMode: "balanced"
+      })
+    );
+
+    generation.routes.forEach((route) => {
+      expect(route.stops.at(-1)?.kind).toBe("destination");
+      expect(route.stops.at(-1)?.code).not.toBe(route.stops[0]?.code);
+      expect(route.costBreakdown.transport.length).toBe(route.stops.length - 1);
     });
   });
 
@@ -74,7 +102,7 @@ describe("createTripGeneration", () => {
       })
     );
 
-    expect(generation.routes.some((route) => route.stops.length === 3)).toBe(true);
+    expect(generation.routes.some((route) => route.stops.length === 4)).toBe(true);
     generation.routes.forEach((route) => {
       expect(route.stops.filter((stop) => stop.kind === "destination").length).toBeLessThanOrEqual(2);
     });
