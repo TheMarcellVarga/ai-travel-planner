@@ -1,0 +1,12 @@
+<svg width="460" height="112" viewBox="0 0 460 112" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Wild Route</title>
+  <desc id="desc">Wild Route adventure route planning</desc>
+  <g transform="translate(8 8)">
+    <path d="M12 18L35 82L56 48L77 82L98 18" stroke="#D7FF3F" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="18" r="7" fill="#FF7657"/>
+    <circle cx="98" cy="18" r="5" fill="#F1EFE4"/>
+  </g>
+  <text x="137" y="52" fill="#F1EFE4" font-family="Helvetica Neue, Arial, sans-serif" font-size="40" font-weight="800" letter-spacing="6">WILD ROUTE</text>
+  <text x="140" y="79" fill="#A9B5A3" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2.4">ADVENTURE ROUTE PLANNING</text>
+  <path d="M140 96H232" stroke="#D7FF3F" stroke-width="3" stroke-linecap="round"/>
+</svg>
