@@ -118,6 +118,7 @@ describe("trip planning API", () => {
       allowed: true
     });
     expect(payload.tripIntent.origin.code).toBe("SIN");
+    expect(payload.tripIntent.routeType).toBe("round_trip");
     expect(payload.routes).toHaveLength(4);
     expect(payload.routes[0]).toMatchObject({
       estimateStatus: "planning_estimate",
@@ -170,7 +171,7 @@ describe("trip planning API", () => {
     expect(fetched.id).toBe(created.generationId);
     expect(fetched.persistence.mode).toBe("memory");
     fetched.routes.forEach((route: { stops: unknown[] }) => {
-      expect(route.stops).toHaveLength(2);
+      expect(route.stops).toHaveLength(3);
     });
   });
 

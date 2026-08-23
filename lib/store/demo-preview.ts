@@ -22,6 +22,8 @@ export function createDemoShareSlug(intent: TripIntent, route: RouteOption) {
     version: 1,
     intent: {
       origin: intent.origin,
+      routeType:
+        intent.routeType ?? (route.stops.at(-1)?.kind === "return" ? "round_trip" : "one_way"),
       tripLengthDays: intent.tripLengthDays,
       maxStops: intent.maxStops,
       wishTags: intent.wishTags,

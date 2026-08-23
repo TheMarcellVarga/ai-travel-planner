@@ -62,6 +62,7 @@ export async function POST(request: Request, context: RouteContext) {
                   },
             tripLengthDays: 12,
             maxStops: Math.min(2, Math.max(0, demoRoute.stops.length - 2)),
+            routeType: demoRoute.stops.at(-1)?.kind === "return" ? "round_trip" : "one_way",
             wishTags: demoRoute.wishTags,
             budgetMode: "balanced",
             vibe: demoRoute.vibe,

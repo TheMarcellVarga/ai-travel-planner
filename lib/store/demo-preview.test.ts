@@ -34,6 +34,7 @@ describe("serverless-safe demo previews", () => {
     expect(Buffer.from(slug.replace(/^preview-/, ""), "base64url").toString("utf8"))
       .not.toContain(intent.prompt);
     expect(resolved?.route.promotedStopId).toBe(route.promotedStopId);
+    expect(resolved?.route.stops.at(-1)?.kind).toBe("return");
     expect(resolved?.publicRoute.route.bookingLinks).toBeUndefined();
   });
 

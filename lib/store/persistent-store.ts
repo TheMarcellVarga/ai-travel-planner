@@ -70,10 +70,17 @@ function isPersistentUser(userId: string | null | undefined) {
 }
 
 function mapGeneration(row: RouteGenerationRow): TripGeneration {
+  const storedRouteType = row.trip_intent.routeType;
+  const routeType =
+    storedRouteType ?? (row.routes[0]?.stops.at(-1)?.kind === "return" ? "round_trip" : "one_way");
+
   return {
     id: row.id,
     createdAt: row.created_at,
-    tripIntent: row.trip_intent,
+    tripIntent: {
+      ...row.trip_intent,
+      routeType
+    },
     routes: row.routes
   };
 }

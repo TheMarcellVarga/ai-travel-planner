@@ -27,6 +27,7 @@ import {
 const requestSchema = z.object({
   prompt: z.string().min(1),
   origin: z.string().optional(),
+  routeType: z.enum(["round_trip", "one_way"]).optional(),
   tripLengthDays: z.coerce.number().min(4).max(30).optional(),
   maxStops: z.coerce.number().min(0).max(2).optional(),
   departureDate: z.union([z.string().date(), z.string().datetime()]).nullable().optional(),
