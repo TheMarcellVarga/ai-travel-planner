@@ -120,8 +120,8 @@ export default function HomePage() {
             <p className="eyebrow">Wild Route route planner</p>
             <h1>Plan a route you can explain.</h1>
             <p className="atlas-hero__lede">
-              Prompt a one-way adventure, compare the tradeoffs, and hand the
-              final shape to booking providers.
+              Prompt a round-trip or one-way adventure, compare the tradeoffs,
+              and hand the final shape to booking providers.
             </p>
             <div className="atlas-hero__actions">
               <Link className="button button-island" href="/planner">
@@ -322,7 +322,7 @@ export default function HomePage() {
           <div className="final-route-cta__brief" aria-label="Starting route brief">
             <span>Singapore origin</span>
             <span>12 days</span>
-            <span>One-way study</span>
+            <span>Round-trip study</span>
           </div>
           <Link className="button button-island" href="/planner">
             <span>Plan from Singapore</span>

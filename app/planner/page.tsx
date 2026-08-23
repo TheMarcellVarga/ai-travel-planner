@@ -30,7 +30,7 @@ export default async function PlannerPage() {
   const candidateGeneration = await planTrip(
     interpretTripIntent({
       prompt:
-        "Find the best one-way adventure from Singapore for 12 days with max 1 stop, jungle energy, crypto-friendly towns, hiking, and one promoted stop on the free plan.",
+        "Find the best round-trip adventure from Singapore for 12 days with max 1 stop, jungle energy, crypto-friendly towns, hiking, and one promoted stop on the free plan.",
       origin: "Singapore",
       tripLengthDays: 12,
       maxStops: 1,

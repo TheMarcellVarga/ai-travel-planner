@@ -12,9 +12,9 @@ export async function AppFooter() {
         <div className="footer-departure__copy">
           <h2>Plan hard. Book elsewhere.</h2>
           <p>
-            Compose one-way journeys, compare the meaningful stops, save the
-            routes worth returning to, then continue with external providers
-            when the shape feels right.
+            Compose round-trip or one-way journeys, compare the meaningful
+            stops, save the routes worth returning to, then continue with
+            external providers when the shape feels right.
           </p>
         </div>
         <nav className="footer-departure__links" aria-label="Footer">

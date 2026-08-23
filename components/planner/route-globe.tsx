@@ -290,12 +290,13 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
         routeId: activeRoute.id,
         lat: stop.coordinates.lat,
         lng: stop.coordinates.lng,
-        altitude: stop.kind === "origin" ? 0.02 : 0.035,
-        color: stop.kind === "origin" ? GLOBE_SOFT : GLOBE_ACCENT,
-        radius: stop.kind === "origin" ? 0.22 : 0.18,
+        altitude: stop.kind === "origin" || stop.kind === "return" ? 0.02 : 0.035,
+        color: stop.kind === "origin" || stop.kind === "return" ? GLOBE_SOFT : GLOBE_ACCENT,
+        radius: stop.kind === "origin" || stop.kind === "return" ? 0.22 : 0.18,
         kind: "route-stop",
         title: `${stop.name} (${stop.code})`,
-        subtitle: stop.kind === "origin" ? "Origin" : stop.scene ?? stop.country
+        subtitle:
+          stop.kind === "origin" ? "Origin" : stop.kind === "return" ? "Return to origin" : stop.scene ?? stop.country
       }));
     },
     [activeRoute]

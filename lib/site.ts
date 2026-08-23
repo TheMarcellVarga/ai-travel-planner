@@ -1,7 +1,7 @@
 export const site = {
   name: "Wild Route",
   description:
-    "Prompt-first travel planning for adventure nomads, with cinematic route discovery and shareable one-way itineraries."
+    "Prompt-first travel planning for adventure nomads, with cinematic route discovery and shareable round-trip or one-way itineraries."
 };
 
 export const wishTags = [
@@ -11,4 +11,3 @@ export const wishTags = [
   "mtb",
   "surf"
 ] as const;
-

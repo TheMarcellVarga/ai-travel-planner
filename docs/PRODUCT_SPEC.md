@@ -11,7 +11,7 @@ Wild Route turns vague adventure travel ideas into ranked, shareable multi-stop 
 - Product category: AI-assisted route discovery and travel planning support.
 - Primary platform: responsive web.
 - Primary segment: adventure-oriented digital nomads and independent travelers.
-- Primary route style: one-way adventure routes, not package vacations.
+- Primary route style: round-trip adventure routes by default, with explicit one-way routes supported; never package vacations.
 - Default demo origin: Singapore.
 - Launch backend: Next.js App Router with Supabase Auth/Postgres/RLS, Stripe Billing, and Resend-compatible email.
 - Launch route engine: deterministic route generation with clear confidence/reasoning; live AI is optional later and not required for Phase 1.
@@ -48,7 +48,7 @@ Not the target user:
 1. User lands on the homepage and understands the product in the first viewport.
 2. User opens `/planner`.
 3. User starts from the Singapore demo route or enters prompt, origin, trip length, stop count, wish tags, and budget mode.
-4. App returns 3-5 ranked route options.
+4. App returns 3-5 ranked route options, returning to the origin by default unless one-way is selected.
 5. User inspects route cards and globe/map visualization.
 6. User sees estimated cost and confidence as planning estimates, not confirmed provider inventory.
 7. User signs in to save a route.
@@ -62,7 +62,7 @@ Use this exact demo flow until the product scope changes:
 1. Start on `/`.
 2. Explain: "Wild Route turns a rough adventure idea into a ranked, shareable route. It does not book travel directly."
 3. Click `Compose a route`.
-4. Use the default Singapore route or enter: `Find a 12 day one-way adventure from Singapore with jungle energy, hiking, crypto-friendly towns, and one meaningful stop.`
+4. Use the default Singapore route or enter: `Find a 12 day adventure from Singapore with jungle energy, hiking, crypto-friendly towns, and one meaningful stop.`
 5. Select `balanced` budget and `1 stop`.
 6. Show ranked route options, route reasoning, confidence, estimated cost, and promoted stop.
 7. Save one route after signing in or entering demo mode.
@@ -73,6 +73,7 @@ Use this exact demo flow until the product scope changes:
 ## Core Inputs
 - `prompt`: free-text travel idea.
 - `origin`: city or airport.
+- `routeType`: `round_trip` by default or explicit `one_way`.
 - `tripLengthDays`: total travel window.
 - `maxStops`: maximum intermediate destinations.
 - `wishTags`: `crypto-friendly`, `animal-friendly`, `hiking`, `mtb`, `surf`.

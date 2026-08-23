@@ -39,6 +39,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
   const [secondaryValues, setSecondaryValues] = useState({
     origin: initialGeneration.tripIntent.origin.label,
+    routeType: initialGeneration.tripIntent.routeType,
     tripLengthDays: initialGeneration.tripIntent.tripLengthDays,
     maxStops: initialGeneration.tripIntent.maxStops,
     departureDate: initialGeneration.tripIntent.departureDate ?? null,

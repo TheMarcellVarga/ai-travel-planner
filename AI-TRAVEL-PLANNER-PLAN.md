@@ -1,7 +1,7 @@
 # Wild Route MVP Plan
 
 ## Summary
-Build `Wild Route` as a responsive web product for adventure-oriented digital nomads: prompt-first trip planning, one-way route discovery, a cinematic globe/map view, saved/shareable itineraries, account creation, and external booking handoff. Keep the current jungle/00s-adventure visual direction, but replace the static prototype with a production-ready app architecture.
+Build `Wild Route` as a responsive web product for adventure-oriented digital nomads: prompt-first trip planning, round-trip-by-default route discovery with explicit one-way support, a cinematic globe/map view, saved/shareable itineraries, account creation, and external booking handoff. Keep the current jungle/00s-adventure visual direction, but replace the static prototype with a production-ready app architecture.
 
 The first launch should be a real product, not just a demo:
 - Web only, mobile-browser first-class, no native apps in v1.
@@ -34,7 +34,7 @@ The first launch should be a real product, not just a demo:
 ## Public Interfaces and Data Shapes
 ### Core API surface
 - `POST /api/trips/plan`
-  - Input: `{ prompt, origin, tripLengthDays, maxStops, wishTags[], budgetMode }`
+  - Input: `{ prompt, origin, routeType, tripLengthDays, maxStops, wishTags[], budgetMode }`
   - Output: `{ tripIntent, routes[], generationId }`
 - `GET /api/trips/:generationId`
   - Returns persisted route-generation result with scores, stops, and metadata.

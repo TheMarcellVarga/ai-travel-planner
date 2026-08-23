@@ -28,6 +28,7 @@ Request:
 type PlanTripRequest = {
   prompt: string;
   origin?: string;
+  routeType?: "round_trip" | "one_way";
   tripLengthDays?: number;
   maxStops?: number;
   wishTags?: string[];

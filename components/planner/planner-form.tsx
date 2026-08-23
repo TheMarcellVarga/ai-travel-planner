@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 
 import { wishTags } from "@/lib/site";
-import type { BudgetMode, TripIntent, WishTag } from "@/lib/types";
+import type { BudgetMode, RouteType, TripIntent, WishTag } from "@/lib/types";
 
 type PlannerFormValues = {
   prompt: string;
   origin: string;
+  routeType: RouteType;
   tripLengthDays: number;
   maxStops: number;
   departureDate: string | null;
@@ -26,6 +27,11 @@ const maxStopOptions = [
   { value: 2, label: "2 stops", hint: "2 hops" },
 ] as const;
 
+const routeTypeOptions = [
+  { value: "round_trip", label: "Round trip", hint: "return to origin" },
+  { value: "one_way", label: "One-way", hint: "finish elsewhere" }
+] as const satisfies ReadonlyArray<{ value: RouteType; label: string; hint: string }>;
+
 const budgetModeOptions = [
   { value: "value", label: "Value", hint: "lean spend" },
   { value: "balanced", label: "Balanced", hint: "mixed play" },
@@ -42,6 +48,7 @@ function formatWishLabel(tag: WishTag) {
 
 export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   const [origin, setOrigin] = useState(initialIntent.origin.label);
+  const [routeType, setRouteType] = useState<RouteType>(initialIntent.routeType);
   const [tripLengthDays, setTripLengthDays] = useState(initialIntent.tripLengthDays);
   const [maxStops, setMaxStops] = useState(initialIntent.maxStops);
   const [departureDate, setDepartureDate] = useState(initialIntent.departureDate ?? "");
@@ -50,6 +57,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
 
   useEffect(() => {
     setOrigin(initialIntent.origin.label);
+    setRouteType(initialIntent.routeType);
     setTripLengthDays(initialIntent.tripLengthDays);
     setMaxStops(initialIntent.maxStops);
     setDepartureDate(initialIntent.departureDate ?? "");
@@ -60,13 +68,14 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
   useEffect(() => {
     onChange({
       origin,
+      routeType,
       tripLengthDays,
       maxStops,
       departureDate: departureDate || null,
       wishTags: selectedTags,
       budgetMode
     });
-  }, [origin, tripLengthDays, maxStops, departureDate, selectedTags, budgetMode, onChange]);
+  }, [origin, routeType, tripLengthDays, maxStops, departureDate, selectedTags, budgetMode, onChange]);
 
   function toggleTag(tag: WishTag) {
     setSelectedTags((current) =>
@@ -120,6 +129,27 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
           />
           <small>Optional · live price lookup needs a date</small>
         </label>
+
+        <fieldset className="route-studio-form__field route-studio-form__fieldset">
+          <legend>Route shape</legend>
+          <div className="route-studio-form__segments route-studio-form__segments--stops">
+            {routeTypeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={
+                  routeType === option.value
+                    ? "route-studio-form__segment route-studio-form__segment--active"
+                    : "route-studio-form__segment"
+                }
+                onClick={() => setRouteType(option.value)}
+              >
+                <strong>{option.label}</strong>
+                <small>{option.hint}</small>
+              </button>
+            ))}
+          </div>
+        </fieldset>
 
         <fieldset className="route-studio-form__field route-studio-form__fieldset">
           <legend>Max stops</legend>

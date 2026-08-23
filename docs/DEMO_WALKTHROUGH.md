@@ -23,7 +23,7 @@ CTA.
 
 Open `/planner`, expand **Route controls**, and use:
 
-> Find a 12 day one-way adventure from Singapore with jungle energy, hiking,
+> Find a 12 day adventure from Singapore with jungle energy, hiking,
 > crypto-friendly towns, and one meaningful stop.
 
 Keep **balanced** budget and **1 stop**, then select **Compose new routes**.

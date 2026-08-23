@@ -13,7 +13,7 @@ coordinates, prices, availability, licenses, or safety claims.
 4. Collect explicit and inferred wish tags.
 5. Resolve a normalized route-data provider snapshot.
 6. Select and score destination candidates.
-7. Compose direct, one-stop, and two-stop destination sequences.
+7. Compose direct, one-stop, and two-stop destination sequences, returning to the origin by default unless the normalized intent is one-way.
 8. Read a fixture or server-only live price provider snapshot.
 9. Calculate exact cost breakdowns deterministically.
 10. Enrich destination stops with allowlisted openly licensed media.
@@ -35,6 +35,10 @@ coordinates, prices, availability, licenses, or safety claims.
 - `AgentRunMetadata`
 - `TripGeneration`
 - `Entitlement`
+
+`TripIntent.routeType` is `round_trip` by default and may be explicitly set to
+`one_way`. Round-trip routes include a distinct return leg to the origin in the
+route stops, pricing estimate, map path, and external handoff links.
 
 The canonical definitions currently live in `lib/types.ts`.
 
@@ -137,6 +141,7 @@ Phase 6 guarded composition slice:
 - prompt interpretation is deterministic
 - route scoring is deterministic
 - direct, one-stop, and two-stop route sequences are generated and bounded
+- round-trip routes return to the origin by default; explicit one-way requests remain one-way
 - fixture costs expose exact transport/stay totals and assumptions
 - optional server-only price and media provider seams exist
 - selected stops carry media attribution or local artwork fallback
