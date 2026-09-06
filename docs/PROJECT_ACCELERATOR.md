@@ -51,7 +51,17 @@ Build routes currently include:
 
 ## What Is Still Fallback-Backed Or Thin
 - Route generation uses local destination data and app-side scoring, not live flights/stays/weather/provider availability.
-- Route generation now reads through a normalized provider boundary; the active provider remains the local deterministic fixture.
+- Route generation reads through a normalized provider boundary; runtime prefers
+  the configured Supabase catalog while tests and disclosed failures use the
+  local deterministic fixture.
+- Runtime route generation prefers the configured Supabase destination catalog
+  and discloses fallback when the catalog cannot be reached or has no rows.
+- The homepage uses the same route-generation pipeline as the planner rather
+  than a separately hardcoded route/price preview. Homepage and planner show
+  source-attributed Open-Meteo current conditions; these do not influence safety
+  or feasibility scoring.
+- Planner first load no longer manufactures a default route, and unobserved
+  fixture cost arithmetic is not presented as a dollar price in the UI.
 - The guarded `RouteCompositionAgent` composes direct, one-stop, and two-stop
   routes, calculates exact cost breakdowns, attaches openly licensed media
   metadata, validates snapshots, and records normalized agent-run status.

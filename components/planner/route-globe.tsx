@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { GlobeMethods, GlobeProps } from "react-globe.gl";
 
 import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
+import { hasProviderObservedPrice } from "@/lib/planner/display";
 import type { RouteOption } from "@/lib/types";
 
 type RouteGlobeProps = {
@@ -272,7 +273,7 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
           kind: "route-marker",
           title: stop.name,
           subtitle: isIdle ? `Recommendation: ${route.title}` : route.title,
-          price: route.estimatedCostUsd
+          price: hasProviderObservedPrice(route) ? route.estimatedCostUsd : undefined
         };
       });
     },

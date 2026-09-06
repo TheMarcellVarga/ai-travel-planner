@@ -64,6 +64,9 @@ The canonical definitions currently live in `lib/types.ts`.
 - Keep provider-specific payloads out of UI and analytics unless explicitly reviewed.
 - Current MVP route output uses `planning_estimate` and `external_search_required` metadata because no live provider inventory is queried.
 - The default `wild-route-destination-fixtures` adapter is deterministic and requires no API key.
+- Runtime route generation now prefers the configured Supabase destination catalog through
+  `wild-route-supabase-destinations`; an empty, unreachable, or invalid catalog degrades to the
+  disclosed local fixture adapter.
 - Failed adapters degrade to that fixture through `resolveRouteProvider`; raw provider errors are not exposed in route output.
 - Current booking links use `external_search` status and disclaimers to keep the provider-confirmation boundary explicit.
 
@@ -83,10 +86,15 @@ The canonical definitions currently live in `lib/types.ts`.
 - MapLibre is an optional renderer selected by a public style URL. The SVG
   route map remains the accessible and no-WebGL fallback; map tile usage and
   attribution remain the responsibility of the configured tile provider.
+- Homepage and planner destination views request normalized current conditions
+  from Open-Meteo. The UI shows observation time and source and explicitly keeps
+  weather outside route safety and feasibility scoring.
 
 ## Feature Flags
 - `ROUTE_AGENT_MODE=deterministic|model` (model currently records a guarded
   deterministic fallback until a reviewed model adapter is configured).
+- `ROUTE_DESTINATION_MODE=supabase|fixture` (Supabase is the runtime default;
+  tests use deterministic fixtures, and provider failure is disclosed).
 - `ROUTE_PRICE_MODE=fixture|live` (live currently returns a disclosed partial
   result until a commercial provider is approved and configured).
 - `ROUTE_MEDIA_MODE=fixture|commons|openverse|hybrid` (hybrid is the default

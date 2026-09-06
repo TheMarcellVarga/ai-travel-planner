@@ -3,22 +3,19 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, PlaneTakeoff } from "lucide-react";
 
 import { HomeGsapEffects } from "@/components/home-gsap-effects";
+import { CurrentConditions } from "@/components/current-conditions";
 import { MediaCredit } from "@/components/media-credit";
 import { ResilientImage } from "@/components/resilient-image";
 import { RouteScrollStory } from "@/components/route-scroll-story";
-import { destinations } from "@/lib/data/destinations";
+import { getRouteStopMedia, kineticMedia } from "@/lib/media";
+import { routePriceLabel } from "@/lib/planner/display";
+import { interpretTripIntent } from "@/lib/planner/intent";
+import { planTrip } from "@/lib/planner/plan-trip";
 import {
-  destinationMedia,
-  expeditionIndex,
-  kineticMedia
-} from "@/lib/media";
-import { wishTags } from "@/lib/site";
-
-const productSignals = [
-  { label: "Route studies", value: "4", detail: "Ranked against one brief, so the trade-offs stay comparable." },
-  { label: "Promoted stop", value: "1", detail: "Free routes keep one recommendation in focus." },
-  { label: "Planning window", value: "12d", detail: "The Singapore demo is shaped around a 12-day trip." }
-];
+  getDestinationMediaFromDatabase,
+  saveDestinationMediaToDatabase
+} from "@/lib/store/persistent-store";
+import { getCurrentConditions } from "@/lib/travel-data/weather";
 
 const planningStack = [
   {
@@ -39,66 +36,84 @@ const planningStack = [
   }
 ];
 
-const plannerPreviewRoutes = [
-  {
-    code: "SIN",
-    title: "Singapore to Bali",
-    meta: "surf, jungle, scooter radius",
-    price: "$380 est."
-  },
-  {
-    code: "CNX",
-    title: "Chiang Mai climb loop",
-    meta: "mtb, cafes, mountain air",
-    price: "$340 est."
-  },
-  {
-    code: "FNC",
-    title: "Madeira cliff run",
-    meta: "levadas, Atlantic light",
-    price: "$610 est."
-  }
-];
-
-const featuredDestinations = expeditionIndex
-  .slice(0, 7)
-  .map((destinationId) => {
-    const destination = destinations.find((item) => item.id === destinationId);
-    return destination ? { destination, media: destinationMedia[destinationId] } : null;
-  })
-  .filter((item): item is NonNullable<typeof item> => Boolean(item));
-
-const leadDestination = featuredDestinations[0];
-const atlasDestinations = featuredDestinations.slice(1);
-
-const routeStoryCards = [
-  {
-    title: "Intent becomes a route brief.",
-    text: "Wild Route reads the origin, trip length, stop limit, budget posture, and travel wishes before it scores anything.",
-    image: {
-      src: destinationMedia.bali.src,
-      alt: destinationMedia.bali.alt
+export default async function HomePage() {
+  const generation = await planTrip(
+    interpretTripIntent({
+      prompt: "A 12-day round trip from Singapore with hiking, surf, and one meaningful stop.",
+      origin: "Singapore",
+      tripLengthDays: 12,
+      maxStops: 1,
+      wishTags: ["hiking", "surf"],
+      budgetMode: "balanced"
+    }),
+    undefined,
+    {
+      mediaCache: {
+        get: getDestinationMediaFromDatabase,
+        set: saveDestinationMediaToDatabase
+      }
     }
-  },
-  {
-    title: "Every stop has to earn the detour.",
-    text: "The app ranks candidate cities by fit and logistics, then keeps the free-plan recommendation intentionally narrow.",
-    image: {
-      src: destinationMedia["chiang-mai"].src,
-      alt: destinationMedia["chiang-mai"].alt
+  );
+  const featuredRoutes = generation.routes.slice(0, 4);
+  const previewStops = featuredRoutes.slice(0, 3).map((route) =>
+    route.stops.find((candidate) => candidate.kind === "destination")
+  );
+  const previewConditions = await Promise.all(
+    previewStops.map((stop) =>
+      stop
+        ? getCurrentConditions(stop.coordinates.lat, stop.coordinates.lng)
+        : Promise.resolve(null)
+    )
+  );
+  const leadRoute = featuredRoutes[0];
+  const featuredDestinations = Array.from(
+    new Map(
+      featuredRoutes
+        .flatMap((route) => route.stops)
+        .filter((stop) => stop.kind === "destination")
+        .map((stop) => [stop.id, stop] as const)
+    ).values()
+  );
+  const leadDestination = featuredDestinations[0];
+  const atlasDestinations = featuredDestinations.slice(1, 7);
+  const hasLiveDestinationCatalog =
+    leadRoute?.dataSource.mode === "live" && leadRoute.dataSource.status === "available";
+  const productSignals = [
+    {
+      label: "Routes generated",
+      value: String(featuredRoutes.length),
+      detail: "Composed at request time from the same provider pipeline as the planner."
+    },
+    {
+      label: "Destination source",
+      value: hasLiveDestinationCatalog ? "LIVE" : "LOCAL",
+      detail: leadRoute?.dataFreshness ?? "No destination source returned."
+    },
+    {
+      label: "Planning window",
+      value: `${generation.tripIntent.tripLengthDays}d`,
+      detail: `Current example brief from ${generation.tripIntent.origin.label}.`
     }
-  },
-  {
-    title: "The handoff stays honest.",
-    text: "Booking links leave Wild Route for external providers. Prices and availability stay provider-confirmed, not promised here.",
-    image: {
-      src: destinationMedia.madeira.src,
-      alt: destinationMedia.madeira.alt
+  ];
+  const storyMedia = featuredDestinations.slice(0, 3).map(getRouteStopMedia);
+  const routeStoryCards = [
+    {
+      title: "Intent becomes a route brief.",
+      text: "Wild Route reads the origin, trip length, stop limit, budget posture, and travel wishes before it scores anything.",
+      image: { src: storyMedia[0]?.src ?? kineticMedia.poster ?? kineticMedia.src, alt: storyMedia[0]?.alt ?? "Wild Route journey artwork." }
+    },
+    {
+      title: "Every stop has to earn the detour.",
+      text: "The app ranks candidate cities by fit and logistics, then keeps the free-plan recommendation intentionally narrow.",
+      image: { src: storyMedia[1]?.src ?? kineticMedia.poster ?? kineticMedia.src, alt: storyMedia[1]?.alt ?? "Wild Route journey artwork." }
+    },
+    {
+      title: "The handoff stays honest.",
+      text: "Booking links leave Wild Route for external providers. Prices and availability stay provider-confirmed, not promised here.",
+      image: { src: storyMedia[2]?.src ?? kineticMedia.poster ?? kineticMedia.src, alt: storyMedia[2]?.alt ?? "Wild Route journey artwork." }
     }
-  }
-];
+  ];
 
-export default function HomePage() {
   return (
     <main className="journey-index">
       <HomeGsapEffects />
@@ -145,28 +160,41 @@ export default function HomePage() {
           <aside className="route-console" aria-label="Route planning preview">
             <div className="route-console__header">
               <span>Planning estimate</span>
-              <small>Singapore / 12 days</small>
+              <small>{generation.tripIntent.origin.label} / {generation.tripIntent.tripLengthDays} days</small>
             </div>
             <p className="route-console__prompt">
-              A warm-weather departure with room to work, a little surf, and
-              one stop that changes the rhythm of the trip.
+              {generation.tripIntent.prompt}
             </p>
             <div className="route-console__tags" aria-label="Trip wishes">
-              {wishTags.map((tag) => (
+              {generation.tripIntent.wishTags.map((tag) => (
                 <span key={tag}>{tag.replaceAll("-", " ")}</span>
               ))}
             </div>
             <div className="route-console__routes">
-              {plannerPreviewRoutes.map((route) => (
-                <article key={route.title} className="route-console__route">
-                  <span>{route.code}</span>
+              {featuredRoutes.slice(0, 3).map((route, routeIndex) => {
+                const stop = route.stops.find((candidate) => candidate.kind === "destination");
+                return (
+                <article key={route.id} className="route-console__route">
+                  <span>{stop?.code ?? "—"}</span>
                   <div>
                     <strong>{route.title}</strong>
-                    <small>{route.meta}</small>
+                    <small>{route.tagline}</small>
                   </div>
-                  <b>{route.price}</b>
+                  <b>
+                    {stop ? (
+                      <CurrentConditions
+                        compact
+                        initialConditions={previewConditions[routeIndex]}
+                        latitude={stop.coordinates.lat}
+                        longitude={stop.coordinates.lng}
+                      />
+                    ) : (
+                      routePriceLabel(route)
+                    )}
+                  </b>
                 </article>
-              ))}
+                );
+              })}
             </div>
           </aside>
         </div>
@@ -223,39 +251,39 @@ export default function HomePage() {
           {leadDestination ? (
             <article className="atlas-feature">
               <ResilientImage
-                alt={leadDestination.media.alt}
+                alt={getRouteStopMedia(leadDestination).alt}
                 className="atlas-feature__image"
-                src={leadDestination.media.src}
+                src={getRouteStopMedia(leadDestination).src}
                 fill
                 sizes="(max-width: 900px) 100vw, 52vw"
               />
               <div className="atlas-feature__shade" />
               <div className="atlas-feature__copy">
-                <span>{leadDestination.destination.code}</span>
-                <h3>{leadDestination.destination.name}</h3>
-                <p>{leadDestination.media.punchline}</p>
+                <span>{leadDestination.code}</span>
+                <h3>{leadDestination.name}</h3>
+                <p>{getRouteStopMedia(leadDestination).punchline}</p>
               </div>
             </article>
           ) : null}
 
           <div className="atlas-list">
-            {atlasDestinations.map(({ destination, media }) => (
+            {atlasDestinations.map((destination) => (
               <article className="atlas-row" key={destination.id}>
                 <div className="atlas-row__image-wrap">
                   <ResilientImage
-                    alt={media.alt}
+                    alt={getRouteStopMedia(destination).alt}
                     className="atlas-row__image"
-                    src={media.src}
+                    src={getRouteStopMedia(destination).src}
                     fill
                     sizes="160px"
                   />
                 </div>
                 <div>
-                  <span>{destination.region}</span>
+                  <span>{destination.country}</span>
                   <strong>{destination.name}</strong>
                   <p>{destination.scene}</p>
                 </div>
-                <b>${destination.baseCostUsd} est.</b>
+                <b>{hasLiveDestinationCatalog ? "Live catalog" : "Local fallback"}</b>
               </article>
             ))}
           </div>
@@ -295,13 +323,13 @@ export default function HomePage() {
           <div className="share-artifact">
             <div className="share-artifact__top">
               <span>Published route</span>
-              <b>App score 82%</b>
+              <b>App score {leadRoute ? Math.round(leadRoute.confidence * 100) : 0}%</b>
             </div>
-            <h3>A warm base, a surf exit, one meaningful detour.</h3>
+            <h3>{leadRoute?.title ?? "Compose a route to compare real results."}</h3>
             <ol>
-              <li>Depart Singapore</li>
-              <li>Pause in Bali</li>
-              <li>Continue when ready</li>
+              {(leadRoute?.stops ?? []).map((stop) => (
+                <li key={`${stop.kind}-${stop.id}`}>{stop.name} · {stop.code}</li>
+              ))}
             </ol>
           </div>
         </div>
@@ -313,12 +341,12 @@ export default function HomePage() {
         </div>
         <div className="final-route-cta__actions">
           <div className="final-route-cta__brief" aria-label="Starting route brief">
-            <span>Singapore origin</span>
-            <span>12 days</span>
-            <span>Round-trip study</span>
+            <span>{generation.tripIntent.origin.label} origin</span>
+            <span>{generation.tripIntent.tripLengthDays} days</span>
+            <span>{generation.tripIntent.routeType === "round_trip" ? "Round-trip study" : "One-way study"}</span>
           </div>
           <Link className="button button-island" href="/planner">
-            <span>Plan from Singapore</span>
+            <span>Plan from {generation.tripIntent.origin.label}</span>
             <span className="button-island__icon" aria-hidden="true">
               <PlaneTakeoff size={17} />
             </span>

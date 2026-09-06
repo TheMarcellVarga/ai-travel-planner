@@ -4,17 +4,20 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
+import { CurrentConditions } from "@/components/current-conditions";
 import { MediaCredit } from "@/components/media-credit";
 import { ResilientImage } from "@/components/resilient-image";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
+import { defaultOrigin } from "@/lib/data/destinations";
 import { getRouteStopMedia } from "@/lib/media";
+import { hasProviderObservedPrice, routePriceLabel } from "@/lib/planner/display";
 import type { PersistenceStatus } from "@/lib/store/persistence";
 import type { RouteOption, TripGeneration } from "@/lib/types";
 
 type PlannerWorkspaceProps = {
-  initialGeneration: TripGeneration;
+  initialGeneration: TripGeneration | null;
 };
 
 type PlannerApiResponse = {
@@ -25,30 +28,44 @@ type PlannerApiResponse = {
   persistence?: PersistenceStatus;
 };
 
+const EMPTY_PLANNER_INTENT: TripGeneration["tripIntent"] = {
+  prompt: "",
+  origin: defaultOrigin,
+  routeType: "round_trip",
+  tripLengthDays: 12,
+  maxStops: 1,
+  departureDate: null,
+  wishTags: [],
+  budgetMode: "balanced",
+  vibe: "adventure",
+  exclusions: []
+};
+
 export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [isPending, startTransition] = useTransition();
-  const [generation, setGeneration] = useState(initialGeneration);
+  const [generation, setGeneration] = useState<TripGeneration | null>(initialGeneration);
   const [activeRouteId, setActiveRouteId] = useState<string | null>(
-    initialGeneration.routes[0]?.id ?? null,
+    initialGeneration?.routes[0]?.id ?? null,
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
   const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
 
-  const [prompt, setPrompt] = useState(initialGeneration.tripIntent.prompt);
+  const [prompt, setPrompt] = useState(initialGeneration?.tripIntent.prompt ?? "");
+  const initialIntent = initialGeneration?.tripIntent ?? EMPTY_PLANNER_INTENT;
   const [secondaryValues, setSecondaryValues] = useState({
-    origin: initialGeneration.tripIntent.origin.label,
-    routeType: initialGeneration.tripIntent.routeType,
-    tripLengthDays: initialGeneration.tripIntent.tripLengthDays,
-    maxStops: initialGeneration.tripIntent.maxStops,
-    departureDate: initialGeneration.tripIntent.departureDate ?? null,
-    wishTags: initialGeneration.tripIntent.wishTags,
-    budgetMode: initialGeneration.tripIntent.budgetMode,
+    origin: initialIntent.origin.label,
+    routeType: initialIntent.routeType,
+    tripLengthDays: initialIntent.tripLengthDays,
+    maxStops: initialIntent.maxStops,
+    departureDate: initialIntent.departureDate ?? null,
+    wishTags: initialIntent.wishTags,
+    budgetMode: initialIntent.budgetMode,
   });
 
   const activeRoute =
-    generation.routes.find((route) => route.id === activeRouteId) ?? null;
+    generation?.routes.find((route) => route.id === activeRouteId) ?? null;
   const promotedStop = activeRoute?.stops.find(
     (stop) => stop.id === activeRoute.promotedStopId,
   );
@@ -64,9 +81,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     (activeRoute?.wishTags.length ?? 0) - inspectorWishTags.length,
   );
   const recommendationCountLabel =
-    generation.routes.length === 1
+    generation?.routes.length === 1
       ? "1 route ready"
-      : `${generation.routes.length} routes ready`;
+      : generation?.routes.length
+        ? `${generation.routes.length} routes ready`
+        : "No routes yet";
 
   useEffect(() => {
     // On a narrow screen the route result is the primary task. Keep the
@@ -145,14 +164,14 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 : recommendationCountLabel}
             </span>
             <strong>
-              {activeRoute ? `$${activeRoute.estimatedCostUsd} est.` : "ready"}
+              {activeRoute ? routePriceLabel(activeRoute) : "ready"}
             </strong>
           </div>
         </header>
 
         <div className="route-studio__globe">
           <RouteGlobe
-            routes={generation.routes}
+            routes={generation?.routes ?? []}
             activeRouteId={activeRouteId}
             isComposing={isPending}
             onSelectRoute={(routeId) => {
@@ -163,7 +182,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
         </div>
 
         <section className="route-studio__dock" aria-label="Ranked route options">
-          {generation.routes.map((route, index) => (
+          {(generation?.routes ?? []).map((route, index) => (
             <button
               key={route.id}
               type="button"
@@ -181,7 +200,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <span className="route-studio__route-index">0{index + 1}</span>
               <strong>{route.title}</strong>
               <small>
-                ${route.estimatedCostUsd} est. / {Math.round(route.confidence * 100)}% app fit
+                {routePriceLabel(route)} / {Math.round(route.confidence * 100)}% app fit
               </small>
             </button>
           ))}
@@ -249,7 +268,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   </div>
 
                   <PlannerForm
-                    initialIntent={generation.tripIntent}
+                    initialIntent={generation?.tripIntent ?? EMPTY_PLANNER_INTENT}
                     onChange={setSecondaryValues}
                   />
                 </>
@@ -293,6 +312,16 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   ) : null}
                 </div>
               </section>
+
+              {promotedStop ? (
+                <section className="route-studio__inspector-section">
+                  <p className="route-studio__kicker">Current conditions</p>
+                  <CurrentConditions
+                    latitude={promotedStop.coordinates.lat}
+                    longitude={promotedStop.coordinates.lng}
+                  />
+                </section>
+              ) : null}
 
               <details className="route-studio__inspector-details">
                 <summary>
@@ -339,28 +368,36 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <section className="route-studio__inspector-section route-studio__cost-breakdown">
                 <div className="route-studio__cost-header">
                   <p className="route-studio__kicker">Route cost</p>
-                  <strong>${activeRoute.costBreakdown.total} est.</strong>
+                  <strong>{routePriceLabel(activeRoute)}</strong>
                 </div>
                 <p className="route-studio__cost-status">
-                  Planning estimate · provider confirmation required
+                  {hasProviderObservedPrice(activeRoute)
+                    ? "Provider-observed snapshot · confirm current availability"
+                    : "No live fare or stay inventory was queried"}
                 </p>
                 <details className="route-studio__cost-details">
-                  <summary>View cost breakdown</summary>
+                  <summary>
+                    {hasProviderObservedPrice(activeRoute)
+                      ? "View observed cost breakdown"
+                      : "View data status"}
+                  </summary>
                   <div className="route-studio__cost-details-body">
-                    <div className="route-studio__cost-rows">
-                      {activeRoute.costBreakdown.transport.map((leg) => (
-                        <div key={`${leg.fromCode}-${leg.toCode}`}>
-                          <span>{leg.fromCode} → {leg.toCode}</span>
-                          <strong>${leg.amount}</strong>
-                        </div>
-                      ))}
-                      {activeRoute.costBreakdown.stays.map((stay) => (
-                        <div key={stay.stopId}>
-                          <span>{stay.nights} nights · {stay.stopId}</span>
-                          <strong>${stay.amount}</strong>
-                        </div>
-                      ))}
-                    </div>
+                    {hasProviderObservedPrice(activeRoute) ? (
+                      <div className="route-studio__cost-rows">
+                        {activeRoute.costBreakdown.transport.map((leg) => (
+                          <div key={`${leg.fromCode}-${leg.toCode}`}>
+                            <span>{leg.fromCode} → {leg.toCode}</span>
+                            <strong>${leg.amount}</strong>
+                          </div>
+                        ))}
+                        {activeRoute.costBreakdown.stays.map((stay) => (
+                          <div key={stay.stopId}>
+                            <span>{stay.nights} nights · {stay.stopId}</span>
+                            <strong>${stay.amount}</strong>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                     <p className="route-studio__cost-note">
                       Price status · {Array.from(new Set(activeRoute.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
                       {activeRoute.costBreakdown.transport.some((leg) => leg.observedAt)
@@ -377,7 +414,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                         Wild Route shows planning estimates and app-side route confidence. External
                         providers own final price and availability.
                       </p>
-                      {generation.agentRun?.status === "fallback" ? (
+                      {generation?.agentRun?.status === "fallback" ? (
                         <p role="status">
                           {generation.agentRun.mode === "model"
                             ? "Model composition was unavailable, so Wild Route used its deterministic route planner."
@@ -392,7 +429,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <RouteActions
                 routeId={activeRoute.id}
                 route={activeRoute}
-                tripIntent={generation.tripIntent}
+                tripIntent={generation?.tripIntent}
               />
             </>
           ) : (

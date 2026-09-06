@@ -6,12 +6,10 @@ import { getCurrentUser } from "@/lib/auth";
 import { createTripGeneration } from "@/lib/planner/generate-routes";
 import { interpretTripIntent } from "@/lib/planner/intent";
 import {
-  getLatestGenerationForUser,
-  saveGeneration
+  getLatestGenerationForUser
 } from "@/lib/store/demo-store";
 import {
-  getLatestGenerationForUserFromDatabase,
-  saveGenerationToDatabase
+  getLatestGenerationForUserFromDatabase
 } from "@/lib/store/persistent-store";
 
 vi.mock("@/lib/auth", () => ({
@@ -25,8 +23,7 @@ vi.mock("@/lib/store/demo-store", async () => {
 
   return {
     ...actual,
-    getLatestGenerationForUser: vi.fn(),
-    saveGeneration: vi.fn((generation) => generation)
+    getLatestGenerationForUser: vi.fn()
   };
 });
 
@@ -37,8 +34,7 @@ vi.mock("@/lib/store/persistent-store", async () => {
 
   return {
     ...actual,
-    getLatestGenerationForUserFromDatabase: vi.fn(),
-    saveGenerationToDatabase: vi.fn()
+    getLatestGenerationForUserFromDatabase: vi.fn()
   };
 });
 
@@ -61,7 +57,6 @@ describe("planner page", () => {
     vi.mocked(getCurrentUser).mockResolvedValue(demoUser);
     vi.mocked(getLatestGenerationForUser).mockReturnValue(null);
     vi.mocked(getLatestGenerationForUserFromDatabase).mockResolvedValue(null);
-    vi.mocked(saveGenerationToDatabase).mockResolvedValue(null);
   });
 
   it("reuses the latest demo generation", async () => {
@@ -75,18 +70,14 @@ describe("planner page", () => {
 
     expect(page.props.initialGeneration).toBe(existingGeneration);
     expect(getLatestGenerationForUser).toHaveBeenCalledWith(demoUser.id);
-    expect(saveGeneration).not.toHaveBeenCalled();
   });
 
-  it("persists the default generation for demo route actions", async () => {
+  it("starts without manufacturing a demo generation", async () => {
     const { default: PlannerPage } = await import("@/app/planner/page");
     const page = await PlannerPage();
 
-    expect(saveGeneration).toHaveBeenCalledWith(
-      page.props.initialGeneration,
-      demoUser.id
-    );
-    expect(saveGenerationToDatabase).not.toHaveBeenCalled();
+    expect(page.props.initialGeneration).toBeNull();
+    expect(getLatestGenerationForUser).toHaveBeenCalledWith(demoUser.id);
   });
 
   it("prefers the latest database generation for Supabase users", async () => {
@@ -107,6 +98,5 @@ describe("planner page", () => {
 
     expect(page.props.initialGeneration).toBe(persistedGeneration);
     expect(getLatestGenerationForUser).not.toHaveBeenCalled();
-    expect(saveGenerationToDatabase).not.toHaveBeenCalled();
   });
 });

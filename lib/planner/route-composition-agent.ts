@@ -11,7 +11,7 @@ import {
   type RoutePriceResult,
   type RoutePriceProvider
 } from "@/lib/planner/providers/price-provider";
-import { fixtureRouteDataProvider } from "@/lib/planner/providers/fixture-provider";
+import { getRouteDataProvider } from "@/lib/planner/providers/supabase-provider";
 import { resolveRouteProvider } from "@/lib/planner/providers/resolve-provider";
 import type { RouteDataProvider } from "@/lib/planner/providers/types";
 import type { RouteMediaProvider } from "@/lib/planner/providers/media-provider";
@@ -37,7 +37,7 @@ export class RouteCompositionAgent {
     options: RouteCompositionAgentOptions = {}
   ): Promise<TripGeneration> {
     const startedAt = Date.now();
-    const destinationProvider = options.destinationProvider ?? fixtureRouteDataProvider;
+    const destinationProvider = options.destinationProvider ?? getRouteDataProvider();
     const priceProvider = options.priceProvider ?? getRoutePriceProvider();
     const mediaProvider = options.mediaProvider ?? getRouteMediaProvider();
     const requestedMode = requestedAgentMode();
