@@ -15,27 +15,27 @@ import {
 import { wishTags } from "@/lib/site";
 
 const productSignals = [
-  { label: "Ranked route studies", value: "4", detail: "Compared by pace, budget posture, and stop quality." },
+  { label: "Route studies", value: "4", detail: "Ranked against one brief, so the trade-offs stay comparable." },
   { label: "Promoted stop", value: "1", detail: "Free routes keep one recommendation in focus." },
-  { label: "Planning window", value: "12d", detail: "Built for open-jaw travel, not packaged tours." }
+  { label: "Planning window", value: "12d", detail: "The Singapore demo is shaped around a 12-day trip." }
 ];
 
 const planningStack = [
   {
-    title: "Begin with the feeling.",
-    text: "Describe the pace, climate, and detours you have in mind. The planner turns that into a useful brief."
+    title: "Set the brief.",
+    text: "Add your origin, available days, stop limit, budget, and the kind of trip you want."
   },
   {
-    title: "Compare the shape.",
-    text: "Routes are weighed by distance, logistics, price, and whether each stop earns its place."
+    title: "Compare complete routes.",
+    text: "Review distance, logistics, estimated cost, and the reason each stop made the cut."
   },
   {
-    title: "Keep the right one.",
-    text: "Save a route privately, or publish a clean link when it is ready to leave your notes."
+    title: "Save the best fit.",
+    text: "Keep a route private while you refine it, or publish a clean link when it is ready to share."
   },
   {
-    title: "Book with context.",
-    text: "Wild Route hands the itinerary to flight and stay providers once the decisions are made."
+    title: "Continue with providers.",
+    text: "Take the finished itinerary to flight and stay providers for confirmed prices and availability."
   }
 ];
 
@@ -130,9 +130,14 @@ export default function HomePage() {
                   <ArrowRight size={17} />
                 </span>
               </Link>
-              <Link className="text-link" href="/saved">
-                Saved routes
-                <ArrowUpRight size={16} />
+              <Link
+                className="button button-island button-island--secondary"
+                href="/saved"
+              >
+                <span>Saved routes</span>
+                <span className="button-island__icon" aria-hidden="true">
+                  <ArrowUpRight size={17} />
+                </span>
               </Link>
             </div>
           </div>
@@ -169,52 +174,40 @@ export default function HomePage() {
 
       <section className="shell route-proof">
         <div className="route-proof__intro">
-          <h2>A route is more than a city list.</h2>
+          <h2>Compare routes, not lists.</h2>
           <p>
-            Wild Route gives each journey a point of view: a pace, a price
-            posture, a reason for every stop, and a shareable form when the
-            pieces feel settled.
+            See the pace, estimated cost, and reason for each stop before you
+            choose what to save.
           </p>
         </div>
-        <div className="route-proof__metrics">
+        <ol className="route-proof__metrics" aria-label="Route comparison facts">
           {productSignals.map((item) => (
-            <article key={item.label}>
+            <li key={item.label}>
               <strong>{item.value}</strong>
-              <span>{item.label}</span>
-              <p>{item.detail}</p>
-            </article>
+              <div>
+                <span>{item.label}</span>
+                <p>{item.detail}</p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       <section className="shell planning-stack">
         <div className="planning-stack__heading">
-          <h2>Make fewer choices, with better reasons.</h2>
+          <h2>From a rough idea to a route.</h2>
         </div>
-        <div
-          className="planning-bento"
-          aria-label="Product workflow"
-          role="region"
-        >
-          <article className="planning-bento__cell planning-bento__cell--wide">
-            <h3>{planningStack[0].title}</h3>
-            <p>{planningStack[0].text}</p>
-            <div className="prompt-strip">
-              <span>origin: SIN</span>
-              <span>days: 12</span>
-              <span>max stops: 1</span>
-              <span>budget: balanced</span>
-            </div>
-          </article>
-
-          {planningStack.slice(1).map((item, index) => (
-            <article className="planning-bento__cell" key={item.title}>
-              <span className="planning-bento__index">{index + 2}</span>
+        <ol className="planning-sequence" aria-label="Product workflow">
+          {planningStack.map((item, index) => (
+            <li key={item.title}>
+              <span className="planning-sequence__index" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
-            </article>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       <section className="shell atlas-section">

@@ -9660,3 +9660,287 @@ body:has(.route-studio) {
     grid-template-columns: 1fr;
   }
 }
+
+/* Homepage readability: preserve the dark route-console world while giving the
+   primary statement and both route actions enough breathing room. */
+.atlas-hero__copy h1 {
+  max-width: 13.5ch;
+  font-size: clamp(3.75rem, 5.8vw, 6.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+.atlas-hero__actions {
+  gap: 0.8rem;
+}
+
+.atlas-hero__actions .button-island {
+  min-height: 3.35rem;
+}
+
+.button-island--secondary {
+  min-width: 12rem;
+  border: 1px solid rgba(245, 243, 234, 0.48);
+  background: var(--accent);
+  color: #10140c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 14px 32px rgba(1, 4, 2, 0.24);
+}
+
+.button-island--secondary:hover {
+  border-color: rgba(245, 243, 234, 0.74);
+  background: #e2ff76;
+  color: #10140c;
+}
+
+.button-island--secondary .button-island__icon {
+  background: rgba(245, 243, 234, 0.12);
+}
+
+.site-command__nav-item {
+  color: rgba(245, 243, 234, 0.92);
+}
+
+.site-command__nav-item strong {
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .atlas-hero__copy h1 {
+    font-size: clamp(2.65rem, 11.2vw, 3.5rem);
+    line-height: 1;
+  }
+
+  .atlas-hero__actions .button-island--secondary {
+    justify-content: space-between;
+  }
+}
+
+/* Route comparison ledger: an editorial readout, not a metric-card grid. */
+.route-proof {
+  grid-template-columns: minmax(0, 0.76fr) minmax(360px, 1.24fr);
+  align-items: center;
+  gap: clamp(3rem, 8vw, 8rem);
+  min-height: 78dvh;
+  border-top: 1px solid rgba(245, 243, 234, 0.1);
+}
+
+.route-proof__intro {
+  align-self: center;
+  gap: 1.5rem;
+}
+
+.route-proof__intro h2 {
+  max-width: 9ch;
+  font-size: clamp(3.35rem, 5.8vw, 6.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+}
+
+.route-proof__intro p:not(.eyebrow) {
+  max-width: 34ch;
+  color: rgba(245, 243, 234, 0.7);
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: 1.65;
+}
+
+.route-proof__metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.route-proof__metrics li {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 0.42fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  min-height: 9.5rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(245, 243, 234, 0.18);
+}
+
+.route-proof__metrics li:nth-child(2) {
+  margin-left: clamp(1.5rem, 5vw, 5rem);
+}
+
+.route-proof__metrics li:nth-child(3) {
+  margin-left: clamp(0.75rem, 2.5vw, 2.5rem);
+  border-bottom: 1px solid rgba(245, 243, 234, 0.18);
+}
+
+.route-proof__metrics strong {
+  color: var(--accent);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(3.8rem, 6vw, 6.5rem);
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.82;
+  letter-spacing: -0.035em;
+}
+
+.route-proof__metrics li > div {
+  display: grid;
+  gap: 0.55rem;
+  max-width: 28rem;
+}
+
+.route-proof__metrics span {
+  color: rgba(245, 243, 234, 0.96);
+  font-size: clamp(1rem, 1.3vw, 1.18rem);
+  font-weight: 800;
+}
+
+.route-proof__metrics p {
+  max-width: 34ch;
+  margin: 0;
+  color: rgba(245, 243, 234, 0.66);
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .route-proof {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .route-proof__intro h2 {
+    max-width: 11ch;
+  }
+}
+
+@media (max-width: 720px) {
+  .route-proof {
+    gap: 3rem;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  .route-proof__intro h2 {
+    max-width: 9ch;
+    font-size: clamp(2.65rem, 12vw, 3.8rem);
+  }
+
+  .route-proof__metrics li,
+  .route-proof__metrics li:nth-child(2),
+  .route-proof__metrics li:nth-child(3) {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    min-height: 8rem;
+    margin-left: 0;
+  }
+
+  .route-proof__metrics strong {
+    font-size: clamp(3.2rem, 16vw, 4.5rem);
+  }
+}
+
+/* Product workflow: a route-like sequence with no card or chip scaffolding. */
+.planning-stack {
+  display: grid;
+  gap: clamp(3.5rem, 7vw, 7rem);
+  border-top: 1px solid rgba(245, 243, 234, 0.1);
+}
+
+.planning-stack__heading h2 {
+  max-width: 11ch;
+  font-size: clamp(3.35rem, 6vw, 6.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+}
+
+.planning-sequence {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planning-sequence li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(230px, 0.8fr) minmax(280px, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+  min-height: 10rem;
+  padding: 2rem 0;
+  border-top: 1px solid rgba(245, 243, 234, 0.18);
+}
+
+.planning-sequence li:nth-child(even) {
+  margin-left: clamp(2rem, 8vw, 8rem);
+}
+
+.planning-sequence li:last-child {
+  border-bottom: 1px solid rgba(245, 243, 234, 0.18);
+}
+
+.planning-sequence__index {
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(1.35rem, 2.4vw, 2.2rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.planning-sequence h3 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.8rem, 3.2vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.planning-sequence p {
+  max-width: 42ch;
+  margin: 0;
+  color: rgba(245, 243, 234, 0.68);
+  font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+  line-height: 1.65;
+}
+
+@media (max-width: 980px) {
+  .planning-sequence li,
+  .planning-sequence li:nth-child(even) {
+    grid-template-columns: 4.5rem minmax(220px, 0.8fr) minmax(240px, 1fr);
+    gap: 1.5rem;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .planning-stack {
+    gap: 3rem;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  .planning-stack__heading h2 {
+    max-width: 9ch;
+    font-size: clamp(2.65rem, 12vw, 3.8rem);
+  }
+
+  .planning-sequence li,
+  .planning-sequence li:nth-child(even) {
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    min-height: auto;
+    padding: 1.75rem 0;
+  }
+
+  .planning-sequence h3 {
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
+  }
+
+  .planning-sequence p {
+    grid-column: 2;
+  }
+}

@@ -66,7 +66,7 @@ export function HomeGsapEffects() {
         },
       });
 
-      gsap.from(".route-proof__metrics article", {
+      gsap.from(".route-proof__metrics li", {
         autoAlpha: 0,
         y: 46,
         scale: 0.94,
@@ -79,7 +79,7 @@ export function HomeGsapEffects() {
         },
       });
 
-      gsap.from(".planning-bento__cell", {
+      gsap.from(".planning-sequence li", {
         autoAlpha: 0,
         y: 42,
         scale: 0.96,
