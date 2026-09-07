@@ -1989,3 +1989,32 @@ body.festival-system .route-studio-actions__body {
   gap: 0.55rem;
   margin-top: 0.7rem;
 }
+
+/* Keep the comparison ledger optically centered and proportionate at desktop
+   widths; the staggered offsets were pushing the live facts too far apart. */
+body.festival-system .route-proof__metrics {
+  width: min(100%, 42rem);
+  justify-self: center;
+}
+
+body.festival-system .route-proof__metrics li:nth-child(2),
+body.festival-system .route-proof__metrics li:nth-child(3) {
+  margin-left: 0;
+}
+
+body.festival-system .route-proof__metrics strong {
+  font-size: clamp(2.65rem, 3.8vw, 4rem);
+  line-height: 0.92;
+}
+
+@media (max-width: 980px) {
+  body.festival-system .route-proof__metrics {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  body.festival-system .route-proof__metrics strong {
+    font-size: clamp(2.6rem, 13vw, 3.8rem);
+  }
+}
