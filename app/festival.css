@@ -2025,3 +2025,10 @@ body.festival-system .planning-sequence__index {
     font-size: clamp(1.75rem, 8vw, 2.4rem);
   }
 }
+
+/* Match the destination thumbnails to the landscape source imagery. */
+body.festival-system .atlas-row__image-wrap {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 3 / 2;
+}
