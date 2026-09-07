@@ -2032,3 +2032,36 @@ body.festival-system .atlas-row__image-wrap {
   min-height: 0;
   aspect-ratio: 3 / 2;
 }
+
+/* Lift the footer just enough from the page field so its content is findable. */
+body.festival-system .app-footer.app-footer--redesign {
+  border-top-color: rgba(215, 255, 63, 0.24);
+  background: linear-gradient(180deg, rgba(16, 27, 20, 0.82), rgba(9, 16, 12, 0.94));
+  box-shadow: inset 0 1px 0 rgba(245, 243, 234, 0.045);
+}
+
+body.festival-system .app-footer--redesign .footer-newsletter {
+  background: rgba(18, 30, 22, 0.64);
+  box-shadow: inset 0 1px 0 rgba(245, 243, 234, 0.055);
+}
+
+body.festival-system .app-footer--redesign .footer-newsletter__heading p {
+  color: rgba(245, 243, 234, 0.8);
+}
+
+body.festival-system .app-footer--redesign .newsletter-field > span {
+  color: rgba(245, 243, 234, 0.78);
+}
+
+body.festival-system .app-footer--redesign .newsletter-field input {
+  border: 1px solid rgba(245, 243, 234, 0.14);
+  background: rgba(4, 10, 7, 0.38);
+}
+
+body.festival-system .app-footer--redesign .newsletter-option strong {
+  color: rgba(245, 243, 234, 0.96);
+}
+
+body.festival-system .app-footer--redesign .newsletter-option small {
+  color: rgba(245, 243, 234, 0.72);
+}
