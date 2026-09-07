@@ -334,7 +334,7 @@ body.festival-system .route-console__route {
   background: var(--festival-surface-raised);
 }
 
-body.festival-system .route-console__route span {
+body.festival-system .route-console__route > span {
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 2px;
@@ -717,6 +717,17 @@ body.festival-system .footer-newsletter {
 }
 
 @media (max-width: 1180px) {
+  body.festival-system .site-header {
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding-inline: clamp(1rem, 2.8vw, 2.75rem);
+  }
+
+  body.festival-system .site-command {
+    width: min(calc(100% - clamp(17rem, 19vw, 18rem)), 46rem);
+    margin-left: clamp(13rem, 20vw, 15rem);
+  }
+
   body.festival-system .atlas-hero__grid {
     grid-template-columns: 1fr;
   }
@@ -748,6 +759,7 @@ body.festival-system .footer-newsletter {
   body.festival-system .site-command {
     width: calc(100% - 1.25rem);
     max-width: none;
+    margin-left: 0;
     margin-top: 3.05rem;
     transform: none;
   }
