@@ -1998,3 +1998,30 @@ body.festival-system .route-proof__metrics strong {
 body.festival-system .route-proof__metrics li:nth-child(2) strong {
   font-size: clamp(2.8rem, 4.2vw, 4rem);
 }
+
+/* Restore a clear reading order in the workflow ledger: index, title, then
+   supporting copy. The row offsets stay expressive without letting the title
+   overpower the explanation. */
+body.festival-system .planning-sequence h3 {
+  max-width: 18ch;
+  font-size: clamp(1.9rem, 2.8vw, 3rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+body.festival-system .planning-sequence__index {
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+}
+
+@media (min-width: 981px) {
+  body.festival-system .planning-sequence li {
+    grid-template-columns: 4.5rem minmax(280px, 0.9fr) minmax(320px, 1fr);
+    gap: clamp(1.25rem, 3vw, 3rem);
+  }
+}
+
+@media (max-width: 720px) {
+  body.festival-system .planning-sequence h3 {
+    font-size: clamp(1.75rem, 8vw, 2.4rem);
+  }
+}
