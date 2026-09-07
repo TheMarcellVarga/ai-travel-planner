@@ -1993,3 +1993,8 @@ body.festival-system .route-studio-actions__body {
 body.festival-system .route-proof__metrics strong {
   text-align: center;
 }
+
+/* Give the long source value enough breathing room beside its explanation. */
+body.festival-system .route-proof__metrics li:nth-child(2) strong {
+  font-size: clamp(2.8rem, 4.2vw, 4rem);
+}
