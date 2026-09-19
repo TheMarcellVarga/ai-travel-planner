@@ -9402,6 +9402,168 @@ body:has(.route-studio) {
   }
 }
 
+/* Current conditions: a deliberate data hierarchy for the inspector and the
+   compact route-console preview. */
+.route-studio__conditions-section {
+  gap: 0.58rem;
+}
+
+.current-conditions {
+  display: grid;
+  min-width: 0;
+  gap: 0.7rem;
+  color: var(--route-text);
+}
+
+.current-conditions__primary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 0.7rem;
+}
+
+.current-conditions__temperature {
+  display: flex;
+  align-items: baseline;
+  gap: 0.08rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.current-conditions__temperature strong {
+  color: var(--route-text);
+  font-size: clamp(2.2rem, 3.4vw, 3rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.84;
+}
+
+.current-conditions__temperature span {
+  color: var(--route-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.current-conditions__summary {
+  display: grid;
+  align-content: end;
+  gap: 0.16rem;
+  min-width: 0;
+  padding-bottom: 0.05rem;
+}
+
+.current-conditions__summary strong {
+  overflow-wrap: anywhere;
+  color: var(--route-text);
+  font-size: 0.88rem;
+  line-height: 1.1;
+}
+
+.current-conditions__summary span {
+  color: var(--route-muted);
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+
+.current-conditions__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding-top: 0.62rem;
+  border-top: 1px solid var(--route-line);
+}
+
+.current-conditions__metrics div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.current-conditions__metrics dt {
+  color: var(--route-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.current-conditions__metrics dd {
+  margin: 0;
+  color: var(--route-text);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.current-conditions__source,
+.current-conditions__disclaimer {
+  margin: 0;
+  color: var(--route-muted);
+  font-size: 0.59rem;
+  line-height: 1.42;
+}
+
+.current-conditions__source {
+  max-width: 34ch;
+}
+
+.current-conditions__source a {
+  color: var(--route-text);
+  text-decoration: underline;
+  text-decoration-color: rgba(213, 244, 95, 0.62);
+  text-underline-offset: 0.16em;
+}
+
+.current-conditions__disclaimer {
+  color: rgba(245, 243, 234, 0.64);
+}
+
+.current-conditions--compact {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: 0.25rem;
+  max-width: 100%;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.current-conditions--compact strong {
+  flex: 0 0 auto;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.current-conditions--compact > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.current-conditions--status {
+  display: block;
+  color: var(--route-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .current-conditions__primary {
+    gap: 0.55rem;
+  }
+
+  .current-conditions__temperature strong {
+    font-size: clamp(2rem, 13vw, 2.7rem);
+  }
+}
+
 /* Planner polish: first-load route studio should show useful context, not empty rails. */
 .route-studio {
   --route-shell-gap: clamp(0.75rem, 1.3vw, 1rem);

@@ -314,8 +314,11 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               </section>
 
               {promotedStop ? (
-                <section className="route-studio__inspector-section">
-                  <p className="route-studio__kicker">Current conditions</p>
+                <section
+                  className="route-studio__inspector-section route-studio__conditions-section"
+                  aria-labelledby="current-conditions-title"
+                >
+                  <p className="route-studio__kicker" id="current-conditions-title">Current conditions</p>
                   <CurrentConditions
                     latitude={promotedStop.coordinates.lat}
                     longitude={promotedStop.coordinates.lng}

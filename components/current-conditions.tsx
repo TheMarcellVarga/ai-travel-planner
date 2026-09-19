@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import type { CurrentConditions as CurrentConditionsData } from "@/lib/travel-data/weather";
 
@@ -39,36 +39,71 @@ export function CurrentConditions({
   }, [initialConditions, latitude, longitude]);
 
   if (unavailable) {
-    return <span>Weather unavailable</span>;
+    return (
+      <span
+        className={`current-conditions current-conditions--status${compact ? " current-conditions--compact" : ""}`}
+        role="status"
+        aria-live="polite"
+      >
+        Weather unavailable
+      </span>
+    );
   }
 
   if (!conditions) {
-    return <span>Checking weather…</span>;
+    return (
+      <span
+        className={`current-conditions current-conditions--status${compact ? " current-conditions--compact" : ""}`}
+        role="status"
+        aria-live="polite"
+      >
+        Checking weather…
+      </span>
+    );
   }
 
   if (compact) {
     return (
-      <span title={`Observed ${conditions.observedAt} via Open-Meteo`}>
-        {Math.round(conditions.temperature)}{conditions.temperatureUnit} · {conditions.summary}
+      <span className="current-conditions current-conditions--compact" title={`Observed ${conditions.observedAt} via ${conditions.source}`}>
+        <strong>{Math.round(conditions.temperature)}{conditions.temperatureUnit}</strong>
+        <span aria-hidden="true">·</span>
+        <span>{conditions.summary}</span>
       </span>
     );
   }
 
   return (
-    <div>
-      <p>
-        <strong>{Math.round(conditions.temperature)}{conditions.temperatureUnit}</strong>
-        {" · "}{conditions.summary}{" · feels like "}
-        {Math.round(conditions.apparentTemperature)}{conditions.temperatureUnit}
+    <div className="current-conditions">
+      <div className="current-conditions__primary">
+        <p className="current-conditions__temperature">
+          <strong>{Math.round(conditions.temperature)}</strong>
+          <span>{conditions.temperatureUnit}</span>
+        </p>
+        <div className="current-conditions__summary">
+          <strong>{conditions.summary}</strong>
+          <span>Feels like {Math.round(conditions.apparentTemperature)}{conditions.temperatureUnit}</span>
+        </div>
+      </div>
+
+      <dl className="current-conditions__metrics">
+        <div>
+          <dt>Wind</dt>
+          <dd>{Math.round(conditions.windSpeed)} {conditions.windSpeedUnit}</dd>
+        </div>
+        <div>
+          <dt>Precipitation</dt>
+          <dd>{conditions.precipitation} {conditions.precipitationUnit}</dd>
+        </div>
+      </dl>
+
+      <p className="current-conditions__source">
+        Observed <time dateTime={conditions.observedAt}>{conditions.observedAt}</time>
+        <span aria-hidden="true"> · </span>
+        Source: <a href={conditions.sourceUrl} target="_blank" rel="noreferrer">{conditions.source}</a>
       </p>
-      <p>
-        Wind {Math.round(conditions.windSpeed)} {conditions.windSpeedUnit} · precipitation {conditions.precipitation} {conditions.precipitationUnit}
+      <p className="current-conditions__disclaimer">
+        Weather context only — not a safety or feasibility assessment.
       </p>
-      <small>
-        Current model conditions observed {conditions.observedAt}. Source: {" "}
-        <a href={conditions.sourceUrl} target="_blank" rel="noreferrer">Open-Meteo</a>.
-        Weather is context, not a safety or feasibility assessment.
-      </small>
     </div>
   );
 }
