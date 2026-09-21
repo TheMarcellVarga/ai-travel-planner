@@ -10,32 +10,25 @@ export async function AppFooter() {
 
   return (
     <footer className="shell app-footer app-footer--redesign">
+      <NewsletterSignup defaultEmail={user?.email ?? ""} />
+
       <div className="footer-departure">
-        <div className="footer-departure__copy">
-          <Link className="footer-brand" href="/" aria-label={`${site.name} home`}>
-            <Image
-              src="/wild-route-logo.svg"
-              alt={site.name}
-              width={250}
-              height={61}
-            />
-          </Link>
-          <h2>Plan hard. Book elsewhere.</h2>
-          <p>
-            Compose round-trip or one-way journeys, compare the meaningful
-            stops, save the routes worth returning to, then continue with
-            external providers when the shape feels right.
-          </p>
-        </div>
+        <Link className="footer-brand" href="/" aria-label={`${site.name} home`}>
+          <Image
+            src="/wild-route-logo.svg"
+            alt={site.name}
+            width={250}
+            height={61}
+          />
+        </Link>
+        <p>Plan the route here. Confirm prices and availability with providers.</p>
         <nav className="footer-departure__links" aria-label="Footer">
           <Link href="/planner">Planner</Link>
-          <Link href="/saved">Route vault</Link>
+          <Link href="/saved">Saved routes</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </nav>
       </div>
-
-      <NewsletterSignup defaultEmail={user?.email ?? ""} />
     </footer>
   );
 }

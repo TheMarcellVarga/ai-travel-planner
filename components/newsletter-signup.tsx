@@ -63,14 +63,12 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
   }
 
   return (
-    <article className="footer-newsletter newsletter-console">
+    <section className="footer-newsletter newsletter-console">
       <div className="footer-newsletter__heading">
-        <p className="eyebrow">Occasional notes</p>
-        <h2>A short letter for the next departure.</h2>
+        <h2>A better route, once a month.</h2>
         <p className="muted-copy">
-          New route studies, selected destinations, and account alerts for the
-          journeys you keep. Preview signups are held only in demo memory unless
-          durable subscriber storage is configured.
+          One monthly dispatch, plus alerts for the trips you keep. Preview
+          signups remain in demo memory unless subscriber storage is configured.
         </p>
       </div>
 
@@ -133,6 +131,6 @@ export function NewsletterSignup({ defaultEmail = "" }: NewsletterSignupProps) {
 
         {status ? <p className="status-copy newsletter-status">{status}</p> : null}
       </form>
-    </article>
+    </section>
   );
 }

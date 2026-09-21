@@ -1970,6 +1970,35 @@ body.festival-system .route-studio-actions[open] > .route-studio-actions__summar
   content: "−";
 }
 
+/* Keep the global editorial footer flat under the festival theme. */
+body.festival-system .app-footer.app-footer--redesign {
+  border: 0;
+  border-top: 1px solid var(--festival-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.festival-system .app-footer--redesign .footer-newsletter {
+  border: 0;
+  background: transparent;
+}
+
+body.festival-system .app-footer--redesign .footer-departure {
+  border: 0;
+  border-top: 1px solid var(--festival-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.festival-system .app-footer--redesign .newsletter-option {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 body.festival-system .route-studio-actions__summary:focus-visible {
   outline: 2px solid rgba(210, 232, 130, 0.82);
   outline-offset: -2px;
