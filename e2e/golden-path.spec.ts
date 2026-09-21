@@ -1,4 +1,17 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function composeRoute(page: Page) {
+  await page.goto("/planner");
+  const routeControls = page.getByRole("button", { name: "Route controls" });
+  await routeControls.click();
+  await page
+    .getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")
+    .fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
+  await page.getByRole("textbox", { name: "Origin" }).fill("Lisbon");
+  await page.getByRole("spinbutton", { name: "Trip length days" }).fill("10");
+  await page.getByRole("button", { name: "Compose new routes" }).click();
+  await expect(page.locator("main h1")).toContainText("Breakline");
+}
 
 test("demo user can plan, save, publish, share, and hand off a route", async ({
   page
@@ -22,7 +35,7 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   await expect(page).toHaveURL(/\/saved$/);
 
   await page.goto("/planner");
-  await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
+  await expect(page.locator(".route-studio__dock")).toBeHidden();
   const routeControls = page.getByRole("button", { name: "Route controls" });
   await expect(routeControls).toHaveAttribute("aria-expanded", "false");
   await routeControls.click();
@@ -75,6 +88,29 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
     })
   ).toBeVisible();
 
+  await page.setViewportSize({ width: 800, height: 900 });
+  const sharedRouteLayout = await page.evaluate(() => {
+    const header = document.querySelector(".site-header")!.getBoundingClientRect();
+    const title = document.querySelector(".share-route-shell .planner-stage-header")!
+      .getBoundingClientRect();
+    const estimateBadge = document.querySelector(
+      ".planner-stage-badges .status-pill-accent"
+    )!;
+    const badgeStyles = getComputedStyle(estimateBadge);
+
+    return {
+      headerBottom: header.bottom,
+      titleTop: title.top,
+      badgeBackground: badgeStyles.backgroundColor,
+      badgeColor: badgeStyles.color
+    };
+  });
+
+  expect(sharedRouteLayout.headerBottom).toBeLessThanOrEqual(sharedRouteLayout.titleTop);
+  expect(sharedRouteLayout.badgeBackground).toBe("rgb(215, 255, 63)");
+  expect(sharedRouteLayout.badgeColor).toBe("rgb(18, 23, 11)");
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   const handoffResponsePromise = page.waitForResponse(
     (response) =>
       response.url().includes("/api/routes/") &&
@@ -111,9 +147,16 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   });
 
   await page.goto("/planner");
-  await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
+  await expect(page.locator(".route-studio__dock")).toBeHidden();
+  await page.getByRole("button", { name: "Route controls" }).click();
+  await page
+    .getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")
+    .fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
+  await page.getByRole("button", { name: "Compose new routes" }).click();
+  await expect(page.getByText("Plotting route options")).toBeVisible();
+  await expect(page.getByText("Composing route options", { exact: true })).toBeVisible();
   await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
-  await expect(page.locator(".route-studio__cost-status")).toContainText("Planning estimate");
+  await expect(page.locator(".route-studio__cost-status")).toContainText("No live fare");
   const sourceLink = page.getByRole("link", { name: /^Source\./ }).first();
   await expect(sourceLink).toBeVisible();
   await sourceLink.hover();
@@ -123,9 +166,8 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   await whyDetails.locator("summary").click();
   await expect(whyDetails.locator(".route-studio__reasons")).toBeVisible();
   const costDetails = page.locator(".route-studio__cost-details");
-  await expect(costDetails.locator(".route-studio__cost-rows")).toBeHidden();
   await costDetails.locator("summary").click();
-  await expect(costDetails.locator(".route-studio__cost-rows")).toBeVisible();
+  await expect(costDetails.getByText("No provider observation", { exact: false })).toBeVisible();
   await expect(page.getByText("2D route view", { exact: true })).toHaveCount(0);
   await expect(page.locator('[aria-label="2D route map fallback"]')).toHaveCount(0);
 
@@ -145,6 +187,7 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   await expect(page.getByText("Composing route options", { exact: true })).toBeVisible();
   await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
   expect(await page.locator(".route-studio__stop-image").count()).toBeGreaterThanOrEqual(2);
+  await expect(page.getByText("Composing route options", { exact: true })).toHaveCount(0);
 
   const routeCards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
   await routeCards.nth(1).click();
@@ -154,7 +197,7 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
 test("planner keeps festival typography inside readable panel bounds", async ({
   page
 }) => {
-  await page.goto("/planner");
+  await composeRoute(page);
   await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
   await page.getByRole("region", { name: "Ranked route options" }).getByRole("button").nth(3).click();
 
@@ -237,6 +280,66 @@ test("planner keeps festival typography inside readable panel bounds", async ({
     "Planner metadata must wrap inside its panel"
   ).toEqual([]);
   expect(audit.text.every((item) => item.fontSize >= 11.2)).toBe(true);
+});
+
+test("planner keeps header, route cards, and reading surfaces collision-free", async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await composeRoute(page);
+
+  const tabletHeader = await page.evaluate(() => {
+    const brand = document.querySelector(".site-corner-brand")!.getBoundingClientRect();
+    const command = document.querySelector(".site-command")!.getBoundingClientRect();
+
+    return {
+      brandRight: brand.right,
+      commandLeft: command.left
+    };
+  });
+
+  expect(tabletHeader.brandRight).toBeLessThanOrEqual(tabletHeader.commandLeft);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  const mobileLayout = await page.evaluate(() => {
+    const header = document.querySelector(".site-header")!.getBoundingClientRect();
+    const summary = document.querySelector(".route-studio__summary")!.getBoundingClientRect();
+    const dock = document.querySelector(".route-studio__dock")!;
+    const inspector = document.querySelector(".route-studio__inspector")!;
+
+    return {
+      headerBottom: header.bottom,
+      summaryTop: summary.top,
+      dockClientWidth: dock.clientWidth,
+      dockScrollWidth: dock.scrollWidth,
+      inspectorOverflow: getComputedStyle(inspector).overflow
+    };
+  });
+
+  expect(mobileLayout.headerBottom).toBeLessThanOrEqual(mobileLayout.summaryTop);
+  expect(mobileLayout.dockScrollWidth).toBeLessThanOrEqual(mobileLayout.dockClientWidth + 1);
+  expect(mobileLayout.inspectorOverflow).toBe("visible");
+
+  await page.getByRole("button", { name: "Route controls" }).click();
+
+  const mobileControls = await page.evaluate(() => {
+    const controls = document.querySelector(".route-studio__controls")!.getBoundingClientRect();
+    const columnCount = (selector: string) =>
+      getComputedStyle(document.querySelector(selector)!)
+        .gridTemplateColumns.split(" ")
+        .filter(Boolean).length;
+
+    return {
+      height: controls.height,
+      shapeColumns: columnCount(".route-studio-form__segments--shape"),
+      stopColumns: columnCount(".route-studio-form__segments--stops")
+    };
+  });
+
+  expect(mobileControls.height).toBeLessThan(1000);
+  expect(mobileControls.shapeColumns).toBe(2);
+  expect(mobileControls.stopColumns).toBe(3);
 });
 
 test("sign-in keeps the festival treatment within a professional type scale", async ({
@@ -351,7 +454,7 @@ test("festival supporting copy keeps a readable line weight", async ({ page }) =
       ".route-console__header small",
       ".route-console__route small",
       ".route-proof p",
-      ".planning-bento__cell p",
+      ".planning-sequence li p",
       ".atlas-section__heading p",
       ".atlas-row p",
       ".share-artifact li",
@@ -373,9 +476,9 @@ test("festival composition keeps structural surfaces level", async ({ page }) =>
       ".site-command",
       ".route-proof__intro",
       ".route-proof__metrics",
-      ".planning-bento__cell:nth-child(2)",
-      ".planning-bento__cell:nth-child(3)",
-      ".planning-bento__cell:nth-child(4)",
+      ".planning-sequence li:nth-child(2)",
+      ".planning-sequence li:nth-child(3)",
+      ".planning-sequence li:nth-child(4)",
       ".atlas-feature",
       ".atlas-row:nth-child(even)",
       ".share-artifact"

@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-test("remote destination media degrades to bundled route artwork", async ({
+test("remote editorial media degrades to bundled route artwork", async ({
   page
 }) => {
   await page.route("**/_next/image?*", async (route) => {
     const source = new URL(route.request().url()).searchParams.get("url");
 
-    if (source?.includes("images.unsplash.com")) {
+    if (source?.startsWith("http")) {
       await route.abort("failed");
       return;
     }
@@ -16,16 +16,14 @@ test("remote destination media degrades to bundled route artwork", async ({
 
   await page.goto("/");
 
-  const leadDestinationImage = page.locator(".atlas-feature__image");
-  await expect(leadDestinationImage).toHaveAttribute(
+  const editorialImage = page.locator(".kinetic-story__image");
+  await editorialImage.scrollIntoViewIfNeeded();
+  await expect(editorialImage).toHaveAttribute(
     "data-media-state",
     "degraded"
   );
-  await expect(leadDestinationImage).toHaveAttribute(
-    "alt",
-    /Local Wild Route artwork is shown/
-  );
-  await expect(leadDestinationImage).toHaveAttribute(
+  await expect(editorialImage).toHaveAttribute("alt", "");
+  await expect(editorialImage).toHaveAttribute(
     "src",
     /route-ribbon-hero\.png/
   );

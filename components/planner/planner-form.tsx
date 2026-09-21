@@ -132,7 +132,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
 
         <fieldset className="route-studio-form__field route-studio-form__fieldset">
           <legend>Route shape</legend>
-          <div className="route-studio-form__segments route-studio-form__segments--stops">
+          <div className="route-studio-form__segments route-studio-form__segments--shape">
             {routeTypeOptions.map((option) => (
               <button
                 key={option.value}

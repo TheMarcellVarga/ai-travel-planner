@@ -2094,3 +2094,150 @@ body.festival-system .app-footer--redesign .newsletter-option strong {
 body.festival-system .app-footer--redesign .newsletter-option small {
   color: rgba(245, 243, 234, 0.72);
 }
+
+/* Responsive stability pass: keep decorative HUD offsets from becoming
+   structural collisions as the command bar and planner change shape. */
+body.festival-system .route-studio__dock:empty {
+  display: none;
+}
+
+body.festival-system .planner-stage-badges .status-pill-accent {
+  border-color: transparent;
+  background: var(--festival-lime);
+  color: var(--festival-lime-ink);
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  body.festival-system .site-command {
+    width: min(calc(100% - 16.25rem), 46rem);
+    margin-left: 15.25rem;
+  }
+}
+
+@media (max-width: 900px) {
+  body.festival-system:has(.route-studio) .site-header {
+    position: absolute;
+    top: 0.7rem;
+    display: block;
+    padding-inline: 0;
+  }
+
+  body.festival-system .site-corner-brand {
+    top: 0.2rem;
+    left: 0.75rem;
+  }
+
+  body.festival-system .site-brand-lockup {
+    width: min(11rem, 48vw);
+  }
+
+  body.festival-system .site-command {
+    width: calc(100% - 1.5rem);
+    max-width: none;
+    margin-top: 3.05rem;
+    margin-left: 0.75rem;
+    transform: none;
+  }
+
+  body.festival-system .route-studio {
+    padding: 8.55rem 0.75rem 1rem;
+    overflow: visible;
+  }
+
+  body.festival-system .route-studio__layout {
+    grid-template-rows: auto minmax(20rem, min(50dvh, 24rem)) auto auto auto;
+    gap: 0.8rem;
+  }
+
+  body.festival-system .route-studio__summary {
+    padding-top: 1rem;
+  }
+
+  body.festival-system .route-studio__globe,
+  body.festival-system .route-studio__globe .orbital-globe-stage {
+    min-height: 20rem;
+  }
+
+  body.festival-system .route-studio__dock {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  body.festival-system .route-studio__route {
+    min-height: 5.7rem;
+  }
+
+  body.festival-system .route-studio__controls,
+  body.festival-system .route-studio__inspector {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  body.festival-system .route-studio__controls-body {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  body.festival-system .route-studio-form__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.festival-system .route-studio-form__field--wide,
+  body.festival-system .route-studio-form__fieldset {
+    grid-column: 1 / -1;
+  }
+
+  body.festival-system .route-studio-form__segments--shape {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.festival-system .route-studio-form__segments--stops,
+  body.festival-system .route-studio-form__segments--budget,
+  body.festival-system .route-studio-form__wishes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.festival-system .route-studio-form__segment {
+    min-height: 3.75rem;
+    padding: 0.58rem;
+  }
+
+  body.festival-system .route-studio-form__wish {
+    min-height: 2.75rem;
+    padding: 0.55rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 980px) {
+  body.festival-system .saved-vault-shell,
+  body.festival-system .share-route-shell {
+    padding-top: 8.75rem;
+  }
+}
+
+@media (max-width: 520px) {
+  body.festival-system .site-command__nav-item {
+    padding-inline: 0.45rem;
+  }
+
+  body.festival-system .site-command__cta {
+    padding-inline: 0.65rem;
+  }
+
+  body.festival-system .route-studio__summary h1 {
+    font-size: clamp(2.35rem, 11vw, 3.25rem);
+  }
+
+  body.festival-system .route-studio__route {
+    padding: 0.62rem;
+  }
+
+  body.festival-system .route-studio__route strong,
+  body.festival-system .route-studio__route small {
+    overflow-wrap: anywhere;
+  }
+}

@@ -10066,6 +10066,7 @@ body:has(.route-studio) {
   margin: 0;
   color: rgba(245, 243, 234, 0.68);
   font-size: clamp(0.98rem, 1.2vw, 1.12rem);
+  font-weight: 500;
   line-height: 1.65;
 }
 
