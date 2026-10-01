@@ -8,7 +8,7 @@ import { MediaCredit } from "@/components/media-credit";
 import { ResilientImage } from "@/components/resilient-image";
 import { RouteScrollStory } from "@/components/route-scroll-story";
 import { getRouteStopMedia, kineticMedia } from "@/lib/media";
-import { routePriceLabel } from "@/lib/planner/display";
+import { formatRouteTagline, routePriceLabel } from "@/lib/planner/display";
 import { interpretTripIntent } from "@/lib/planner/intent";
 import { planTrip } from "@/lib/planner/plan-trip";
 import {
@@ -178,7 +178,7 @@ export default async function HomePage() {
                   <span>{stop?.code ?? "—"}</span>
                   <div>
                     <strong>{route.title}</strong>
-                    <small>{route.tagline}</small>
+                    <small>{formatRouteTagline(route.tagline)}</small>
                   </div>
                   <b>
                     {stop ? (

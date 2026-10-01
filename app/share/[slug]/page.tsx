@@ -4,6 +4,11 @@ import { MediaCredit } from "@/components/media-credit";
 import { RouteActions } from "@/components/planner/route-actions";
 import { ResilientImage } from "@/components/resilient-image";
 import { getRouteStopMedia } from "@/lib/media";
+import {
+  formatRouteTagline,
+  hasProviderObservedPrice,
+  routePriceLabel
+} from "@/lib/planner/display";
 import { resolveDemoShare } from "@/lib/store/demo-preview";
 import { getPublicSharedRoute } from "@/lib/store/demo-store";
 import { getPublicSharedRouteFromDatabase } from "@/lib/store/persistent-store";
@@ -26,6 +31,7 @@ export default async function SharePage({ params }: SharePageProps) {
   const shareMedia = getRouteStopMedia(
     sharedRoute.route.stops.find((stop) => stop.id === sharedRoute.route.promotedStopId)
   );
+  const hasObservedPrice = hasProviderObservedPrice(sharedRoute.route);
 
   return (
     <main className="planner-command-shell share-route-shell">
@@ -48,10 +54,10 @@ export default async function SharePage({ params }: SharePageProps) {
         </div>
         <div className="planner-stage-badges">
           <span className="status-pill status-pill-accent">
-            ${sharedRoute.route.estimatedCostUsd}
+            {routePriceLabel(sharedRoute.route)}
           </span>
           <span className="status-pill">
-            Confidence {Math.round(sharedRoute.route.confidence * 100)}%
+            App confidence {Math.round(sharedRoute.route.confidence * 100)}%
           </span>
         </div>
       </div>
@@ -60,7 +66,7 @@ export default async function SharePage({ params }: SharePageProps) {
         <div className="floating-sidebar__inner share-route-panel__inner">
           <div className="floating-sidebar__header">
             <p className="eyebrow">Discover</p>
-            <h2>{sharedRoute.route.tagline}</h2>
+            <h2>{formatRouteTagline(sharedRoute.route.tagline)}</h2>
           </div>
           <div className="tag-row share-route-tags">
             {sharedRoute.route.wishTags.map((tag) => (
@@ -83,24 +89,24 @@ export default async function SharePage({ params }: SharePageProps) {
               {sharedRoute.route.dataFreshness}.
             </p>
             <div className="share-route-cost-breakdown">
-              <p className="eyebrow">Cost breakdown</p>
-              {sharedRoute.route.costBreakdown.transport.map((leg) => (
+              <p className="eyebrow">{hasObservedPrice ? "Observed cost breakdown" : "Price status"}</p>
+              {hasObservedPrice ? sharedRoute.route.costBreakdown.transport.map((leg) => (
                 <div key={leg.fromCode + "-" + leg.toCode}>
                   <span>{leg.fromCode} → {leg.toCode}</span>
                   <strong>{"$"}{leg.amount}</strong>
                 </div>
-              ))}
-              {sharedRoute.route.costBreakdown.stays.map((stay) => (
+              )) : null}
+              {hasObservedPrice ? sharedRoute.route.costBreakdown.stays.map((stay) => (
                 <div key={stay.stopId}>
                   <span>{stay.nights} nights · {stay.stopId}</span>
                   <strong>{"$"}{stay.amount}</strong>
                 </div>
-              ))}
+              )) : null}
               <p className="share-route-cost-breakdown__note">
                 Status: {Array.from(new Set(sharedRoute.route.costBreakdown.transport.map((leg) => leg.status))).join(", ")}.
-                {sharedRoute.route.costBreakdown.transport.some((leg) => leg.observedAt)
+                {hasObservedPrice
                   ? ` Observed ${sharedRoute.route.costBreakdown.transport.find((leg) => leg.observedAt)?.observedAt}.`
-                  : " No provider observation; this is a planning estimate."}
+                  : " A complete provider-observed fare and stay quote is unavailable. Check current prices with external providers."}
               </p>
               <ul className="share-route-cost-breakdown__assumptions">
                 {sharedRoute.route.costBreakdown.assumptions.map((assumption) => (

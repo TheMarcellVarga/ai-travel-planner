@@ -205,3 +205,113 @@ Verified after redeployment:
 
 Current production screenshots are recorded in `docs/SCREENSHOTS.md` at desktop
 and 390 × 844 mobile sizes.
+
+## Phase 7 Visual QA Repair
+
+Date: 2026-09-26
+
+Local fixture-mode review at 1440 × 900, 390 × 844, and narrow 320px widths
+found that demo saved routes and public shares used a fixed, clipped shell on
+mobile. The saved/share panels now flow below their headers and scroll with the
+document; the signed-out saved empty state and desktop layout retain their
+existing composition. The golden-path browser test now checks mobile scroll
+reachability for both views after save and publish.
+
+The public share now follows the planner price rule: unobserved fare or stay
+components show “Check live price” without fixture dollar totals. Destination
+cards show full descriptions and a readable source label. Bundled, attributed
+destination photos replace repeated generic artwork for known route stops,
+while the generic fallback remains available for unknown or failed media.
+
+Verified locally with `npm run test` (103 passing), `npm run build`, the eight
+golden-path Chromium tests, and 14 accessibility/media-resilience Chromium
+tests. Browser inspection found no page-wide horizontal overflow on the
+affected desktop or mobile views.
+
+## Phase 7 Visual QA Recheck
+
+Date: 2026-09-26
+
+The follow-up review closed the remaining visual findings:
+
+- The signed-out saved-route headline now fits in three lines at 320px and
+  390px, with no page-width overflow.
+- Saved-route cards use the same provider-observation guard as the planner and
+  public share, so fixture estimates do not appear as confirmed dollar prices.
+- Ranked planner cards show each itinerary's stop sequence, distinguishing
+  options that share a title.
+- Shared-route stop sequences now use compact, muted route metadata with spaced
+  arrows instead of display-heading typography, preventing cramped wrapping.
+- Cost assumptions and share notes now use 12px text; public fare/stay rows
+  use 11.5px text. All use the paper-muted palette for readable contrast.
+- Festival color treatments now derive from named palette and RGB channel
+  tokens while retaining their existing rendered colors.
+
+Verification:
+
+- `npm run lint` — passed.
+- `npm run test` — 104 tests passed.
+- `npm run build` — passed; first-load JavaScript is 159 kB on the homepage and
+  135 kB on the planner.
+- `npm run test:e2e` — 22
+  Chromium checks passed, including 320px saved-state layout, saved price
+  labeling, route-path uniqueness, keyboard order, reduced motion, and media
+  fallback. The generated public share passed its text-size assertion and a
+  WCAG 2.0/2.1/2.2 A/AA axe scan.
+- Impeccable detector returned no findings.
+
+Production screenshots confirmed the signed-out saved state and generated
+public share at 320px and 390px, plus ranked planner options at 390px. Existing
+browser checks continue to cover desktop and tablet layouts, saved/share
+scrolling, and the complete demo route flow.
+
+## Responsive Visual Review — 2026-10-01
+
+Phase 7 QA / Phase 8 polish. Primary skill: `nextjs-travel-ui`; support:
+`impeccable`. Preserved the existing festival design and pre-existing changes.
+
+Reviewed homepage, planner, saved routes, authentication, account, privacy, and
+terms at 1440px, 768px, 390px, and 320px. Also inspected generated planner,
+browser-local saved routes, demo account, and published share at 390px.
+
+Resolved findings:
+
+- Homepage comparison values overlapped supporting copy on phones, particularly
+  `LOCAL`. Values and explanations now stack below 720px.
+- Mobile destination cards were partly offscreen in a horizontal strip. The
+  list now stacks with all descriptions and fallback labels available.
+- Phone navigation hid sign-in/account access. That link is visible, using the
+  duplicate Compose CTA's space below 520px; Planner remains available.
+- The two-row compact header covered reading content during scrolling. It now
+  scrolls with the document below 900px while desktop navigation stays fixed.
+- Compact auth/newsletter inputs now use 16px text to avoid iOS focus zoom;
+  standalone auth-card actions have a separate gap.
+- Static mobile/tablet and reduced-motion story layouts no longer reserve
+  viewport-sized animation spacing. GSAP pins now exist only above 980px with
+  motion allowed, and revert when viewport or motion preferences change.
+
+Full-page captures initially showed blank story imagery below the fold; actual
+scroll inspection confirmed normal lazy loading, so image loading was retained.
+
+Regression coverage in `e2e/visual-layout.spec.ts` checks comparison separation,
+destination bounds, guest/demo account navigation, input sizing, header scroll
+behavior, and removal/recreation of animation pins after responsive changes.
+
+Verification: 104 unit tests passed; lint and production build passed. All 22
+existing Chromium checks passed. Both new responsive checks passed after fixing
+the test's local `localhost`/`127.0.0.1` redirect-origin handling. The Impeccable
+mechanical detector returned no findings. Visual confirmation covered all four
+widths; Safari and physical iOS focus-zoom behavior were not exercised.
+
+### Double-check — 2026-10-02
+
+Re-ran the complete Chromium suite: all 24 checks passed together. Rebuilt the
+production app successfully, then inspected 68 page/viewport combinations on
+that production build. Included 320, 390, 520, 521, 768, 900, 901, 980, 981,
+1024, and 1440px widths, plus generated planner, demo saved/account, and public
+share states. No document overflow, navigation clipping, brand/navigation
+collisions, comparison-text overlap, or initial heading/header collisions were
+found. Visually reviewed production screenshots for mobile comparison,
+destinations, scroll story, saved routes, account, and public share. No further
+UI fixes were needed. This recheck used Chromium with fixture destination/media
+providers; physical-device and Safari verification remain unperformed.

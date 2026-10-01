@@ -54,7 +54,7 @@ export const kineticMedia: MediaAsset = {
 export const destinationMedia: Record<string, DestinationMedia> = {
   bali: {
     kind: "image",
-    src: unsplashImage("photo-1557093793-d149a38a1be8", 1600),
+    src: "/editorial/destinations/bali.jpg",
     alt: "Layered green rice terraces in Ubud, Bali.",
     title: "Rice terraces",
     author: "Radoslav Bali",
@@ -65,7 +65,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   "chiang-mai": {
     kind: "image",
-    src: unsplashImage("photo-1709662763444-695cb32eaea4", 1600),
+    src: "/editorial/destinations/chiang-mai.jpg",
     alt: "A Thai mountain temple rising from steep forested rock.",
     title: "Temple on top of the mountain",
     author: "Nopparuj Lamaikul",
@@ -77,7 +77,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   "da-nang": {
     kind: "image",
-    src: unsplashImage("photo-1775452455303-fff72b03512d", 1800),
+    src: "/editorial/destinations/da-nang.jpg",
     alt: "My Khe Beach in Da Nang with skyline and mountains in the distance.",
     title: "Beach with city skyline and mountains",
     author: "Quang Tran",
@@ -89,7 +89,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   "cape-town": {
     kind: "image",
-    src: unsplashImage("photo-1746876269545-c23ecff55722", 1800),
+    src: "/editorial/destinations/cape-town.jpg",
     alt: "Dramatic sunset over the ocean with Table Mountain in silhouette.",
     title: "Dramatic sunset over the ocean with Table Mountain",
     author: "Marlin Clark",
@@ -101,7 +101,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   tbilisi: {
     kind: "image",
-    src: unsplashImage("photo-1759506346306-5370eb85ae62", 1800),
+    src: "/editorial/destinations/tbilisi.jpg",
     alt: "Tbilisi's river, bridge, cable cars, and old town rising up a green hill.",
     title: "River with bridge and old town on hill",
     author: "Rama Krushna Behera",
@@ -113,7 +113,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   medellin: {
     kind: "image",
-    src: unsplashImage("photo-1640768239887-77479f49a7dc", 1600),
+    src: "/editorial/destinations/medellin.jpg",
     alt: "Medellin suburbs and mountain valley seen from a cable car.",
     title: "A scenic view of a valley and mountains",
     author: "Jan Brennenstuhl",
@@ -125,7 +125,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   queenstown: {
     kind: "image",
-    src: unsplashImage("photo-1655514484562-6d5aa13a3fd7", 2000),
+    src: "/editorial/destinations/queenstown.jpg",
     alt: "Queenstown lake water surrounded by steep alpine mountains.",
     title: "A lake surrounded by mountains",
     author: "Zac Smith",
@@ -137,7 +137,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   madeira: {
     kind: "image",
-    src: unsplashImage("photo-1757440156710-574dcfae0bcc", 1600),
+    src: "/editorial/destinations/madeira.jpg",
     alt: "Madeira coastal cliffs with a waterfall dropping toward the ocean.",
     title: "Coastal cliffs with a waterfall cascading into the ocean",
     author: "Mick Waanders",
@@ -149,7 +149,7 @@ export const destinationMedia: Record<string, DestinationMedia> = {
   },
   tulum: {
     kind: "image",
-    src: unsplashImage("photo-1645557180229-98bfc29dbdbf", 1600),
+    src: "/editorial/destinations/tulum.jpg",
     alt: "Tulum's rocky coastline with Mayan ruins above the ocean.",
     title: "A rocky cliff overlooking the ocean with a tower in the distance",
     author: "Austin Kindred",
@@ -190,6 +190,17 @@ export function getRouteStopMedia(stop?: {
     licenseUrl: string;
   } | null;
 }): RouteDisplayMedia {
+  const destinationImage = stop ? destinationMedia[stop.id] : null;
+  if (
+    destinationImage &&
+    (!stop?.media || stop.media.imageUrl === "/editorial/route-ribbon-hero.png")
+  ) {
+    return {
+      ...destinationImage,
+      punchline: stop?.scene ?? destinationImage.punchline
+    };
+  }
+
   if (stop?.media) {
     return {
       kind: "image",

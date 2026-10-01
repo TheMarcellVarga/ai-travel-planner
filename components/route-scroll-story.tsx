@@ -28,85 +28,90 @@ export function RouteScrollStory({ cards }: RouteScrollStoryProps) {
   useGSAP(
     () => {
       const root = rootRef.current;
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const mobileViewport = window.matchMedia("(max-width: 720px)").matches;
-
-      if (!root || reduceMotion || mobileViewport) {
+      if (!root) {
         return;
       }
 
-      const cardEls = gsap.utils.toArray<HTMLElement>(".route-story__card", root);
+      const media = gsap.matchMedia();
 
-      cardEls.forEach((card, index) => {
-        const nextCard = cardEls[index + 1];
-        const image = card.querySelector<HTMLElement>(".route-story__visual");
+      // Revert pins and inline styles when switching to the stacked layout or
+      // enabling reduced motion, including changes after the initial render.
+      media.add("(min-width: 981px) and (prefers-reduced-motion: no-preference)", () => {
+        const cardEls = gsap.utils.toArray<HTMLElement>(".route-story__card", root);
 
-        gsap.set(card, {
-          opacity: 1,
-          zIndex: index + 1,
-        });
+        cardEls.forEach((card, index) => {
+          const nextCard = cardEls[index + 1];
+          const image = card.querySelector<HTMLElement>(".route-story__visual");
 
-        if (image) {
-          gsap.fromTo(
-            image,
-            { scale: 0.88, opacity: 0.58 },
-            {
-              scale: 1,
-              opacity: 1,
+          gsap.set(card, {
+            opacity: 1,
+            zIndex: index + 1,
+          });
+
+          if (image) {
+            gsap.fromTo(
+              image,
+              { scale: 0.88, opacity: 0.58 },
+              {
+                scale: 1,
+                opacity: 1,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: card,
+                  start: "top 70%",
+                  end: "center center",
+                  scrub: true,
+                },
+              },
+            );
+
+            gsap.to(image, {
+              scale: 1.08,
+              opacity: 0.28,
               ease: "none",
               scrollTrigger: {
                 trigger: card,
-                start: "top 70%",
-                end: "center center",
+                start: "center center",
+                end: "bottom top",
                 scrub: true,
               },
-            },
-          );
+            });
+          }
 
-          gsap.to(image, {
-            scale: 1.08,
-            opacity: 0.28,
+          if (!nextCard) {
+            return;
+          }
+
+          ScrollTrigger.create({
+            trigger: card,
+            start: "top top",
+            endTrigger: cardEls[cardEls.length - 1],
+            end: "top top",
+            pin: true,
+            pinSpacing: false,
+          });
+
+          ScrollTrigger.create({
+            trigger: nextCard,
+            start: "top 72%",
+            onEnter: () => gsap.set(card, { autoAlpha: 0 }),
+            onLeaveBack: () => gsap.set(card, { autoAlpha: 1 }),
+          });
+
+          gsap.to(card, {
+            scale: 0.92,
             ease: "none",
             scrollTrigger: {
-              trigger: card,
-              start: "center center",
-              end: "bottom top",
+              trigger: nextCard,
+              start: "top bottom",
+              end: "top top",
               scrub: true,
             },
           });
-        }
-
-        if (!nextCard) {
-          return;
-        }
-
-        ScrollTrigger.create({
-          trigger: card,
-          start: "top top",
-          endTrigger: cardEls[cardEls.length - 1],
-          end: "top top",
-          pin: true,
-          pinSpacing: false,
-        });
-
-        ScrollTrigger.create({
-          trigger: nextCard,
-          start: "top 72%",
-          onEnter: () => gsap.set(card, { autoAlpha: 0 }),
-          onLeaveBack: () => gsap.set(card, { autoAlpha: 1 }),
-        });
-
-        gsap.to(card, {
-          scale: 0.92,
-          ease: "none",
-          scrollTrigger: {
-            trigger: nextCard,
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-          },
         });
       });
+
+      return () => media.revert();
     },
     { scope: rootRef },
   );

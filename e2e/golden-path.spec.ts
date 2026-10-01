@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 async function composeRoute(page: Page) {
@@ -77,6 +78,15 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
 
   await page.goto(sharePath!);
   await expect(page.getByRole("heading", { level: 1, name: routeTitle })).toBeVisible();
+  const sharedRoutePath = page.locator(
+    ".share-route-panel-left .floating-sidebar__header h2"
+  );
+  await expect(sharedRoutePath).toContainText("→");
+  expect(
+    Number.parseFloat(await sharedRoutePath.evaluate((element) => getComputedStyle(element).fontSize))
+  ).toBeLessThanOrEqual(16.8);
+  await expect(page.locator(".planner-stage-badges .status-pill-accent")).toHaveText("Check live price");
+  await expect(page.locator(".share-route-cost-breakdown strong")).toHaveCount(0);
   await expect(
     page.getByText("Availability: external provider search required.", {
       exact: false
@@ -87,6 +97,18 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
       exact: false
     })
   ).toBeVisible();
+  const shareCostRowFontSizes = await page
+    .locator(".share-route-cost-breakdown > div")
+    .evaluateAll((rows) => rows.map((row) => Number.parseFloat(getComputedStyle(row).fontSize)));
+  expect(shareCostRowFontSizes.every((fontSize) => fontSize >= 11.2)).toBe(true);
+  const shareAccessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  expect(
+    shareAccessibility.violations.filter(
+      ({ impact }) => impact === "serious" || impact === "critical"
+    )
+  ).toEqual([]);
 
   await page.setViewportSize({ width: 800, height: 900 });
   const sharedRouteLayout = await page.evaluate(() => {
@@ -109,6 +131,11 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
   expect(sharedRouteLayout.headerBottom).toBeLessThanOrEqual(sharedRouteLayout.titleTop);
   expect(sharedRouteLayout.badgeBackground).toBe("rgb(215, 255, 63)");
   expect(sharedRouteLayout.badgeColor).toBe("rgb(18, 23, 11)");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.mouse.wheel(0, 1100);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(page.getByRole("heading", { name: "Journey breakdown" })).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 720 });
 
   const handoffResponsePromise = page.waitForResponse(
@@ -135,14 +162,23 @@ test("demo user can plan, save, publish, share, and hand off a route", async ({
 
   await page.goto("/saved");
   await expect(page.getByText(routeTitle, { exact: true })).toHaveCount(2);
+  await expect(page.locator(".vault-route-card .card-price").first()).toHaveText(
+    "Check live price"
+  );
+  await expect(page.locator(".vault-route-card__tagline").first()).toContainText("→");
   await expect(page.getByRole("link", { name: "Open preview share" })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.mouse.wheel(0, 700);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(page.getByRole("heading", { name: "Private route stack" })).toBeInViewport();
 });
 
 test("planner exposes guarded composition loading, multi-stop cost, and media attribution", async ({
   page
 }) => {
   await page.route("**/api/trips/plan", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
     await route.continue();
   });
 
@@ -190,6 +226,10 @@ test("planner exposes guarded composition loading, multi-stop cost, and media at
   await expect(page.getByText("Composing route options", { exact: true })).toHaveCount(0);
 
   const routeCards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
+  const routePaths = await routeCards.locator(".route-studio__route-path").allTextContents();
+  expect(routePaths).toHaveLength(4);
+  expect(new Set(routePaths).size).toBe(routePaths.length);
+  expect(routePaths.every((path) => path.includes("→"))).toBe(true);
   await routeCards.nth(1).click();
   await expect(routeCards.nth(1)).toHaveAttribute("aria-pressed", "true");
 });
@@ -402,7 +442,8 @@ test("signed-out saved routes use a compact empty state on desktop and mobile", 
 }) => {
   for (const viewport of [
     { width: 1280, height: 720 },
-    { width: 390, height: 844 }
+    { width: 390, height: 844 },
+    { width: 320, height: 844 }
   ]) {
     await page.setViewportSize(viewport);
     await page.goto("/saved");

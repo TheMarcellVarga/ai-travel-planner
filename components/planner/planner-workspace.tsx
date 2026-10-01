@@ -12,7 +12,11 @@ import { RouteGlobe } from "@/components/planner/route-globe";
 import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
 import { defaultOrigin } from "@/lib/data/destinations";
 import { getRouteStopMedia } from "@/lib/media";
-import { hasProviderObservedPrice, routePriceLabel } from "@/lib/planner/display";
+import {
+  formatRouteTagline,
+  hasProviderObservedPrice,
+  routePriceLabel
+} from "@/lib/planner/display";
 import type { PersistenceStatus } from "@/lib/store/persistence";
 import type { RouteOption, TripGeneration } from "@/lib/types";
 
@@ -154,7 +158,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
           <h1>{activeRoute ? activeRoute.title : "Choose a direction."}</h1>
           <p className="route-studio__summary-copy">
             {activeRoute
-              ? activeRoute.tagline
+              ? formatRouteTagline(activeRoute.tagline)
               : "Choose a route from the globe or the considered set below."}
           </p>
           <div className="route-studio__metrics">
@@ -199,6 +203,9 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             >
               <span className="route-studio__route-index">0{index + 1}</span>
               <strong>{route.title}</strong>
+              <small className="route-studio__route-path">
+                {formatRouteTagline(route.tagline)}
+              </small>
               <small>
                 {routePriceLabel(route)} / {Math.round(route.confidence * 100)}% app fit
               </small>
@@ -300,7 +307,9 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
 
               <section className="route-studio__inspector-section route-studio__route-overview">
                 <p className="route-studio__kicker">Route path</p>
-                <p className="route-studio__path">{activeRoute.tagline}</p>
+                <p className="route-studio__path">
+                  {formatRouteTagline(activeRoute.tagline)}
+                </p>
                 <div className="route-studio__tags">
                   {inspectorWishTags.map((tag) => (
                     <span key={tag}>

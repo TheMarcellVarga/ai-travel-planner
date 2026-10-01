@@ -3,6 +3,7 @@ import Link from "next/link";
 import { DemoBrowserRoutes, DemoBrowserShares } from "@/components/demo-browser-vault";
 import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia, heroMedia } from "@/lib/media";
+import { formatRouteTagline, routePriceLabel } from "@/lib/planner/display";
 import { getCurrentUser } from "@/lib/auth";
 import {
   getSavedRoutesForUser,
@@ -113,7 +114,7 @@ export default async function SavedPage() {
                   <div className="card-header">
                     <div>
                       <strong className="card-title">{item.route.title}</strong>
-                      <span className="card-price">${item.route.estimatedCostUsd}</span>
+                      <span className="card-price">{routePriceLabel(item.route)}</span>
                     </div>
                     <ResilientImage
                       alt=""
@@ -123,7 +124,9 @@ export default async function SavedPage() {
                       height={60}
                     />
                   </div>
-                  <p className="muted-copy text-small vault-route-card__tagline">{item.route.tagline}</p>
+                  <p className="muted-copy text-small vault-route-card__tagline">
+                    {formatRouteTagline(item.route.tagline)}
+                  </p>
                 </article>
               ))
             ) : (

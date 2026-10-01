@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 
 import { ResilientImage } from "@/components/resilient-image";
 import { getDestinationMedia } from "@/lib/media";
+import { formatRouteTagline, routePriceLabel } from "@/lib/planner/display";
 import {
   readDemoBrowserShares,
   readDemoBrowserVault,
@@ -50,7 +51,7 @@ export function DemoBrowserRoutes() {
       <div className="card-header">
         <div>
           <strong className="card-title">{route.title}</strong>
-          <span className="card-price">${route.estimatedCostUsd}</span>
+          <span className="card-price">{routePriceLabel(route)}</span>
         </div>
         <ResilientImage
           alt=""
@@ -61,7 +62,7 @@ export function DemoBrowserRoutes() {
         />
       </div>
       <p className="muted-copy text-small vault-route-card__tagline">
-        {route.tagline}
+        {formatRouteTagline(route.tagline)}
       </p>
     </article>
   ));
