@@ -115,7 +115,7 @@ See [Architecture](docs/ARCHITECTURE.md),
 
 Requirements:
 
-- Node.js 20.19 or newer (`.nvmrc` selects Node.js 22.13.1)
+- Node.js 22 (`.nvmrc` selects Node.js 22.13.1; Vercel uses the latest available 22.x release)
 - npm
 
 ```bash
