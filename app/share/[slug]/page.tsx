@@ -114,7 +114,7 @@ export default async function SharePage({ params }: SharePageProps) {
                 ))}
               </ul>
             </div>
-            <RouteActions routeId={sharedRoute.route.id} route={demoShare?.route} />
+            <RouteActions routeId={sharedRoute.route.id} route={demoShare?.route} publicView />
           </div>
 
           <div className="margin-top-auto">

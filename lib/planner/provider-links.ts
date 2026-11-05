@@ -7,6 +7,21 @@ function toQuery(value: string) {
   return encodeURIComponent(value);
 }
 
+// Google Flights accepts a compact, URL-safe itinerary parameter. Dates are
+// intentionally omitted: Google may suggest dates, which travelers must check.
+export function buildGoogleFlightsUrl(stops: RouteStop[]): string | null {
+  if (stops.length < 2 || stops.length > 5 || stops.some((stop) => !/^[A-Z]{3}$/.test(stop.code))) return null;
+  const bytes: number[] = [];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const from = Array.from(stops[i].code, (char) => char.charCodeAt(0));
+    const to = Array.from(stops[i + 1].code, (char) => char.charCodeAt(0));
+    bytes.push(0x1a, 0x0e, 0x6a, 0x05, 0x12, 0x03, ...from, 0x72, 0x05, 0x12, 0x03, ...to);
+  }
+  bytes.push(0x42, 0x01, 0x01, 0x48, 0x01, 0x98, 0x01, stops.length === 2 ? 0x02 : 0x03);
+  const itinerary = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `https://www.google.com/travel/flights?tfs=${itinerary}`;
+}
+
 export function buildBookingLinks(stops: RouteStop[]): BookingLink[] {
   const routeName = stops.map((stop) => stop.code).join("-");
   const destinationStops = stops.filter((stop) => stop.kind === "destination");
@@ -15,7 +30,7 @@ export function buildBookingLinks(stops: RouteStop[]): BookingLink[] {
     id: `route-${routeName}`,
     provider: "Google Flights",
     label: "Search full route in Google Flights",
-    url: `https://www.google.com/travel/flights?q=${toQuery(
+    url: buildGoogleFlightsUrl(stops) ?? `https://www.google.com/travel/flights?q=${toQuery(
       `Flights ${stops.map((stop) => stop.code).join(" to ")}`
     )}`,
     kind: "route",

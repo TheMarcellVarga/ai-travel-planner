@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 import { PlannerForm } from "@/components/planner/planner-form";
-import { CurrentConditions } from "@/components/current-conditions";
 import { MediaCredit } from "@/components/media-credit";
 import { ResilientImage } from "@/components/resilient-image";
 import { RouteActions } from "@/components/planner/route-actions";
 import { RouteGlobe } from "@/components/planner/route-globe";
 import { RouteLoadingMark } from "@/components/planner/route-loading-mark";
 import { defaultOrigin } from "@/lib/data/destinations";
+import { buildGoogleFlightsUrl } from "@/lib/planner/provider-links";
 import { getRouteStopMedia } from "@/lib/media";
 import {
   formatRouteTagline,
@@ -54,7 +54,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [persistenceStatus, setPersistenceStatus] = useState<PersistenceStatus | null>(null);
-  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(false);
+  const [isMissionPanelOpen, setIsMissionPanelOpen] = useState(!initialGeneration);
 
   const [prompt, setPrompt] = useState(initialGeneration?.tripIntent.prompt ?? "");
   const initialIntent = initialGeneration?.tripIntent ?? EMPTY_PLANNER_INTENT;
@@ -84,21 +84,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
     0,
     (activeRoute?.wishTags.length ?? 0) - inspectorWishTags.length,
   );
-  const recommendationCountLabel =
-    generation?.routes.length === 1
-      ? "1 route ready"
-      : generation?.routes.length
-        ? `${generation.routes.length} routes ready`
-        : "No routes yet";
 
-  useEffect(() => {
-    // On a narrow screen the route result is the primary task. Keep the
-    // long-form controls available without making them occupy the first scroll.
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsMissionPanelOpen(false);
-    }
-  }, []);
 
   function handlePlan() {
     startTransition(async () => {
@@ -149,28 +135,26 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
   }
 
   return (
-    <main className="planner-command-shell route-studio">
+    <main className={`planner-command-shell route-studio${activeRoute ? "" : " route-studio--empty"}`}>
       <section className="route-studio__layout">
         <header className="route-studio__summary">
-          <p className="route-studio__kicker">
-            {activeRoute ? "Selected route" : "Route composition"}
-          </p>
-          <h1>{activeRoute ? activeRoute.title : "Choose a direction."}</h1>
+          <div className="route-studio__demo-notice">
+            <span className="route-studio__demo-pill">Demo data</span>
+            <p>Routes use a rules-based planner and sample data. Check flight prices and availability with providers.</p>
+          </div>
+          <h1>{activeRoute ? activeRoute.title : "Where do you want to go?"}</h1>
           <p className="route-studio__summary-copy">
             {activeRoute
               ? formatRouteTagline(activeRoute.tagline)
-              : "Choose a route from the globe or the considered set below."}
+              : "Start with your interests, then compare the routes."}
           </p>
-          <div className="route-studio__metrics">
+          {activeRoute ? <div className="route-studio__metrics">
             <span>
               {activeRoute
                 ? `${Math.round(activeRoute.confidence * 100)}% app confidence`
-                : recommendationCountLabel}
+                : ""}
             </span>
-            <strong>
-              {activeRoute ? routePriceLabel(activeRoute) : "ready"}
-            </strong>
-          </div>
+          </div> : null}
         </header>
 
         <div className="route-studio__globe">
@@ -182,10 +166,48 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               setActiveRouteId(routeId);
               setIsMissionPanelOpen(false);
             }}
+            fallback={
+              <>
+          <ResilientImage
+            src="/editorial/route-ribbon-hero.png"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 1180px) 100vw, 55vw"
+            className="route-journey__art"
+          />
+          <div className="route-journey">
+            {isPending ? (
+              <div className="route-composition-loading" role="status">
+                <RouteLoadingMark />
+                <strong>Plotting route options</strong>
+              </div>
+            ) : activeRoute ? (
+              <>
+                <h2>Your journey</h2>
+                <ol className="route-journey__stops" aria-label="Journey in travel order">
+                  {activeRoute.stops.map((stop, index) => (
+                    <li key={`${stop.kind}-${stop.id}-${index}`}>
+                      <span className="route-journey__code">{stop.code}</span>
+                      <div><strong>{stop.name}</strong><span>{stop.kind === "origin" ? "Start" : stop.kind === "return" ? "Return" : stop.country}</span></div>
+                    </li>
+                  ))}
+                </ol>
+                <p>Suggested route · transport and availability need confirmation.</p>
+              </>
+            ) : (
+              <div className="route-journey__empty">
+                <h2>A good trip starts with an idea.</h2>
+                <p>Describe yours to see a suggested journey here.</p>
+              </div>
+            )}
+          </div>
+              </>
+            }
           />
         </div>
 
-        <section className="route-studio__dock" aria-label="Ranked route options">
+        <section hidden={!generation?.routes.length} className="route-studio__dock" aria-label="Ranked route options">
           {(generation?.routes ?? []).map((route, index) => (
             <button
               key={route.id}
@@ -207,7 +229,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 {formatRouteTagline(route.tagline)}
               </small>
               <small>
-                {routePriceLabel(route)} / {Math.round(route.confidence * 100)}% app fit
+                {Math.round(route.confidence * 100)}% app fit
               </small>
             </button>
           ))}
@@ -231,7 +253,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
             <ChevronDown aria-hidden="true" />
           </button>
 
-          {isMissionPanelOpen ? (
+          <div className="route-studio__controls-reveal" inert={!isMissionPanelOpen}>
             <div className="route-studio__controls-body">
               {isPending ? (
                 <div className="route-composition-loading route-composition-loading--panel" aria-hidden="true">
@@ -239,31 +261,35 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   <strong>Composing route options</strong>
                   <span>Comparing stops, cost, and route rhythm.</span>
                 </div>
-              ) : (
-                <>
+              ) : null}
+                <div hidden={isPending}>
                   <div className="route-studio__section-heading">
-                    <p>Route brief</p>
-                    <span>Adjust the shape of the journey, then compose a new set.</span>
+                    <label htmlFor="route-prompt">What kind of trip?</label>
                   </div>
                   <div className="route-studio__brief">
                     <textarea
+                      id="route-prompt"
                       className="route-studio__prompt"
                       placeholder="Jungle riding, cold water, one dramatic stop, low friction transfers..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      rows={4}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter" || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.nativeEvent.isComposing) return;
+                        e.preventDefault();
+                        if (!e.repeat && !isPending && prompt.trim() && secondaryValues.origin.trim()) handlePlan();
+                      }}
+                      maxLength={1200}
+                      rows={3}
                     />
                     <button
                       className="route-studio__primary-action"
                       onClick={handlePlan}
-                      disabled={isPending}
+                      disabled={isPending || !prompt.trim() || !secondaryValues.origin.trim()}
                       aria-busy={isPending}
                     >
                       Compose new routes
                     </button>
-                    <p className="route-studio__status" role="status" aria-live="polite">
-                      {statusMessage}
-                    </p>
+
                     {errorMessage ? (
                       <p className="route-studio__error" role="alert">{errorMessage}</p>
                     ) : null}
@@ -274,17 +300,20 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                     ) : null}
                   </div>
 
+                  <details className="route-studio__preferences">
+                    <summary>Trip preferences</summary>
                   <PlannerForm
                     initialIntent={generation?.tripIntent ?? EMPTY_PLANNER_INTENT}
                     onChange={setSecondaryValues}
                   />
-                </>
-              )}
+                  </details>
+                </div>
+              <p className="route-studio__status" role="status" aria-live="polite">{statusMessage}</p>
             </div>
-          ) : null}
+          </div>
         </aside>
 
-        <aside className="route-studio__inspector">
+        <aside className="route-studio__inspector" hidden={!activeRoute}>
           {activeRoute ? (
             <>
               <div className="route-studio__inspector-media">
@@ -298,7 +327,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 />
                 <div className="route-studio__inspector-overlay" />
                 <div className="route-studio__inspector-copy">
-                  <p>Target stop</p>
+
                   <strong>{promotedStop?.name}</strong>
                   <span>{promotedMedia.punchline}</span>
                 </div>
@@ -306,7 +335,6 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
               <MediaCredit asset={promotedMedia} compact />
 
               <section className="route-studio__inspector-section route-studio__route-overview">
-                <p className="route-studio__kicker">Route path</p>
                 <p className="route-studio__path">
                   {formatRouteTagline(activeRoute.tagline)}
                 </p>
@@ -321,19 +349,6 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                   ) : null}
                 </div>
               </section>
-
-              {promotedStop ? (
-                <section
-                  className="route-studio__inspector-section route-studio__conditions-section"
-                  aria-labelledby="current-conditions-title"
-                >
-                  <p className="route-studio__kicker" id="current-conditions-title">Current conditions</p>
-                  <CurrentConditions
-                    latitude={promotedStop.coordinates.lat}
-                    longitude={promotedStop.coordinates.lng}
-                  />
-                </section>
-              ) : null}
 
               <details className="route-studio__inspector-details">
                 <summary>
@@ -394,6 +409,7 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                       : "View data status"}
                   </summary>
                   <div className="route-studio__cost-details-body">
+                    <p className="route-studio__cost-note">{activeRoute.dataFreshness}</p>
                     {hasProviderObservedPrice(activeRoute) ? (
                       <div className="route-studio__cost-rows">
                         {activeRoute.costBreakdown.transport.map((leg) => (
@@ -438,7 +454,13 @@ export function PlannerWorkspace({ initialGeneration }: PlannerWorkspaceProps) {
                 </details>
               </section>
 
+              {buildGoogleFlightsUrl(activeRoute.stops) ? <div className="route-studio__flight-link">
+                <a href={buildGoogleFlightsUrl(activeRoute.stops)!} target="_blank" rel="noopener noreferrer">Search this route on Google Flights ↗</a>
+                <p>Check the suggested dates, prices and availability on Google Flights.</p>
+              </div> : null}
+
               <RouteActions
+                key={activeRoute.id}
                 routeId={activeRoute.id}
                 route={activeRoute}
                 tripIntent={generation?.tripIntent}

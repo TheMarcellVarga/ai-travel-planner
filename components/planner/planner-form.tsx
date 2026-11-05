@@ -121,13 +121,11 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
           <span>Departure date</span>
           <input
             id="planner-departure-date"
-            type="text"
-            inputMode="numeric"
-            placeholder="YYYY-MM-DD"
+            type="date"
             value={departureDate}
             onChange={(event) => setDepartureDate(event.target.value)}
           />
-          <small>Optional · live price lookup needs a date</small>
+          <small>Optional</small>
         </label>
 
         <fieldset className="route-studio-form__field route-studio-form__fieldset">
@@ -137,6 +135,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
               <button
                 key={option.value}
                 type="button"
+                aria-pressed={routeType === option.value}
                 className={
                   routeType === option.value
                     ? "route-studio-form__segment route-studio-form__segment--active"
@@ -158,6 +157,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
               <button
                 key={option.value}
                 type="button"
+                aria-pressed={maxStops === option.value}
                 className={
                   maxStops === option.value
                     ? "route-studio-form__segment route-studio-form__segment--active"
@@ -173,12 +173,13 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
         </fieldset>
 
         <fieldset className="route-studio-form__field route-studio-form__field--wide route-studio-form__fieldset">
-          <legend>Budget posture</legend>
+          <legend>Budget</legend>
           <div className="route-studio-form__segments route-studio-form__segments--budget">
             {budgetModeOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
+                aria-pressed={budgetMode === option.value}
                 className={
                   budgetMode === option.value
                     ? "route-studio-form__segment route-studio-form__segment--active"
@@ -201,6 +202,7 @@ export function PlannerForm({ initialIntent, onChange }: PlannerFormProps) {
             <button
               key={tag}
               type="button"
+              aria-pressed={selectedTags.includes(tag)}
               className={
                 selectedTags.includes(tag)
                   ? "route-studio-form__wish route-studio-form__wish--active"

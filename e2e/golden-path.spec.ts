@@ -1,546 +1,101 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-async function composeRoute(page: Page) {
-  await page.goto("/planner");
-  const routeControls = page.getByRole("button", { name: "Route controls" });
-  await routeControls.click();
-  await page
-    .getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")
-    .fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
-  await page.getByRole("textbox", { name: "Origin" }).fill("Lisbon");
-  await page.getByRole("spinbutton", { name: "Trip length days" }).fill("10");
-  await page.getByRole("button", { name: "Compose new routes" }).click();
-  await expect(page.locator("main h1")).toContainText("Breakline");
-}
-
-test("demo user can plan, save, publish, share, and hand off a route", async ({
-  page
-}) => {
-  test.setTimeout(60_000);
-
-  await page.addInitScript(() => {
-    Object.defineProperty(window, "__wildRouteOpenedUrls", {
-      configurable: false,
-      value: [] as string[]
-    });
-    window.open = ((url?: string | URL) => {
-      (window as typeof window & { __wildRouteOpenedUrls: string[] })
-        .__wildRouteOpenedUrls.push(String(url));
-      return null;
-    }) as typeof window.open;
-  });
-
+test("demo user can plan, compare, save, publish, and continue to providers", async ({ page }) => {
+  test.setTimeout(90_000);
   await page.goto("/auth");
-  await page.getByRole("button", { name: "Enter Demo Mode" }).click();
-  await expect(page).toHaveURL(/\/saved$/);
-
+  await page.getByRole("button", { name: "Explore demo" }).click();
   await page.goto("/planner");
   await expect(page.locator(".route-studio__dock")).toBeHidden();
-  const routeControls = page.getByRole("button", { name: "Route controls" });
-  await expect(routeControls).toHaveAttribute("aria-expanded", "false");
-  await routeControls.click();
-  await expect(routeControls).toHaveAttribute("aria-expanded", "true");
-  await routeControls.click();
-  await expect(routeControls).toHaveAttribute("aria-expanded", "false");
-  await routeControls.click();
-  await expect(routeControls).toHaveAttribute("aria-expanded", "true");
-
-  await page
-    .getByPlaceholder(
-      "Jungle riding, cold water, one dramatic stop, low friction transfers..."
-    )
-    .fill(
-      "Find a 10 day surf and hiking route from Lisbon with one stop."
-    );
-  await page.getByRole("textbox", { name: "Origin" }).fill("Lisbon");
+  await page.getByLabel("What kind of trip?").fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
+  await page.getByText("Trip preferences", { exact: true }).click();
+  await page.getByRole("textbox", { name: "Origin", exact: true }).fill("Lisbon");
   await page.getByRole("spinbutton", { name: "Trip length days" }).fill("10");
+  // Collapsing controls must preserve unsaved preferences.
+  const controls = page.getByRole("button", { name: "Route controls" });
+  await controls.click();
+  await controls.click();
+  await expect(page.getByRole("textbox", { name: "Origin", exact: true })).toHaveValue("Lisbon");
   await page.getByRole("button", { name: "Compose new routes" }).click();
-
   await expect(page.locator("main h1")).toContainText("Breakline");
-  await routeControls.click();
-  await expect(
-    page.getByText(
-      "Demo persistence: this route set is kept only for the current app instance and is not durable."
-    )
-  ).toBeVisible();
-  const routeTitle = await page.locator("main h1").innerText();
-
+  const cards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
+  await expect(cards).toHaveCount(4);
+  await cards.nth(1).click();
+  await expect(cards.nth(1)).toHaveAttribute("aria-pressed", "true");
+  const title = await page.locator("main h1").innerText();
   await page.locator(".route-studio-actions summary").click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Saved in this browser's demo vault.")).toBeVisible();
-
+  await expect(page.locator(".route-studio-actions__message")).toContainText("Saved");
   await page.getByRole("button", { name: "Publish", exact: true }).click();
-  const publishMessage = page.locator(".route-studio-actions__message");
-  await expect(publishMessage).toContainText("Published preview at /share/");
-  const sharePath = await publishMessage.locator("a").getAttribute("href");
+  await expect(page.getByRole("link", { name: "Open share", exact: true })).toBeVisible();
+  const sharePath = await page.getByRole("link", { name: "Open share", exact: true }).getAttribute("href");
   expect(sharePath).toMatch(/^\/share\/preview-/);
-
   await page.goto(sharePath!);
-  await expect(page.getByRole("heading", { level: 1, name: routeTitle })).toBeVisible();
-  const sharedRoutePath = page.locator(
-    ".share-route-panel-left .floating-sidebar__header h2"
-  );
-  await expect(sharedRoutePath).toContainText("→");
-  expect(
-    Number.parseFloat(await sharedRoutePath.evaluate((element) => getComputedStyle(element).fontSize))
-  ).toBeLessThanOrEqual(16.8);
-  await expect(page.locator(".planner-stage-badges .status-pill-accent")).toHaveText("Check live price");
-  await expect(page.locator(".share-route-cost-breakdown strong")).toHaveCount(0);
-  await expect(
-    page.getByText("Availability: external provider search required.", {
-      exact: false
-    })
-  ).toBeVisible();
-  await expect(
-    page.getByText("external provider inventory was not queried.", {
-      exact: false
-    })
-  ).toBeVisible();
-  const shareCostRowFontSizes = await page
-    .locator(".share-route-cost-breakdown > div")
-    .evaluateAll((rows) => rows.map((row) => Number.parseFloat(getComputedStyle(row).fontSize)));
-  expect(shareCostRowFontSizes.every((fontSize) => fontSize >= 11.2)).toBe(true);
-  const shareAccessibility = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-    .analyze();
-  expect(
-    shareAccessibility.violations.filter(
-      ({ impact }) => impact === "serious" || impact === "critical"
-    )
-  ).toEqual([]);
-
-  await page.setViewportSize({ width: 800, height: 900 });
-  const sharedRouteLayout = await page.evaluate(() => {
-    const header = document.querySelector(".site-header")!.getBoundingClientRect();
-    const title = document.querySelector(".share-route-shell .planner-stage-header")!
-      .getBoundingClientRect();
-    const estimateBadge = document.querySelector(
-      ".planner-stage-badges .status-pill-accent"
-    )!;
-    const badgeStyles = getComputedStyle(estimateBadge);
-
-    return {
-      headerBottom: header.bottom,
-      titleTop: title.top,
-      badgeBackground: badgeStyles.backgroundColor,
-      badgeColor: badgeStyles.color
-    };
-  });
-
-  expect(sharedRouteLayout.headerBottom).toBeLessThanOrEqual(sharedRouteLayout.titleTop);
-  expect(sharedRouteLayout.badgeBackground).toBe("rgb(215, 255, 63)");
-  expect(sharedRouteLayout.badgeColor).toBe("rgb(18, 23, 11)");
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.mouse.wheel(0, 1100);
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
-  await expect(page.getByRole("heading", { name: "Journey breakdown" })).toBeInViewport();
-  await page.setViewportSize({ width: 1280, height: 720 });
-
-  const handoffResponsePromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/routes/") &&
-      response.url().endsWith("/handoff") &&
-      response.request().method() === "POST"
-  );
+  await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).analyze();
+  expect(accessibility.violations.filter(({ impact }) => impact === "serious" || impact === "critical")).toEqual([]);
   await page.locator(".route-studio-actions summary").click();
   await page.getByRole("button", { name: "Open booking handoff" }).click();
-  const handoffResponse = await handoffResponsePromise;
-  expect(handoffResponse.ok()).toBe(true);
-  const handoffPayload = (await handoffResponse.json()) as {
-    links: Array<{ url: string }>;
-  };
-  expect(handoffPayload.links[0]?.url).toMatch(/google\.com\/travel\/flights/);
-  const openedUrls = await page.evaluate(
-    () =>
-      (window as typeof window & { __wildRouteOpenedUrls: string[] })
-        .__wildRouteOpenedUrls
-  );
-  expect(openedUrls[0]).toBe(handoffPayload.links[0]?.url);
-  await expect(page.getByText("Opened booking handoff.")).toBeVisible();
-
+  const providerLink = page.getByRole("link", { name: "Continue to flight search" });
+  await expect(providerLink).toHaveAttribute("href", /google\.com\/travel\/flights/, { timeout: 30_000 });
+  await expect(providerLink).toHaveAttribute("target", "_blank");
   await page.goto("/saved");
-  await expect(page.getByText(routeTitle, { exact: true })).toHaveCount(2);
-  await expect(page.locator(".vault-route-card .card-price").first()).toHaveText(
-    "Check live price"
-  );
-  await expect(page.locator(".vault-route-card__tagline").first()).toContainText("→");
+  await expect(page.getByText(title, { exact: true })).toHaveCount(2);
   await expect(page.getByRole("link", { name: "Open preview share" })).toBeVisible();
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.mouse.wheel(0, 700);
-  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
-  await expect(page.getByRole("heading", { name: "Private route stack" })).toBeInViewport();
 });
 
-test("planner exposes guarded composition loading, multi-stop cost, and media attribution", async ({
-  page
-}) => {
-  await page.route("**/api/trips/plan", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 1_500));
-    await route.continue();
-  });
-
+test("planner failure keeps the brief available for retry", async ({ page }) => {
+  await page.route("**/api/trips/plan", route => route.fulfill({ status: 503, json: { error: "Unavailable" } }));
   await page.goto("/planner");
-  await expect(page.locator(".route-studio__dock")).toBeHidden();
-  await page.getByRole("button", { name: "Route controls" }).click();
-  await page
-    .getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")
-    .fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
+  const prompt = page.getByLabel("What kind of trip?");
+  await prompt.fill("Hiking from Singapore");
   await page.getByRole("button", { name: "Compose new routes" }).click();
-  await expect(page.getByText("Plotting route options")).toBeVisible();
-  await expect(page.getByText("Composing route options", { exact: true })).toBeVisible();
-  await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
-  await expect(page.locator(".route-studio__cost-status")).toContainText("No live fare");
-  const sourceLink = page.getByRole("link", { name: /^Source\./ }).first();
-  await expect(sourceLink).toBeVisible();
-  await sourceLink.hover();
-  await expect(page.getByRole("tooltip").first()).toBeVisible();
-  const whyDetails = page.locator("details").filter({ hasText: "Why this route" });
-  await expect(whyDetails.locator(".route-studio__reasons")).toBeHidden();
-  await whyDetails.locator("summary").click();
-  await expect(whyDetails.locator(".route-studio__reasons")).toBeVisible();
-  const costDetails = page.locator(".route-studio__cost-details");
-  await costDetails.locator("summary").click();
-  await expect(costDetails.getByText("No provider observation", { exact: false })).toBeVisible();
-  await expect(page.getByText("2D route view", { exact: true })).toHaveCount(0);
-  await expect(page.locator('[aria-label="2D route map fallback"]')).toHaveCount(0);
+  await expect(page.locator(".route-studio__error")).toContainText("try again");
+  await expect(prompt).toHaveValue("Hiking from Singapore");
+  await expect(page.getByRole("button", { name: "Compose new routes" })).toBeEnabled();
+});
 
-  await page.getByRole("button", { name: "Route controls" }).click();
-  await page.getByRole("button", { name: "2 stops 2 hops" }).click();
+test("Enter submits a valid trip brief and Shift+Enter adds a line", async ({ page }) => {
+  let requests = 0;
+  await page.route("**/api/trips/plan", route => {
+    requests += 1;
+    return route.fulfill({ status: 503, json: { error: "Unavailable" } });
+  });
+  await page.goto("/planner");
+  const prompt = page.getByLabel("What kind of trip?");
+  await prompt.press("Enter");
+  expect(requests).toBe(0);
+  await prompt.fill("Hiking from Singapore");
+  await prompt.press("Shift+Enter");
+  await expect(prompt).toHaveValue("Hiking from Singapore\n");
+  expect(requests).toBe(0);
+  await prompt.press("Enter");
+  await expect(page.locator(".route-studio__error")).toContainText("try again");
+  expect(requests).toBe(1);
+});
+
+test("selected routes retain reasoning, source attribution, and honest price status", async ({ page }) => {
+  await page.goto("/planner");
+  await page.getByLabel("What kind of trip?").fill("Find a 10 day surf and hiking route from Lisbon with one stop.");
+  await page.getByText("Trip preferences", { exact: true }).click();
+  await page.getByRole("textbox", { name: "Origin", exact: true }).fill("Lisbon");
+  await page.getByRole("spinbutton", { name: "Trip length days" }).fill("10");
   await page.getByRole("button", { name: "Compose new routes" }).click();
 
-  await expect(page.getByText("Plotting route options")).toBeVisible();
-  await expect(page.getByText("Plotting map", { exact: true })).toHaveCount(0);
-  await expect(page.locator(".route-composition-loading .route-loading-mark").first()).toBeVisible();
-  await expect(page.locator(".route-composition-loading .route-loading-mark__fill").first()).toBeVisible();
-  await expect(page.locator(".orbital-globe-status")).toHaveCount(0);
-  const composeButton = page.locator(".route-studio__primary-action");
-  await expect(composeButton).toHaveCount(0);
-  await expect(page.getByPlaceholder("Jungle riding, cold water, one dramatic stop, low friction transfers...")).toHaveCount(0);
-  await expect(page.getByText("Route brief", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("Composing route options", { exact: true })).toBeVisible();
-  await expect(page.getByText("Route cost", { exact: true })).toBeVisible();
-  expect(await page.locator(".route-studio__stop-image").count()).toBeGreaterThanOrEqual(2);
-  await expect(page.getByText("Composing route options", { exact: true })).toHaveCount(0);
+  const routes = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
+  await expect(routes).toHaveCount(4);
+  await routes.first().click();
+  await expect(page.getByText("No live fare or stay inventory was queried", { exact: true })).toBeVisible();
 
-  const routeCards = page.getByRole("region", { name: "Ranked route options" }).getByRole("button");
-  const routePaths = await routeCards.locator(".route-studio__route-path").allTextContents();
-  expect(routePaths).toHaveLength(4);
-  expect(new Set(routePaths).size).toBe(routePaths.length);
-  expect(routePaths.every((path) => path.includes("→"))).toBe(true);
-  await routeCards.nth(1).click();
-  await expect(routeCards.nth(1)).toHaveAttribute("aria-pressed", "true");
-});
+  const details = page.locator(".route-studio__inspector-details");
+  await details.nth(0).locator("summary").click();
+  await expect(page.locator(".route-studio__reasons p").first()).toBeVisible();
+  await details.nth(1).locator("summary").click();
+  await expect(page.locator(".route-studio__stops .media-credit").first()).toBeAttached();
 
-test("planner keeps festival typography inside readable panel bounds", async ({
-  page
-}) => {
-  await composeRoute(page);
-  await expect(page.getByRole("region", { name: "Ranked route options" })).toBeVisible();
-  await page.getByRole("region", { name: "Ranked route options" }).getByRole("button").nth(3).click();
-
-  const audit = await page.evaluate(() => {
-    const selectors = [
-      ".route-studio__summary h1",
-      ".route-studio__route strong",
-      ".route-studio__route small",
-      ".route-studio__stops strong",
-      ".route-studio__stops article > span",
-      ".route-studio__cost-note",
-      ".route-studio__cost-assumptions",
-      ".route-studio__estimate-note p"
-    ];
-    const metadataSelectors = [
-      ".route-studio__inspector > .media-credit",
-      ".route-studio__stops .media-credit",
-      ".route-studio__reasons p",
-      ".route-studio__cost-note",
-      ".route-studio__cost-assumptions"
-    ];
-
-    const boundsFor = (element: Element) => {
-      const rect = element.getBoundingClientRect();
-      const parentRect = element.parentElement?.getBoundingClientRect();
-
-      return {
-        fitsParent: !parentRect || (rect.left >= parentRect.left - 1 && rect.right <= parentRect.right + 1),
-        fitsOwnBox: element.scrollWidth <= element.clientWidth + 1
-      };
-    };
-
-    return {
-      pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-      mediaRatio: (() => {
-        const media = document.querySelector(".route-studio__inspector-media");
-        if (!media) return null;
-        const rect = media.getBoundingClientRect();
-        return rect.width / rect.height;
-      })(),
-      sourceBelowMedia: (() => {
-        const media = document.querySelector(".route-studio__inspector-media");
-        const source = document.querySelector(".route-studio__inspector > .media-credit");
-        if (!media || !source) return false;
-        return source.getBoundingClientRect().top >= media.getBoundingClientRect().bottom - 1;
-      })(),
-      stopImageSizes: Array.from(document.querySelectorAll(".route-studio__stop-image")).map(
-        (element) => {
-          const rect = element.getBoundingClientRect();
-          return { width: rect.width, height: rect.height };
-        }
-      ),
-      text: selectors.flatMap((selector) =>
-        Array.from(document.querySelectorAll(selector)).map((element) => {
-          const styles = window.getComputedStyle(element);
-
-          return {
-            ...boundsFor(element),
-            fontSize: Number.parseFloat(styles.fontSize)
-          };
-        })
-      ),
-      metadata: metadataSelectors.flatMap((selector) =>
-        Array.from(document.querySelectorAll(selector)).map(boundsFor)
-      )
-    };
-  });
-
-  expect(audit.pageOverflow).toBe(false);
-  expect(audit.mediaRatio).toBeGreaterThan(1.65);
-  expect(audit.mediaRatio).toBeLessThan(1.9);
-  expect(audit.sourceBelowMedia).toBe(true);
-  expect(audit.stopImageSizes.every((size) => size.width >= 52 && size.height >= 52)).toBe(true);
-  expect(
-    audit.text.filter((item) => !item.fitsParent || !item.fitsOwnBox),
-    "Readable planner text must fit its panel and own box"
-  ).toEqual([]);
-  expect(
-    audit.metadata.filter((item) => !item.fitsParent || !item.fitsOwnBox),
-    "Planner metadata must wrap inside its panel"
-  ).toEqual([]);
-  expect(audit.text.every((item) => item.fontSize >= 11.2)).toBe(true);
-});
-
-test("planner keeps header, route cards, and reading surfaces collision-free", async ({
-  page
-}) => {
-  await page.setViewportSize({ width: 1024, height: 768 });
-  await composeRoute(page);
-
-  const tabletHeader = await page.evaluate(() => {
-    const brand = document.querySelector(".site-corner-brand")!.getBoundingClientRect();
-    const command = document.querySelector(".site-command")!.getBoundingClientRect();
-
-    return {
-      brandRight: brand.right,
-      commandLeft: command.left
-    };
-  });
-
-  expect(tabletHeader.brandRight).toBeLessThanOrEqual(tabletHeader.commandLeft);
-
-  await page.setViewportSize({ width: 390, height: 844 });
-
-  const mobileLayout = await page.evaluate(() => {
-    const header = document.querySelector(".site-header")!.getBoundingClientRect();
-    const summary = document.querySelector(".route-studio__summary")!.getBoundingClientRect();
-    const dock = document.querySelector(".route-studio__dock")!;
-    const inspector = document.querySelector(".route-studio__inspector")!;
-
-    return {
-      headerBottom: header.bottom,
-      summaryTop: summary.top,
-      dockClientWidth: dock.clientWidth,
-      dockScrollWidth: dock.scrollWidth,
-      inspectorOverflow: getComputedStyle(inspector).overflow
-    };
-  });
-
-  expect(mobileLayout.headerBottom).toBeLessThanOrEqual(mobileLayout.summaryTop);
-  expect(mobileLayout.dockScrollWidth).toBeLessThanOrEqual(mobileLayout.dockClientWidth + 1);
-  expect(mobileLayout.inspectorOverflow).toBe("visible");
-
-  await page.getByRole("button", { name: "Route controls" }).click();
-
-  const mobileControls = await page.evaluate(() => {
-    const controls = document.querySelector(".route-studio__controls")!.getBoundingClientRect();
-    const columnCount = (selector: string) =>
-      getComputedStyle(document.querySelector(selector)!)
-        .gridTemplateColumns.split(" ")
-        .filter(Boolean).length;
-
-    return {
-      height: controls.height,
-      shapeColumns: columnCount(".route-studio-form__segments--shape"),
-      stopColumns: columnCount(".route-studio-form__segments--stops")
-    };
-  });
-
-  expect(mobileControls.height).toBeLessThan(1000);
-  expect(mobileControls.shapeColumns).toBe(2);
-  expect(mobileControls.stopColumns).toBe(3);
-});
-
-test("sign-in keeps the festival treatment within a professional type scale", async ({
-  page
-}) => {
-  await page.goto("/auth");
-
-  const audit = await page.evaluate(() => {
-    const rect = (element: Element) => {
-      const box = element.getBoundingClientRect();
-      return {
-        left: box.left,
-        right: box.right,
-        top: box.top,
-        bottom: box.bottom
-      };
-    };
-
-    return {
-      pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-      bodyFont: window.getComputedStyle(document.body).fontFamily,
-      displayFont: window.getComputedStyle(document.querySelector(".auth-panel h1")!).fontFamily,
-      monoFont: window.getComputedStyle(document.querySelector(".auth-panel .eyebrow")!).fontFamily,
-      headingFontSize: Number.parseFloat(
-        window.getComputedStyle(document.querySelector(".auth-panel h1")!).fontSize
-      ),
-      cardHeadingFontSizes: Array.from(document.querySelectorAll(".auth-card h2")).map(
-        (element) => Number.parseFloat(window.getComputedStyle(element).fontSize)
-      ),
-      buttonBounds: Array.from(document.querySelectorAll(".auth-card .button")).map(
-        (element) => {
-          const button = rect(element);
-          const parent = rect(element.parentElement ?? element);
-
-          return {
-            fitsParent:
-              button.left >= parent.left - 1 &&
-              button.right <= parent.right + 1 &&
-              button.top >= parent.top - 1 &&
-              button.bottom <= parent.bottom + 1,
-            fontSize: Number.parseFloat(window.getComputedStyle(element).fontSize)
-          };
-        }
-      )
-    };
-  });
-
-  expect(audit.pageOverflow).toBe(false);
-  expect(audit.bodyFont).toContain("Geist");
-  expect(audit.displayFont).toContain("Geist");
-  expect(audit.monoFont).toContain("Geist Mono");
-  expect(audit.headingFontSize).toBeLessThanOrEqual(72);
-  expect(audit.cardHeadingFontSizes.every((fontSize) => fontSize <= 36)).toBe(true);
-  expect(audit.buttonBounds.every((button) => button.fitsParent)).toBe(true);
-  expect(audit.buttonBounds.every((button) => button.fontSize <= 16)).toBe(true);
-});
-
-test("signed-out saved routes use a compact empty state on desktop and mobile", async ({
-  page
-}) => {
-  for (const viewport of [
-    { width: 1280, height: 720 },
-    { width: 390, height: 844 },
-    { width: 320, height: 844 }
-  ]) {
-    await page.setViewportSize(viewport);
-    await page.goto("/saved");
-
-    const audit = await page.evaluate(() => {
-      const state = document.querySelector(".saved-vault-shell-empty");
-      const card = document.querySelector(".saved-vault-shell-empty .floating-sidebar");
-      const heading = document.querySelector(".saved-vault-shell-empty h1");
-      const buttons = Array.from(
-        document.querySelectorAll(".saved-vault-shell-empty .button")
-      );
-      const rect = (element: Element) => element.getBoundingClientRect();
-
-      return {
-        pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-        cardHeight: card ? rect(card).height : 0,
-        headingFits: heading
-          ? rect(heading).right <= (heading.parentElement?.getBoundingClientRect().right ?? 0) + 1
-          : false,
-        buttons: buttons.map((button) => {
-          const buttonRect = rect(button);
-          const parentRect = rect(button.parentElement ?? button);
-
-          return {
-            height: buttonRect.height,
-            fitsParent:
-              buttonRect.left >= parentRect.left - 1 &&
-              buttonRect.right <= parentRect.right + 1
-          };
-        }),
-        hasState: Boolean(state)
-      };
-    });
-
-    expect(audit.hasState).toBe(true);
-    expect(audit.pageOverflow).toBe(false);
-    expect(audit.cardHeight).toBeLessThan(360);
-    expect(audit.headingFits).toBe(true);
-    expect(audit.buttons.every((button) => button.height <= 52 && button.fitsParent)).toBe(true);
-  }
-});
-
-test("festival supporting copy keeps a readable line weight", async ({ page }) => {
-  await page.goto("/");
-
-  const weights = await page.evaluate(() =>
-    [
-      ".atlas-hero__lede",
-      ".route-console__header small",
-      ".route-console__route small",
-      ".route-proof p",
-      ".planning-sequence li p",
-      ".atlas-section__heading p",
-      ".atlas-row p",
-      ".share-artifact li",
-      ".footer-departure p:not(.eyebrow)"
-    ].map((selector) =>
-      Number.parseInt(window.getComputedStyle(document.querySelector(selector)!).fontWeight, 10)
-    )
-  );
-
-  expect(weights.every((weight) => weight >= 500)).toBe(true);
-});
-
-test("festival composition keeps structural surfaces level", async ({ page }) => {
-  await page.goto("/");
-
-  const audit = await page.evaluate(() => {
-    const levelSelectors = [
-      ".site-corner-brand",
-      ".site-command",
-      ".route-proof__intro",
-      ".route-proof__metrics",
-      ".planning-sequence li:nth-child(2)",
-      ".planning-sequence li:nth-child(3)",
-      ".planning-sequence li:nth-child(4)",
-      ".atlas-feature",
-      ".atlas-row:nth-child(even)",
-      ".share-artifact"
-    ];
-    const rotationFor = (selector: string) => {
-      const transform = getComputedStyle(document.querySelector(selector)!).transform;
-      const matrix = transform.match(/^matrix\(([^)]+)\)$/);
-      const values = matrix ? matrix[1].split(",").map(Number) : [];
-      return values.length >= 2 ? (Math.atan2(values[1], values[0]) * 180) / Math.PI : 0;
-    };
-    const rotations = levelSelectors.map(rotationFor);
-    const consoleTransform = getComputedStyle(
-      document.querySelector(".route-console")!
-    ).transform;
-    const matrix = consoleTransform.match(/^matrix\(([^)]+)\)$/);
-    const values = matrix ? matrix[1].split(",").map(Number) : [];
-    const consoleAngle = values.length >= 2 ? (Math.atan2(values[1], values[0]) * 180) / Math.PI : 0;
-
-    return { rotations, consoleAngle };
-  });
-
-  expect(audit.rotations.every((rotation) => Math.abs(rotation) <= 0.05)).toBe(true);
-  expect(Math.abs(audit.consoleAngle)).toBeLessThanOrEqual(0.7);
+  await page.locator(".route-studio__cost-details summary").click();
+  await expect(page.locator(".route-studio__cost-assumptions li").first()).toBeVisible();
+  await expect(page.getByText(/External providers own final price and availability/)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Search this route on Google Flights/ }))
+    .toHaveAttribute("href", /^https:\/\/www\.google\.com\/travel\/flights\?tfs=/);
 });

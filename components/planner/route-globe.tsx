@@ -13,6 +13,7 @@ type RouteGlobeProps = {
   activeRouteId: string | null;
   onSelectRoute: (routeId: string) => void;
   isComposing?: boolean;
+  fallback: React.ReactNode;
 };
 
 type GlobeViewport = {
@@ -97,7 +98,7 @@ function buildTooltip(point: GlobePoint) {
   `;
 }
 
-export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing = false }: RouteGlobeProps) {
+export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing = false, fallback }: RouteGlobeProps) {
   const [viewport, setViewport] = useState<GlobeViewport>({ width: 920, height: 920 });
   const [globeReady, setGlobeReady] = useState(false);
   const [globeTimedOut, setGlobeTimedOut] = useState(false);
@@ -369,7 +370,8 @@ export function RouteGlobe({ routes, activeRouteId, onSelectRoute, isComposing =
 
   return (
     <div className="orbital-globe-stage" ref={containerRef}>
-      {statusRoute && !globeReady && !isComposing ? (
+      {!globeReady || globeTimedOut ? fallback : null}
+      {statusRoute && !globeReady && !isComposing && !globeTimedOut && webGlAvailable ? (
         <div className="orbital-globe-status" role="status" aria-live="polite">
           <div className="orbital-globe-status__header">
             <span className="orbital-globe-status__mode">

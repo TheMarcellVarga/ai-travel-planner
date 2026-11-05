@@ -12,6 +12,7 @@ type RouteActionsProps = {
   routeId: string;
   route?: RouteOption;
   tripIntent?: TripIntent;
+  publicView?: boolean;
 };
 
 type HandoffResponse = {
@@ -21,16 +22,18 @@ type HandoffResponse = {
 type ActionResponse = HandoffResponse & {
   error?: string;
   shareUrl?: string;
+  persistence?: { durable: boolean };
 };
 
-export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) {
+export function RouteActions({ routeId, route, tripIntent, publicView = false }: RouteActionsProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [actionHref, setActionHref] = useState<string | null>(null);
+  const [actionLabel, setActionLabel] = useState("Open share");
   const [isPending, startTransition] = useTransition();
 
   function runAction(
     path: string,
-    successMessage: (payload: any) => string,
+    successMessage: (payload: ActionResponse) => string,
     openFirstLink = false,
     saveInBrowser = false
   ) {
@@ -41,34 +44,52 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
         const response = await fetch(path, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ route, tripIntent })
+          body: JSON.stringify({ route, tripIntent }),
+          signal: AbortSignal.timeout(20_000)
         });
         const payload = (await response.json().catch(() => ({}))) as ActionResponse;
 
         if (!response.ok) {
-          setMessage(payload.error ?? "This action failed. Try again.");
+          if (response.status === 401) {
+            setMessage("Enter demo mode or sign in to save and share routes.");
+            setActionHref("/auth");
+            setActionLabel("Continue");
+          } else {
+            setMessage(payload.error ?? "This action failed. Try again.");
+          }
           return;
         }
 
         if (openFirstLink) {
           const firstLink = payload.links?.[0]?.url;
+          if (!firstLink) {
+            setMessage("Flight search is unavailable for this route. Try again later.");
+            return;
+          }
           if (firstLink) {
-            window.open(firstLink, "_blank", "noopener,noreferrer");
+            setActionHref(firstLink);
+            setActionLabel("Continue to flight search");
           }
         }
 
-        if (saveInBrowser && route) {
+        if (saveInBrowser && route && !payload.persistence?.durable) {
           saveDemoRouteToBrowser(window.localStorage, route);
+        }
+
+        if (path.endsWith("/publish") && !payload.shareUrl) {
+          setMessage("A share link could not be created. Try again.");
+          return;
         }
 
         if (path.endsWith("/publish") && route && payload.shareUrl) {
           saveDemoShareToBrowser(window.localStorage, route, payload.shareUrl);
           setActionHref(payload.shareUrl);
+          setActionLabel("Open share");
         }
 
         setMessage(successMessage(payload));
       } catch {
-        setMessage("The connection dropped before this action finished. Try again.");
+        setMessage("Could not finish this action. Please try again.");
       }
     });
   }
@@ -76,18 +97,18 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
   return (
     <details className="route-studio-actions">
       <summary className="route-studio-actions__summary">
-        <span>Decision tools</span>
-        <small>{isPending ? "working" : "ready"}</small>
+        <span>{publicView ? "Flight search" : "Save & share"}</span>
+        <small>{isPending ? "Working…" : ""}</small>
       </summary>
       <div className="route-studio-actions__body">
-        <div className="route-studio-actions__secondary">
+        {!publicView ? <div className="route-studio-actions__secondary">
           <button
             className="route-studio-actions__secondary-button"
             disabled={isPending}
             onClick={() =>
               runAction(
                 `/api/routes/${routeId}/save`,
-                () => "Saved in this browser's demo vault.",
+                (payload) => payload.persistence?.durable ? "Saved to your account." : "Saved in this browser's demo vault.",
                 false,
                 true
               )
@@ -102,28 +123,28 @@ export function RouteActions({ routeId, route, tripIntent }: RouteActionsProps) 
             onClick={() =>
               runAction(
                 `/api/routes/${routeId}/publish`,
-                (payload) => `Published preview at ${payload.shareUrl}`
+                () => "Your route preview is ready."
               )
             }
             type="button"
           >
             Publish
           </button>
-        </div>
-        <button
+        </div> : null}
+        {publicView ? <button
           className="route-studio-actions__primary-button"
           disabled={isPending}
           onClick={() =>
-            runAction(`/api/routes/${routeId}/handoff`, () => "Opened booking handoff.", true)
+            runAction(`/api/routes/${routeId}/handoff`, () => "Flight search is ready. Prices and availability are confirmed by the provider.", true)
           }
           type="button"
         >
           Open booking handoff
-        </button>
+        </button> : null}
         {message ? (
           <p className="route-studio-actions__message" role="status" aria-live="polite">
             {message}{" "}
-            {actionHref ? <a href={actionHref}>Open share</a> : null}
+            {actionHref ? <a href={actionHref} target={actionHref.startsWith("http") ? "_blank" : undefined} rel={actionHref.startsWith("http") ? "noopener noreferrer" : undefined}>{actionLabel}</a> : null}
           </p>
         ) : null}
       </div>
