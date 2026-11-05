@@ -164,3 +164,19 @@ Phase 6 guarded composition slice:
 Live provider credentials, a model adapter, production map tiles, and provider-
 confirmed freshness remain feature-flagged rollout work. The route contract is
 ready for those adapters without changing the UI or persistence boundary.
+
+## Skyscanner flight-only search (in progress)
+
+The opt-in `/api/flights/search` is separate from route scoring and cost
+snapshots. It requires a managed authenticated session and validates explicitly
+entered, contiguous dated airport/city codes. When configured, the server calls
+Skyscanner Live Prices create/poll and returns sanitized flight-only itinerary
+prices, partial/complete status, observation time, transfer type, and booking
+links. It does not store provider payloads or blend flight offers with fixture
+stay amounts. Full multi-ticket options are retained only when every booking link
+passes the HTTPS Skyscanner gateway allowlist.
+
+This is an unverified partner integration, disabled by default. Activation needs
+approved partner access, private credentials, managed authentication, and
+production-grade distributed quotas; current in-memory limits are not sufficient
+for multi-instance cost control. The test suite mocks all provider traffic.
