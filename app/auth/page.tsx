@@ -34,115 +34,131 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       : null;
 
   return (
-    <main className="shell auth-shell">
-      <section className="page-panel auth-panel">
-        <div className="section-heading">
-          <p className="eyebrow">Account access</p>
-          <h1>Keep your routes close.</h1>
+    <main className="shell auth-shell auth-simple">
+      <section className="page-panel auth-panel auth-simple__card" aria-labelledby="auth-title">
+        <div className="section-heading auth-simple__heading">
+          <h1 id="auth-title">
+            {user?.authMode === "supabase"
+              ? "You’re signed in"
+              : user?.authMode === "demo"
+                ? "Your demo is ready"
+                : "Welcome to Wild Route"}
+          </h1>
           <p className="muted-copy">
-            Sign in to save, publish, and return to the routes you are shaping. No account yet? Use the preview to explore first.
+            {user?.authMode === "supabase"
+              ? "Your routes are ready when you are."
+              : user?.authMode === "demo"
+                ? "Your demo routes stay in this browser."
+                : hasSupabaseEnv
+                  ? "Sign in to sync routes, or explore with demo data."
+                  : "Explore with sample data. Demo routes stay in this browser."}
           </p>
         </div>
 
-        {user ? (
-          <div className="auth-state">
-            <p className="lede">
-              Signed in as <strong>{user.email}</strong> via {user.authMode}.
-            </p>
-            <form action="/api/auth/signout" method="post">
-              <button className="button button-ghost" type="submit">
-                Sign Out
-              </button>
-            </form>
-          </div>
-        ) : null}
-
         {errorMessage ? (
-          <p className="status-copy auth-status auth-status-error">{errorMessage}</p>
+          <p className="status-copy auth-status auth-status-error" role="alert">
+            {errorMessage}
+          </p>
         ) : null}
-
         {successMessage ? (
-          <p className="status-copy auth-status">{successMessage}</p>
+          <p className="status-copy auth-status" role="status">
+            {successMessage}
+          </p>
         ) : null}
-
         {params.sent === "1" ? (
-          <p className="status-copy auth-status">
-            Magic link sent to <strong>{params.email}</strong>. Finish sign-in from your inbox.
+          <p className="status-copy auth-status" role="status">
+            Check your inbox for a sign-in link sent to <strong>{params.email}</strong>.
           </p>
         ) : null}
 
-        <div className="auth-grid">
-          {hasSupabaseEnv ? (
-            <article className="auth-card">
-              <p className="eyebrow">Sign in</p>
-              <h2>Email magic link</h2>
-              <p className="muted-copy">
-                Use a magic link or Google to sync routes, billing, and account data.
-              </p>
-              <form action="/api/auth/signin" className="auth-form" method="post">
-                <input name="next" type="hidden" value="/saved" />
-                <label htmlFor="auth-email">Email address</label>
-                <input
-                  id="auth-email"
-                  name="email"
-                  placeholder="traveler@example.com"
-                  type="email"
-                />
-                <button className="button" type="submit">
-                  Send Magic Link
-                </button>
-              </form>
-              <form action="/api/auth/signin" className="auth-form" method="post">
-                <input name="next" type="hidden" value="/saved" />
-                {oauthProviders.map((provider) => (
-                  <button
-                    className="button button-ghost"
-                    key={provider}
-                    name="provider"
-                    type="submit"
-                    value={provider}
-                  >
-                    Continue With {getOAuthProviderLabel(provider)}
-                  </button>
-                ))}
-              </form>
-            </article>
-          ) : (
-            <article className="auth-card auth-card-inactive">
-              <p className="eyebrow">Sign in unavailable</p>
-              <h2>Account sign-in is not connected in this preview.</h2>
-              <p className="muted-copy">
-                Connect account authentication to enable magic links and OAuth sign-in here.
-              </p>
-              <p className="muted-copy">
-                Until then, use demo mode to explore. Route save, publish, and handoff flows still work in the preview.
-              </p>
-            </article>
-          )}
-
-          <article className="auth-card">
-            <p className="eyebrow">Demo mode</p>
-            <h2>Explore in demo mode.</h2>
-            <p className="muted-copy">
-              Try the planning flow in this browser. Saves stay local and published previews remain shareable.
+        {user ? (
+          <div className="auth-simple__account">
+            <p>
+              {user.authMode === "supabase" ? (
+                <>Signed in as <strong>{user.email}</strong></>
+              ) : (
+                "Demo session active on this device."
+              )}
             </p>
-            <form action="/api/auth/demo" className="auth-form" method="post">
-              <input name="next" type="hidden" value="/saved" />
-              <label htmlFor="demo-email">Demo email address</label>
-              <input
-                defaultValue="demo@wildroute.local"
-                id="demo-email"
-                name="email"
-                type="email"
-              />
-              <button className="button" type="submit">
-                Enter Demo Mode
+            <Link className="button auth-simple__button" href="/saved">
+              View saved routes
+            </Link>
+            <form action="/api/auth/signout" method="post">
+              <button className="button button-ghost" type="submit">
+                Sign out
               </button>
             </form>
-            <Link className="button button-ghost" href="/planner">
-              Continue without an account
-            </Link>
-          </article>
+          </div>
+        ) : (
+          <>
+            {hasSupabaseEnv ? (
+              <>
+                <form
+                  action="/api/auth/signin"
+                  className="auth-form auth-simple__form"
+                  method="post"
+                >
+                  <input name="next" type="hidden" value="/saved" />
+                  <label className="field" htmlFor="auth-email">
+                    <span>Email address</span>
+                    <input
+                      id="auth-email"
+                      name="email"
+                      placeholder="you@example.com"
+                      type="email"
+                      autoComplete="email"
+                      required
+                    />
+                  </label>
+                  <button className="button auth-simple__button" type="submit">
+                    Continue with email
+                  </button>
+                </form>
+                {oauthProviders.length > 0 ? (
+                  <form action="/api/auth/signin" className="auth-simple__providers" method="post">
+                    <input name="next" type="hidden" value="/saved" />
+                    {oauthProviders.map((provider) => (
+                      <button
+                        className="button button-ghost"
+                        key={provider}
+                        name="provider"
+                        type="submit"
+                        value={provider}
+                      >
+                        Continue with {getOAuthProviderLabel(provider)}
+                      </button>
+                    ))}
+                  </form>
+                ) : null}
+                <p className="auth-simple__hint">
+                  We’ll email you a secure link. No password needed.
+                </p>
+                <p className="auth-simple__or" aria-hidden="true">
+                  <span>or</span>
+                </p>
+              </>
+            ) : (
+              <p className="auth-simple__hint">
+                Account sign-in is not connected in this preview.
+              </p>
+            )}
+            <form
+              action="/api/auth/demo"
+              className="auth-simple__demo"
+              method="post"
+            >
+              <input name="next" type="hidden" value="/saved" />
+              <button
+                className={`button${hasSupabaseEnv ? " button-ghost" : ""} auth-simple__button`}
+                type="submit"
+              >
+                Explore demo
+              </button>
+            </form>
+          </>
+        )}
+        <div className="auth-simple__footer">
+          <Link href="/planner">Continue exploring</Link>
         </div>
       </section>
     </main>

@@ -80,6 +80,18 @@ describe("planner page", () => {
     expect(getLatestGenerationForUser).toHaveBeenCalledWith(demoUser.id);
   });
 
+  it("does not expose a previous visitor's anonymous generation", async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue(null);
+    vi.mocked(getLatestGenerationForUser).mockReturnValue(
+      createTripGeneration(interpretTripIntent({ prompt: "A private previous visitor brief" }))
+    );
+    const { default: PlannerPage } = await import("@/app/planner/page");
+    const page = await PlannerPage();
+    expect(page.props.initialGeneration).toBeNull();
+    expect(getLatestGenerationForUser).not.toHaveBeenCalled();
+    expect(getLatestGenerationForUserFromDatabase).not.toHaveBeenCalled();
+  });
+
   it("prefers the latest database generation for Supabase users", async () => {
     const persistedGeneration = createTripGeneration(
       interpretTripIntent({ prompt: "Persisted route from Budapest." })

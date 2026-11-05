@@ -134,7 +134,7 @@ test("demo account and saved-route controls remain sequentially keyboard accessi
   page
 }) => {
   await page.goto("/auth");
-  await page.getByRole("button", { name: "Enter Demo Mode" }).click();
+  await page.getByRole("button", { name: "Explore demo" }).click();
   await expect(page).toHaveURL(/\/saved$/);
   await expectSequentialKeyboardOrder(page);
 

@@ -7,10 +7,9 @@ type AuthLinkProps = {
 };
 
 export function AuthLink({ user }: AuthLinkProps) {
-  if (!user) {
+  if (!user || user.authMode === "demo") {
     return (
       <Link href="/auth" className="auth-chip">
-        <span>guest</span>
         <strong>Sign in</strong>
       </Link>
     );
@@ -18,7 +17,6 @@ export function AuthLink({ user }: AuthLinkProps) {
 
   return (
     <Link href="/account" className="auth-chip auth-chip-active">
-      <span>account</span>
       <strong>{user.name}</strong>
     </Link>
   );

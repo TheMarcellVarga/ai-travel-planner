@@ -1,6 +1,10 @@
-export const oauthProviders = ["google", "github"] as const;
+const supportedProviders = ["google", "github"] as const;
 
-export type OAuthProvider = (typeof oauthProviders)[number];
+export type OAuthProvider = (typeof supportedProviders)[number];
+
+export const oauthProviders: OAuthProvider[] = supportedProviders.filter((provider) =>
+  (process.env.AUTH_OAUTH_PROVIDERS ?? "").split(",").map((value) => value.trim()).includes(provider)
+);
 
 export function isOAuthProvider(value: string): value is OAuthProvider {
   return oauthProviders.includes(value as OAuthProvider);

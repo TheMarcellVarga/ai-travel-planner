@@ -21,13 +21,13 @@ export async function POST(request: Request) {
   const nextPath = String(formData.get("next") ?? "/planner");
 
   if (!hasSupabaseEnv) {
-    return NextResponse.redirect(new URL("/auth?error=supabase-not-configured", request.url));
+    return NextResponse.redirect(new URL("/auth?error=supabase-not-configured", request.url), 303);
   }
 
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
-    return NextResponse.redirect(new URL("/auth?error=supabase-unavailable", request.url));
+    return NextResponse.redirect(new URL("/auth?error=supabase-unavailable", request.url), 303);
   }
 
   if (isOAuthProvider(provider)) {
@@ -39,14 +39,14 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      return NextResponse.redirect(new URL("/auth?error=oauth-start-failed", request.url));
+      return NextResponse.redirect(new URL("/auth?error=oauth-start-failed", request.url), 303);
     }
 
-    return NextResponse.redirect(data.url ?? new URL("/auth", request.url));
+    return NextResponse.redirect(data.url ?? new URL("/auth", request.url), 303);
   }
 
   if (!email) {
-    return NextResponse.redirect(new URL("/auth?error=missing-email", request.url));
+    return NextResponse.redirect(new URL("/auth?error=missing-email", request.url), 303);
   }
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -57,8 +57,8 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.redirect(new URL("/auth?error=otp-start-failed", request.url));
+    return NextResponse.redirect(new URL("/auth?error=otp-start-failed", request.url), 303);
   }
 
-  return NextResponse.redirect(new URL(`/auth?sent=1&email=${encodeURIComponent(email)}`, request.url));
+  return NextResponse.redirect(new URL(`/auth?sent=1&email=${encodeURIComponent(email)}`, request.url), 303);
 }

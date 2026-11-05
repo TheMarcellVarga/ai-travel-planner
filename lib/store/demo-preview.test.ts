@@ -35,7 +35,7 @@ describe("serverless-safe demo previews", () => {
       .not.toContain(intent.prompt);
     expect(resolved?.route.promotedStopId).toBe(route.promotedStopId);
     expect(resolved?.route.stops.at(-1)?.kind).toBe("return");
-    expect(resolved?.publicRoute.route.bookingLinks).toBeUndefined();
+    expect(resolved?.publicRoute.route).not.toHaveProperty("bookingLinks");
   });
 
   it("rejects malformed preview tokens", async () => {

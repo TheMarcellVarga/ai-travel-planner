@@ -7,7 +7,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const nextPath = url.searchParams.get("next") ?? "/planner";
+  const requestedPath = url.searchParams.get("next") ?? "/planner";
+  const nextPath = ["/planner", "/saved", "/account"].includes(requestedPath)
+    ? requestedPath
+    : "/planner";
   const supabase = await createSupabaseServerClient();
 
   if (code && supabase) {

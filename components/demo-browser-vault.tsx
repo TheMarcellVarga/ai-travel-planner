@@ -40,8 +40,7 @@ export function DemoBrowserRoutes() {
   if (!routes.length) {
     return (
       <p className="muted-copy">
-        No browser-local routes yet. Generate in the planner and save a route
-        to keep it on this device.
+        No saved routes yet. Plan a route and save it to this device.
       </p>
     );
   }
@@ -81,8 +80,7 @@ export function DemoBrowserShares() {
   if (!shares.length) {
     return (
       <p className="muted-copy">
-        No preview links yet. Publish from the planner to create a validated,
-        stateless demo share.
+        No shared previews yet. Publish a route from the planner to create a link.
       </p>
     );
   }
