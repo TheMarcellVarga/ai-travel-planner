@@ -37,13 +37,22 @@ Rules:
 Default:
 - `http://localhost:3000`
 
+## OAuth Providers
+- `AUTH_OAUTH_PROVIDERS` (optional comma-separated list: `google`, `github`)
+
+Rules:
+- Enable only providers configured in the Supabase project.
+- The sign-in UI and server route accept only the explicitly enabled providers.
+
 ## Stripe
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRO_PRICE_ID`
+- `BILLING_UI_ENABLED` (default: `false`)
 
 Rules:
-- Billing surfaces should degrade clearly if missing.
+- The flag gates account controls and checkout/portal API routes. Keep it false
+  until the Stripe test-mode QA checklist passes.
 - Webhook verification requires `STRIPE_WEBHOOK_SECRET`.
 - Live checkout and portal verification should follow `docs/STRIPE_TEST_MODE_QA.md`.
 
@@ -66,13 +75,18 @@ Rules:
 - When absent, each process creates an ephemeral random salt so builds and local
   development remain functional without retaining raw identifiers.
 
-## Future Provider Variables
-Add provider variables only through documented adapter work. Each provider needs:
+## Optional Provider Variables
+Each provider needs:
 - server-only API key
 - data freshness policy
 - rate-limit policy
 - fallback behavior
 - privacy review
+
+The optional Skyscanner adapter is disabled by default and is not connected to
+the planner UI. Do not enable `SKYSCANNER_ENABLED` or add its API key without
+approved partner access and production-grade shared quota controls. The planner
+currently hands selected routes to Google Flights for external search.
 
 ## Health Checks
 Use `/api/health` to inspect whether auth/database/billing/email wiring is present without exposing secret values.

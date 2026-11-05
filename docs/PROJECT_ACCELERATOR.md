@@ -6,20 +6,23 @@ This document is the practical command center for moving Wild Route forward. It 
 Use this before opening broad roadmap docs when the goal is to build.
 
 ## Current Verification Snapshot
-Last checked: 2026-08-22.
+Last checked: 2026-11-06.
 
 ```bash
 npm run test
+npm run test:e2e
+npm run verify:migrations
+npm run lint
 npm run build
 ```
 
 Result:
-- `npm run test`: passed, 19 test files, 84 tests.
-- `npm run test:evals`: passed, 7 fixtures.
-- `npm run test:e2e`: passed, 15 tests in Chromium.
-- `npm run verify:migrations`: passed, 6 migration files.
-- `npm run build`: passed with Next.js 15.5.22.
-- `npm audit --omit=dev`: zero known vulnerabilities.
+- `npm run test`: passed, 31 test files, 123 tests (including seven route-eval fixtures).
+- `npm run test:e2e`: passed, 27 tests in Chromium.
+- `npm run verify:migrations`: passed, 8 migration files.
+- `npm run lint`: passed.
+- `npm run build`: passed with Next.js 15.5.22, including type validation.
+- `npm audit --omit=dev`: last checked 2026-08-22; zero known vulnerabilities then.
 
 Build routes currently include:
 - public pages: `/`, `/planner`, `/saved`, `/share/[slug]`, `/auth`, `/account`, `/privacy`, `/terms`
@@ -27,6 +30,7 @@ Build routes currently include:
 - route APIs: `/api/routes/[routeId]/save`, `/publish`, `/handoff`
 - account APIs: `/api/account/profile`, `/export`, `/delete`
 - billing APIs: `/api/billing/checkout`, `/portal`, `/api/stripe/webhook`
+- flight/weather APIs: `/api/flights/search`, `/api/weather/current`
 - operational APIs: `/api/health`, `/api/newsletter/subscribe`
 
 ## What Is Real Today
@@ -56,10 +60,15 @@ Build routes currently include:
   local deterministic fixture.
 - Runtime route generation prefers the configured Supabase destination catalog
   and discloses fallback when the catalog cannot be reached or has no rows.
-- The homepage uses the same route-generation pipeline as the planner rather
-  than a separately hardcoded route/price preview. Homepage and planner show
-  source-attributed Open-Meteo current conditions; these do not influence safety
-  or feasibility scoring.
+- The homepage shows three bundled destination examples and labels the planner
+  as an interactive demo. It does not generate routes or fetch weather on page
+  load. The planner uses app-side route scoring and discloses sample data and
+  provider handoff boundaries.
+- The planner opens the interactive route globe when available and keeps an
+  ordered route fallback visible when WebGL or external globe textures fail.
+- Google Flights receives a route-prefilled multi-city link. Flight dates,
+  prices, availability, and booking are handled by Google; the app has no live
+  flight inventory enabled.
 - Planner first load no longer manufactures a default route, and unobserved
   fixture cost arithmetic is not presented as a dollar price in the UI.
 - The guarded `RouteCompositionAgent` composes direct, one-stop, and two-stop
@@ -81,8 +90,9 @@ Build routes currently include:
 - Booking handoff links are external deep links, not provider-confirmed inventory.
 - Remote Unsplash media now degrades once to bundled Wild Route artwork and the
   failure path is covered in Chromium.
-- There is no live model or commercial price provider enabled yet; the guarded
-  adapter seams are present and deterministic fixtures remain the default.
+- There is no live model or commercial price provider enabled; a Skyscanner
+  endpoint is separately gated and unverified, and deterministic route fixtures
+  remain the default.
 - Automated keyboard order, active reduced motion, axe scans, and media failure
   behavior are covered; manual screen-reader and broader multi-browser QA remain.
 
@@ -443,3 +453,157 @@ Tests to add:
 Verification:
 Risk:
 ```
+
+## Interview Demo Simplification — 2026-11-05
+
+Phase: 8 (polish and launch prep). Primary skill: `nextjs-travel-ui`;
+support: `travel-product-guardrails` and `impeccable` distillation.
+
+The presentation path is overview → planner → demo access → save/share → external
+flight search. The homepage uses bundled destination examples rather than running
+a generation and weather requests on every visit. Repeated workflow/metrics/story
+sections, newsletter signup, header status copy, and the duplicate planner CTA
+have been removed from the presentation surface.
+
+The empty planner opens its brief, disables empty submissions, keeps preference
+edits when collapsed, and puts optional settings behind a disclosure. Weather is
+removed from the planner's decision surface. The interactive globe is the route
+overview when available, with the ordered journey as a resilient fallback.
+Public-share pages offer only flight search, keeping save/publish controls in the
+private planner. Route reasoning, source attribution, data freshness,
+assumptions, app confidence, and price boundaries remain available.
+External handoff returns a visible provider link rather than relying on an async
+popup. Demo access uses a unique server-generated session identity without asking for an email.
+Saved routes use a simple reading layout. Demo accounts expose only local saves,
+shared previews, and sign-out; unavailable account features live in a disclosure.
+
+Paid-plan controls and the checkout/portal endpoints are disabled in demo mode.
+Managed-account billing UI and API routes also require
+`BILLING_UI_ENABLED=true` after completing `docs/STRIPE_TEST_MODE_QA.md`;
+credentials alone do not enable billing. Existing server billing security and
+entitlement rules remain in place. No live AI generation or in-app provider
+inventory is claimed; Google Flights remains an external handoff.
+
+Acceptance: no empty-route dead end, no lost preference edits, no billing action
+in demo mode, clear local-save boundaries, responsive layouts, and a verified
+plan/save/share/handoff journey. Verification: unit tests, lint, production build,
+and Chromium accessibility, responsive, media fallback, and journey tests.
+
+Verified locally for this pass: 105 unit tests in 24 files; 24 Chromium browser
+tests; ESLint; production build including TypeScript checks. Regression coverage
+also verifies that guests start with an empty planner instead of reusing another
+anonymous visitor's process-memory generation. Demo remains a portfolio preview:
+local saves, curated/fixture route data, and external provider confirmation.
+
+Double-check follow-up (2026-11-05): demo session identities are unique and
+server-generated, preventing shared process-memory history across visitors. Demo
+redirects are restricted to app destinations. Save/share/handoff requests time out
+and missing share/provider links show a controlled error instead of success.
+Follow-up verification: 109 unit tests in 26 files, 24 Chromium tests, ESLint,
+and the production build including TypeScript validation all pass. For an
+interview walkthrough, explore the demo before planning, then compare, save,
+publish, and follow the external flight-search link.
+
+### Globe restored — 2026-11-06
+
+The interactive route globe is restored in the planner following user feedback.
+The ordered journey view remains visible when WebGL is unavailable or the globe
+times out. The current globe still depends on externally hosted earth textures.
+A focused fallback test and a local browser check cover the change; this does not
+constitute a fresh full-suite or deployed verification.
+
+## Phase 6 task: Skyscanner flight search — 2026-11-06
+
+Primary skill: `route-generation-ai`; support: `travel-product-guardrails` and
+`security-review-travel`. The user selected Skyscanner. Build an opt-in server-only
+flight search for explicitly dated itinerary legs, separate from fixture route and
+stay estimates. Skyscanner returns complete-itinerary prices, not per-leg or
+flight-plus-hotel totals; never distribute those prices across fixture lines or
+mark stays as provider observed. Include all booking links for a multi-ticket
+option and a transfer warning; bookings happen on external sites.
+
+The integration is off unless credentials and an explicit server flag are set.
+Access is limited to managed authenticated users, requests are schema validated,
+rate limited, timeout bounded, and provider results are sanitized and not logged
+or persisted. Tests mock provider traffic; no live calls occur in tests or CI.
+Skyscanner access is partner-approved and must be obtained by the user. The
+existing in-process rate limiter is not a distributed production spending control;
+production activation requires a distributed quota and partner approval. Missing
+credentials, missing leg dates, incomplete provider results, and failures must
+produce explicit states, never invented prices. This is a Phase 6 integration,
+not a claim that the overall Phase 6 or production gate is complete.
+
+Implementation notes: `app/api/flights/search` accepts 1–4 contiguous, dated
+three-letter city/airport legs and requires a managed Supabase session, but it is
+not connected to the planner UI. Current route actions use a Google Flights
+handoff and do not request inventory. After the server flag and partner key are
+configured, API callers must submit explicit codes and dates; the adapter uses
+one adult, economy, Singapore market, and USD. Quotes are returned only as
+complete-itinerary flight prices with links for all bookings; they are not added
+to route snapshots or shown as total trip prices. Partial searches are labeled
+and no result is promised to remain available. The provider adapter uses the
+create/poll API, bounds polling and timeouts, validates provider data, and only
+accepts HTTPS `agw.skyscnr.com` booking links. Unknown link hosts are discarded
+pending partner verification.
+
+Skyscanner's published Travel API eligibility requires a commercial business and
+at least 100,000 monthly active users. As of 2026-11-06, that is a likely blocker
+for an individual portfolio project. No partner credentials or real responses
+were available for verification. Activation requires approved access, setting
+`SKYSCANNER_API_KEY` privately and `SKYSCANNER_ENABLED=true` on the server, a
+managed account, and production-grade distributed quota controls. Do not paste
+keys into chat or commit them. Partner activation and any billing are user-owned.
+Source: https://www.partners.skyscanner.net/contact/travel-api
+
+Verification: 121 unit tests (31 files), including nine new mocked provider/API/UI
+tests; ESLint; TypeScript; and an isolated production build passed. A local browser
+check confirmed the disconnected state. No Skyscanner requests were made.
+
+### Provider access follow-up
+
+Skyscanner's published 100,000 monthly-active-user threshold makes partner access
+unlikely for this portfolio project. User asked to find a Google Flights GitHub
+solution. Research on 2026-11-06 found:
+
+- SerpApi's maintained Google Flights integration supports multi-city via
+  `multi_city_json`, with a staged `departure_token` flow for selecting each leg
+  and a `booking_token` flow for booking options. The vendor's GitHub repository
+  is https://github.com/serpapi/google-flights-scraper and documentation is
+  https://serpapi.com/google-flights-api. As published, the free plan allows
+  250 searches per month, and the Starter plan is $25/month for 1,000 searches:
+  https://serpapi.com/pricing. A complete multi-city selection can take multiple
+  searches, so do not present the free quota as 250 full trip bookings.
+- SerpApi is a third-party hosted scraper, not an official Google API. Route/date
+  searches are transmitted to SerpApi; its documentation says ZeroTrace is
+  Enterprise-only. Review retention and terms before using real user itineraries.
+- https://github.com/punitarani/fli provides a JavaScript port and free
+  self-hosted parsing, but its own current README says multi-city search and
+  booking-option retrieval are unavailable due to Google changes. It is not an
+  adequate replacement for Wild Route's central multi-stop use case.
+
+No Google Flights data API has been integrated or live-tested. The planner now
+builds a route-prefilled Google Flights handoff; Google owns dates, inventory,
+prices, and booking. The optional Skyscanner API adapter remains disabled.
+Mocked provider tests are not evidence of live provider access.
+
+
+### Route-based flight search simplification — 2026-11-06
+
+For the interview demo, the user chose a direct link to Google Flights using the
+selected route stops. The planner does not display in-app flight inventory.
+Google owns date selection, flight availability, prices, and booking.
+The multi-city `tfs` link was checked in a browser with multiple route options;
+the selected origin, intermediate stops, and return destination appeared in
+Google Flights. Google supplied suggested dates, which still require user review.
+
+### Interview demo verification — 2026-11-06
+
+The sign-in screen now keeps the local demo entry available when managed auth is
+not configured, so the plan/save/share handoff is reachable without fake account
+credentials. OAuth buttons appear only for providers listed in
+`AUTH_OAUTH_PROVIDERS`. Checkout and billing portal APIs fail closed unless
+`BILLING_UI_ENABLED=true`, just like their UI controls. Final local verification
+passed: 123 unit tests, 27 Chromium tests, migration verification for 8 files,
+ESLint, and a production build with type validation. The main browser journey
+covers planning, comparing, saving, publishing, public preview, and the external
+flight handoff.

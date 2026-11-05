@@ -228,8 +228,8 @@ Deliverables:
 Current progress:
 - provider contract and deterministic fixture adapter implemented
 - runtime Supabase destination provider with validated rows and disclosed fallback implemented
-- homepage and planner share the route data pipeline; the planner no longer manufactures an initial demo result
-- source-attributed current conditions are available through a normalized Open-Meteo boundary
+- planner route generation uses the normalized route data pipeline; the homepage now shows clearly labeled bundled destination examples
+- the Open-Meteo adapter remains available, but current conditions are not shown in the interview homepage or planner
 - unobserved fixture cost arithmetic is hidden from user-facing price labels
 - provider mode, status, freshness, latency, fallback, and assumptions exposed
 - malformed/unavailable providers degrade to disclosed fixture data

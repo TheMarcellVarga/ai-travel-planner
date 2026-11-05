@@ -140,8 +140,10 @@ ai-dev/skills/          Repo-local AI work-routing skills
 ### Flight offers (Phase 6, opt-in)
 
 An authenticated, explicitly requested `/api/flights/search` calls a server-only
-Skyscanner adapter using user-confirmed codes and dates. Its sanitized flight-only
-response is ephemeral and separate from persisted generation and fixture cost
-snapshots; all booking actions remain external. The adapter is disabled by default
-pending partner approval and real-response verification. Its current rate limit is
-process-local and must be replaced by shared quota enforcement before production.
+Skyscanner adapter using submitted codes and dates. The interview planner uses a
+route-prefilled Google Flights link instead; it does not fetch or show flight
+inventory. The adapter's sanitized flight-only response is ephemeral and separate
+from persisted generation and fixture cost snapshots; all booking actions remain
+external. The adapter is disabled by default pending partner approval and
+real-response verification. Its current rate limit is process-local and must be
+replaced by shared quota enforcement before production.

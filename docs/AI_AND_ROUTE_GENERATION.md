@@ -86,9 +86,9 @@ The canonical definitions currently live in `lib/types.ts`.
 - MapLibre is an optional renderer selected by a public style URL. The SVG
   route map remains the accessible and no-WebGL fallback; map tile usage and
   attribution remain the responsibility of the configured tile provider.
-- Homepage and planner destination views request normalized current conditions
-  from Open-Meteo. The UI shows observation time and source and explicitly keeps
-  weather outside route safety and feasibility scoring.
+- An Open-Meteo adapter and `/api/weather/current` endpoint remain available,
+  but the interview homepage and planner do not request or display current
+  conditions. Weather does not influence route scoring or safety claims.
 
 ## Feature Flags
 - `ROUTE_AGENT_MODE=deterministic|model` (model currently records a guarded
@@ -168,8 +168,9 @@ ready for those adapters without changing the UI or persistence boundary.
 ## Skyscanner flight-only search (in progress)
 
 The opt-in `/api/flights/search` is separate from route scoring and cost
-snapshots. It requires a managed authenticated session and validates explicitly
-entered, contiguous dated airport/city codes. When configured, the server calls
+snapshots and is not connected to the planner UI. It requires a managed
+authenticated session and validates explicitly submitted, contiguous dated
+airport/city codes. When configured, the server calls
 Skyscanner Live Prices create/poll and returns sanitized flight-only itinerary
 prices, partial/complete status, observation time, transfer type, and booking
 links. It does not store provider payloads or blend flight offers with fixture

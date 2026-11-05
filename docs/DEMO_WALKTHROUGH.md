@@ -16,8 +16,8 @@ Say:
 > planning support, not a booking engine; estimates and app confidence are not
 > confirmed provider inventory.
 
-Point out the adventure/editorial direction and the immediate route-composition
-CTA.
+Point out the adventure/editorial direction, bundled destination examples, and
+the clear planner CTA.
 
 ### 0:40 — Compose And Compare
 
@@ -30,40 +30,42 @@ Keep **balanced** budget and **1 stop**, then select **Compose new routes**.
 
 Show:
 
+- the **Demo data** pill and its route-data disclosure
 - typed practical constraints and ranked alternatives
-- route reasoning, estimated cost, and app-defined confidence
+- route reasoning, data sources, cost status, and app-defined confidence
 - exactly one promoted stop on the Free entitlement
 - visible fixture/freshness and external-inventory boundaries
-- the 2D route fallback, which keeps the planner usable without WebGL
+- the interactive route globe and ordered fallback, which keeps the planner
+  usable without WebGL
 
 ### 2:00 — Save, Publish, And Hand Off
 
-Open `/auth` and enter demo mode with the prefilled address. Return to the
+Open `/auth` and select **Explore demo**. No email is required. Return to the
 planner, then:
 
 1. Save the selected route.
 2. Publish it.
 3. Open the generated `/share/[slug]` page.
-4. Trigger the booking handoff while explaining that the provider owns final
-   price and availability.
+4. Follow the route-prefilled Google Flights link while explaining that Google
+   owns dates, inventory, final price, and availability.
 
-Call out that demo routes use non-durable per-instance memory. The same API
-surface uses Supabase ownership and RLS when the managed environment is
-configured.
+Call out that saved demo routes stay in the current browser, while shared
+previews are stateless links. Managed accounts use Supabase ownership and RLS
+when the configured environment is available.
 
 ### 3:30 — Show Product Depth
 
 Open `/saved` to show the private route vault and public share link. Open
-`/account` to show plan limits, managed-profile boundaries, billing state, and
-data lifecycle controls.
+`/account` to show that profiles, cloud sync, and billing are unavailable in
+demo mode. Managed accounts expose the profile and data lifecycle controls.
 
 Briefly explain:
 
 - same-origin server handlers keep service and billing secrets out of clients
 - public shares are server-read and reduced to an allowlisted snapshot
 - Stripe webhooks use signature verification and a replay-safe event ledger
-- automated checks cover route rules, ownership, golden path, accessibility,
-  keyboard order, reduced motion, and failed media
+- automated checks cover route rules, ownership, golden path, route details,
+  accessibility, keyboard order, reduced motion, and failed media
 
 ### 4:40 — Close With The Trade-off
 

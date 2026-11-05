@@ -315,3 +315,18 @@ found. Visually reviewed production screenshots for mobile comparison,
 destinations, scroll story, saved routes, account, and public share. No further
 UI fixes were needed. This recheck used Chromium with fixture destination/media
 providers; physical-device and Safari verification remain unperformed.
+
+## Interview Demo Pass
+
+Date: 2026-11-06
+
+Automated Chromium verification passed 27 tests. The updated checks cover the
+demo entry, planning and route comparison, route reasoning, source credits,
+planning-estimate boundaries, Google Flights handoff, saved previews, disabled
+demo billing, keyboard order, reduced motion, and responsive layouts. The final
+unit suite passed 123 tests, migration verification covered 8 files, ESLint
+passed, and the production build completed with type validation.
+
+No live flight-provider requests were made. Google Flights owns flight dates,
+inventory, prices, and booking; the optional Skyscanner endpoint remains disabled
+and unverified. Manual screen-reader and non-Chromium coverage remain open.

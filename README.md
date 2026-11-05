@@ -33,7 +33,7 @@ feasibility.
 - Server-enforced generation, saved-route, and promoted-stop entitlements
 - Supabase Auth, Postgres migrations, and owner-scoped RLS policies
 - Durable generation, save, publish, public share, handoff, profile, export, and deletion paths when Supabase is configured
-- Stripe checkout, billing portal, signature-verified webhook handling, and entitlement synchronization
+- Stripe checkout, billing portal, signature-verified webhook handling, and entitlement synchronization; billing controls and APIs are disabled by default pending live test-mode QA
 - Safe public route snapshots that omit owner, generation, booking-link, and provider-internal fields
 - Deterministic fallback mode for local product exploration without paid or hosted services
 - Automated coverage for route generation, API validation, ownership, public-share hardening, billing, webhooks, health checks, profiles, and planner persistence
@@ -45,11 +45,12 @@ feasibility.
 | Route interpretation and ranking | Real deterministic TypeScript logic using local destination fixtures |
 | Price and confidence | Wild Route planning estimates, not provider-confirmed inventory |
 | Booking links | Real external searches; the provider owns final price and availability |
-| Supabase auth and persistence | Implemented and environment-gated; local demo mode uses process memory |
-| Public shares | Durable with Supabase; session-local in demo mode |
-| Stripe billing | Implemented with automated route/webhook tests; live test-mode execution is not yet recorded in this repository |
+| Supabase auth and persistence | Managed path is implemented and environment-gated; demo saves stay in this browser and preview shares are stateless |
+| Public shares | Durable with Supabase; validated stateless previews in demo mode |
+| Flight search | Selected routes open a route-prefilled Google Flights search; dates, inventory, prices, and booking remain with Google |
+| Stripe billing | UI and checkout/portal APIs are disabled by default; live test-mode execution is not yet recorded in this repository |
 | Email | Optional Resend-compatible delivery with graceful fallback |
-| Live travel providers | Not implemented; adapter and freshness hardening are planned |
+| Live travel inventory | Not enabled; the optional Skyscanner adapter is disabled and has no verified partner responses |
 | Live AI model | Not implemented; deterministic behavior remains the tested default |
 | Deployment | [Live transparent demo](https://ai-travel-planner-psi-five.vercel.app); managed services are disabled and unverified |
 
@@ -124,7 +125,8 @@ npm run dev
 ```
 
 Open `http://localhost:3000`. The product remains explorable without hosted
-services; use demo mode for session-local save and share behavior.
+services; choose **Explore demo** on `/auth` for browser-local saves and
+stateless public previews.
 
 To exercise managed persistence and billing, configure the relevant values in
 `.env.local`:
@@ -135,18 +137,20 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+AUTH_OAUTH_PROVIDERS=
 
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRO_PRICE_ID=
+BILLING_UI_ENABLED=false
 
 RESEND_API_KEY=
 EMAIL_FROM=
 ```
 
 Apply the SQL files in [supabase/migrations](supabase/migrations) in
-chronological order. Supabase OAuth providers and Stripe webhook delivery also
-require configuration in their respective dashboards.
+chronological order. Set `AUTH_OAUTH_PROVIDERS` only to providers configured in
+Supabase. Keep billing disabled until the Stripe test-mode checklist passes.
 
 ## Quality Checks
 
@@ -160,13 +164,13 @@ npm run build
 npm audit --omit=dev
 ```
 
-Baseline verified on 2026-08-01:
+Baseline verified locally on 2026-11-06:
 
-- 16 Vitest files and 74 passing tests
-- 15 passing Chromium accessibility, golden-path, and media-failure tests
-- 5 statically verified Supabase migration files
-- successful Next.js 15.5.22 production build
-- zero known production dependency vulnerabilities in `npm audit --omit=dev`
+- 31 Vitest files and 123 passing tests
+- 27 passing Chromium accessibility, golden-path, responsive, and media-failure tests
+- 8 statically verified Supabase migration files
+- ESLint and the Next.js 15.5.22 production build with type validation
+- `npm audit --omit=dev` was last checked on 2026-08-22 with zero known vulnerabilities
 
 Live Stripe checkout and portal verification follows the
 [Stripe test-mode QA checklist](docs/STRIPE_TEST_MODE_QA.md).
@@ -188,6 +192,8 @@ Live Stripe checkout and portal verification follows the
 
 - Destination metadata and route scoring are fixture-backed.
 - There is no provider-confirmed flight, stay, weather, map, or advisory data.
+- Google Flights handoff opens an external route search; no flight results are shown inside Wild Route.
+- Skyscanner search remains server-only, disabled by default, and unverified against partner data.
 - Demo authentication is not a managed account; saved routes are browser-local
   and preview shares are stateless rather than owner-managed records.
 - Newsletter signup preferences use demo memory; email delivery is optional and
