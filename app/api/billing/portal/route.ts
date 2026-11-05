@@ -7,6 +7,13 @@ import { env } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST() {
+  if (process.env.BILLING_UI_ENABLED !== "true") {
+    return NextResponse.json(
+      { error: "Billing is disabled in this preview." },
+      { status: 503 }
+    );
+  }
+
   const user = await getCurrentUser();
   if (!user || user.authMode !== "supabase") {
     return NextResponse.json(

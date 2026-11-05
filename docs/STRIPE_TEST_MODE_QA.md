@@ -24,9 +24,12 @@ SUPABASE_SERVICE_ROLE_KEY=...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRO_PRICE_ID=price_...
+BILLING_UI_ENABLED=true
 ```
 
-Use a Stripe test-mode recurring price for `STRIPE_PRO_PRICE_ID`.
+Use a Stripe test-mode recurring price for `STRIPE_PRO_PRICE_ID`. Keep
+`BILLING_UI_ENABLED=false` everywhere until this checklist passes; the flag gates
+both account controls and the checkout/portal API routes.
 
 ## Local Webhook Setup
 Use the Stripe CLI to forward events:

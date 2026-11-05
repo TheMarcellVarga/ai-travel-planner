@@ -90,31 +90,7 @@ export async function getEntitlementForUser(
 export async function ensureEntitlementForUser(
   supabase: SupabaseClient,
   userId: string,
-  billingEmail?: string | null
+  _billingEmail?: string | null
 ): Promise<Entitlement> {
-  const existing = await getEntitlementForUser(supabase, userId);
-  if (existing.stripeCustomerId || existing.billingEmail || existing.plan !== "free") {
-    return existing;
-  }
-
-  const defaults = getEntitlementShape("free");
-  const { data } = await supabase
-    .from("entitlements")
-    .upsert(
-      {
-        user_id: userId,
-        plan: defaults.plan,
-        promoted_stop_limit: defaults.promotedStopLimit,
-        route_save_limit: defaults.routeSaveLimit,
-        generation_limit: defaults.generationLimit,
-        billing_email: billingEmail ?? null
-      },
-      { onConflict: "user_id" }
-    )
-    .select(
-      "user_id, plan, promoted_stop_limit, route_save_limit, generation_limit, billing_email, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end"
-    )
-    .single<EntitlementRow>();
-
-  return mapEntitlementRow(data);
+  return getEntitlementForUser(supabase, userId);
 }

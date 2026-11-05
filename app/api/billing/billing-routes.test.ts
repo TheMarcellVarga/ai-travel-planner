@@ -7,6 +7,7 @@ import {
 import { getCurrentUser } from "@/lib/auth";
 import { getStripe } from "@/lib/billing/stripe";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 vi.mock("@/lib/auth", () => ({
   getCurrentUser: vi.fn()
@@ -19,6 +20,7 @@ vi.mock("@/lib/billing/stripe", () => ({
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn()
 }));
+vi.mock("@/lib/supabase/admin", () => ({ createSupabaseAdminClient: vi.fn() }));
 
 vi.mock("@/lib/account/entitlements", async () => {
   const actual = await vi.importActual<typeof import("@/lib/account/entitlements")>(
@@ -61,13 +63,33 @@ function createSupabaseMock() {
 describe("billing API routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("BILLING_UI_ENABLED", "true");
     vi.mocked(getCurrentUser).mockResolvedValue(null);
     vi.mocked(getStripe).mockReturnValue(null);
     vi.mocked(createSupabaseServerClient).mockResolvedValue(null);
+    vi.mocked(createSupabaseAdminClient).mockReturnValue(createSupabaseMock().client as never);
     vi.mocked(ensureEntitlementForUser).mockResolvedValue(FREE_ENTITLEMENT);
   });
 
   describe("checkout", () => {
+    it("keeps checkout disabled unless the feature flag is explicitly enabled", async () => {
+      vi.stubEnv("BILLING_UI_ENABLED", "false");
+      const { POST } = await import("@/app/api/billing/checkout/route");
+      const response = await POST();
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({ error: "Billing is disabled in this preview." });
+      expect(getCurrentUser).not.toHaveBeenCalled();
+      expect(getStripe).not.toHaveBeenCalled();
+    });
+
+    it("does not start checkout without a privileged server client", async () => {
+      vi.mocked(getCurrentUser).mockResolvedValue(supabaseUser);
+      vi.mocked(getStripe).mockReturnValue({} as never);
+      vi.mocked(createSupabaseServerClient).mockResolvedValue(createSupabaseMock().client as never);
+      vi.mocked(createSupabaseAdminClient).mockReturnValue(null);
+      const { POST } = await import("@/app/api/billing/checkout/route");
+      expect((await POST()).status).toBe(503);
+    });
     it("requires a Supabase-authenticated user", async () => {
       const { POST } = await import("@/app/api/billing/checkout/route");
       const response = await POST();
@@ -100,6 +122,7 @@ describe("billing API routes", () => {
         checkout: { sessions: { create: sessionsCreate } }
       };
       const supabase = createSupabaseMock();
+      vi.mocked(createSupabaseAdminClient).mockReturnValue(supabase.client as never);
 
       vi.mocked(getCurrentUser).mockResolvedValue(supabaseUser);
       vi.mocked(getStripe).mockReturnValue(stripe as never);
@@ -150,6 +173,7 @@ describe("billing API routes", () => {
         checkout: { sessions: { create: sessionsCreate } }
       };
       const supabase = createSupabaseMock();
+      vi.mocked(createSupabaseAdminClient).mockReturnValue(supabase.client as never);
 
       vi.mocked(getCurrentUser).mockResolvedValue(supabaseUser);
       vi.mocked(getStripe).mockReturnValue(stripe as never);
@@ -181,6 +205,16 @@ describe("billing API routes", () => {
   });
 
   describe("portal", () => {
+    it("keeps the portal disabled unless the feature flag is explicitly enabled", async () => {
+      vi.stubEnv("BILLING_UI_ENABLED", "false");
+      const { POST } = await import("@/app/api/billing/portal/route");
+      const response = await POST();
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({ error: "Billing is disabled in this preview." });
+      expect(getCurrentUser).not.toHaveBeenCalled();
+      expect(getStripe).not.toHaveBeenCalled();
+    });
+
     it("requires a Supabase-authenticated user", async () => {
       const { POST } = await import("@/app/api/billing/portal/route");
       const response = await POST();

@@ -18,26 +18,25 @@ export function BillingActions({
     startTransition(async () => {
       setErrorMessage(null);
 
-      const response = await fetch(path, { method: "POST" });
-      const payload = await response.json();
-
-      if (!response.ok) {
-        setErrorMessage(payload.error ?? "Billing is unavailable.");
-        return;
-      }
-
-      if (payload.url) {
+      try {
+        const response = await fetch(path, { method: "POST" });
+        const payload = await response.json();
+        if (!response.ok || !payload.url) {
+          setErrorMessage(payload.error ?? "Billing is unavailable. Try again later.");
+          return;
+        }
         window.location.assign(payload.url);
+      } catch {
+        setErrorMessage("Could not connect to billing. Try again later.");
       }
     });
   }
 
   if (!hasBilling) {
     return (
-      <p className="muted-copy">
-        Add `STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, and `STRIPE_WEBHOOK_SECRET`
-        to activate paid plans.
-      </p>
+      <div className="button-row">
+        <button className="button button-ghost" disabled type="button">Paid plans unavailable</button>
+      </div>
     );
   }
 

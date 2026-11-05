@@ -10,6 +10,8 @@ Supabase Postgres is the relational system of record. SQL migrations live in `su
 - `20260727_public_share_boundary.sql`
 - `20260731161920_stripe_webhook_idempotency.sql`
 - `20260822081641_route_agent_runs_and_destination_media.sql`
+- `20261105180559_secure_entitlements.sql`
+- `20261105182145_lock_profile_trigger_search_path.sql`
 
 ## Core Tables
 
@@ -30,6 +32,7 @@ Expected fields:
 Rules:
 - Server code must enforce these limits.
 - Stripe webhook is the trusted source for subscription updates.
+- Users may read only their own entitlements; plan and billing writes require the server-only service role. A missing row uses the free-plan defaults.
 
 ### `profiles`
 Purpose: account identity and travel preferences.

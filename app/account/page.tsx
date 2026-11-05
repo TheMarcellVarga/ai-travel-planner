@@ -23,7 +23,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         <section className="page-panel auth-panel">
           <div className="section-heading">
             <p className="eyebrow">Account</p>
-            <h1>Sign in to manage your billing, saved routes, and subscription.</h1>
+            <h1>Your routes, in one place.</h1>
           </div>
           <div className="button-row" style={{ marginTop: "24px" }}>
             <Link href="/auth" className="button">
@@ -33,6 +33,31 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               Back To Planner
             </Link>
           </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (user.authMode === "demo") {
+    return (
+      <main className="shell auth-shell">
+        <section className="page-panel auth-panel demo-account">
+          <div className="section-heading">
+            <h1>Your demo workspace.</h1>
+            <p className="lede">Saved routes stay in this browser. Share links show a public route preview.</p>
+          </div>
+          <div className="button-row">
+            <Link href="/saved" className="button">View saved routes</Link>
+            <Link href="/planner" className="button button-ghost">Plan a route</Link>
+            <form action="/api/auth/signout" method="post">
+              <button className="button button-ghost" type="submit">Sign Out</button>
+            </form>
+          </div>
+          <details className="demo-account__features">
+            <summary>Account features</summary>
+            <p className="muted-copy">Profiles, cloud sync, and billing are unavailable in demo mode.</p>
+            <BillingActions hasBilling={false} canManage={false} />
+          </details>
         </section>
       </main>
     );
@@ -93,7 +118,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               <p className="eyebrow">Account profile</p>
               <h2>Identity and travel defaults</h2>
               <p className="muted-copy">
-                This is the durable account layer for saved routes, notifications, and future trip personalization.
+                Update your details and travel preferences.
               </p>
               <form action="/api/account/profile" className="auth-form" method="post">
                 <label className="field">
@@ -187,7 +212,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
             <p className="muted-copy">
               Period end: {user.entitlement.currentPeriodEnd ?? "n/a"}
             </p>
-            <BillingActions hasBilling={hasStripeEnv} canManage={hasPortal} />
+            <BillingActions hasBilling={hasStripeEnv && process.env.BILLING_UI_ENABLED === "true"} canManage={hasPortal} />
           </article>
         </div>
 

@@ -8,8 +8,16 @@ import { getCurrentUser } from "@/lib/auth";
 import { getStripe } from "@/lib/billing/stripe";
 import { env } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST() {
+  if (process.env.BILLING_UI_ENABLED !== "true") {
+    return NextResponse.json(
+      { error: "Billing is disabled in this preview." },
+      { status: 503 }
+    );
+  }
+
   const user = await getCurrentUser();
   if (!user || user.authMode !== "supabase") {
     return NextResponse.json(
@@ -20,8 +28,9 @@ export async function POST() {
 
   const stripe = getStripe();
   const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
 
-  if (!stripe || !supabase) {
+  if (!stripe || !supabase || !admin) {
     return NextResponse.json(
       { error: "Stripe is not configured yet." },
       { status: 503 }
@@ -47,7 +56,7 @@ export async function POST() {
     customerId = customer.id;
 
     const entitlementShape = getEntitlementShape(entitlement.plan);
-    await supabase.from("entitlements").upsert(
+    const { error } = await admin.from("entitlements").upsert(
       {
         user_id: user.id,
         plan: entitlement.plan,
@@ -59,6 +68,9 @@ export async function POST() {
       },
       { onConflict: "user_id" }
     );
+    if (error) {
+      return NextResponse.json({ error: "Could not save billing details." }, { status: 503 });
+    }
   }
 
   const session = await stripe.checkout.sessions.create({
