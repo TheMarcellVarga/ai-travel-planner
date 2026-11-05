@@ -33,7 +33,6 @@ export default async function SavedPage() {
         </div>
         <div className="planner-stage-header">
           <div className="planner-stage-title">
-            <p className="eyebrow">Saved routes</p>
             <h1>
               Save the routes worth returning to.
             </h1>
@@ -84,25 +83,26 @@ export default async function SavedPage() {
 
       <div className="planner-stage-header">
         <div className="planner-stage-title">
-          <p className="eyebrow">Saved route vault</p>
           <h1>
             {user.authMode === "demo"
-              ? "Browser-local demo vault."
-              : `${savedRoutes.length} route files in the vault.`}
+              ? "Your saved routes."
+              : `${savedRoutes.length} saved routes.`}
           </h1>
         </div>
-        <div className="planner-stage-badges">
-          <span className="status-pill">
-            {user.authMode === "demo" ? "This device only" : `Plan: ${user.entitlement.routeSaveLimit} routes, ${user.entitlement.promotedStopLimit} promoted`}
-          </span>
-        </div>
+        <p className="vault-storage-note">
+          {user.authMode === "demo"
+            ? "Saved on this device"
+            : `Your plan allows ${user.entitlement.routeSaveLimit} saved routes.`}
+        </p>
+        <Link href="/planner" className="button button-island vault-plan-action">
+          Plan a route
+        </Link>
       </div>
 
       <aside className="floating-sidebar floating-sidebar-left vault-panel vault-panel-left">
         <div className="floating-sidebar__inner vault-panel__inner">
           <div className="floating-sidebar__header">
-            <p className="eyebrow">Saved routes</p>
-            <h2>Private route stack</h2>
+            <h2>Saved routes</h2>
           </div>
 
           <div className="stop-stack vault-card-stack">
@@ -136,17 +136,13 @@ export default async function SavedPage() {
               </p>
             )}
           </div>
-          <Link href="/planner" className="button button-ghost layout-fill vault-panel__footer-action">
-            Generate more
-          </Link>
         </div>
       </aside>
 
       <aside className="floating-sidebar floating-sidebar-right vault-panel vault-panel-right">
         <div className="floating-sidebar__inner vault-panel__inner">
           <div className="floating-sidebar__header">
-            <p className="eyebrow">Public shares</p>
-            <h2>Share slugs</h2>
+            <h2>Shared previews</h2>
           </div>
 
           <div className="stop-stack vault-card-stack">
@@ -175,7 +171,7 @@ export default async function SavedPage() {
             ) : (
               <p className="muted-copy">
                 No published pages yet. Publish any route from the planner to
-                create a shareable slug.
+                create a shareable preview.
               </p>
             )}
           </div>

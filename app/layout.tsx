@@ -7,6 +7,7 @@ import { site } from "@/lib/site";
 
 import "./globals.css";
 import "./festival.css";
+import "./presentation.css";
 
 const displayFont = Geist({
   subsets: ["latin"],

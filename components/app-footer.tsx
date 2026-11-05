@@ -1,17 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { NewsletterSignup } from "@/components/newsletter-signup";
-import { getCurrentUser } from "@/lib/auth";
 import { site } from "@/lib/site";
 
-export async function AppFooter() {
-  const user = await getCurrentUser();
+export function AppFooter() {
 
   return (
     <footer className="shell app-footer app-footer--redesign">
-      <NewsletterSignup defaultEmail={user?.email ?? ""} />
-
       <div className="footer-departure">
         <Link className="footer-brand" href="/" aria-label={`${site.name} home`}>
           <Image

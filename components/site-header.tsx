@@ -33,11 +33,6 @@ export async function SiteHeader() {
       </Link>
 
       <div className="site-command">
-        <div className="site-command__signal" aria-hidden="true">
-          <span>planner mode</span>
-          <strong>prompt / score / handoff</strong>
-        </div>
-
         <nav className="site-command__nav" aria-label="Primary">
           {navItems.map((item) => {
             return (
@@ -54,9 +49,6 @@ export async function SiteHeader() {
 
         <div className="site-command__actions">
           <AuthLink user={user} />
-          <Link href="/planner" className="site-command__cta">
-            Compose
-          </Link>
         </div>
       </div>
     </header>
